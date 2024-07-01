@@ -1,0 +1,118 @@
+/* Nav */
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: calc(var(--padding-size-small)  / 1.85) var(--padding-size-small);
+    align-items: center;
+    min-height: calc(var(--font-size-med) * 2.75);
+    font-family: var(--secondary-font);
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.nav__title {
+    position: relative;
+    padding-left: var(--font-size-med);
+    font-size: calc(var(--font-size-med) / 1.075);
+    font-weight: 600;
+}
+
+.nav__location {
+    font-size: calc(var(--font-size-med) * 1.25);
+    text-align: center;
+    font-weight: 600;
+}
+
+.nav__menu-button {
+    justify-self: end;
+    height: calc(var(--font-size-med) * 1.25);
+    aspect-ratio: 1 / 1;
+    background: url(/icons/menu.svg)  no-repeat center / contain;
+    border: none;
+    cursor: pointer;
+}
+
+/* Menu */
+.nav__menu {
+    position: fixed;
+    top: 0;
+    z-index: 999;
+    height: 0;
+    width: 100%;
+    background-color: var(--primary-color);
+    transition: 0.5s;
+    overflow: hidden;
+}
+
+.nav__menu[data-open = "true"] {
+    height: 100dvh;
+}
+
+.nav-menu__button-container {
+    display: flex;
+    justify-content: end;
+}
+
+.nav-menu__cancel {
+    margin: calc(var(--padding-size-small)  / 1.25) var(--padding-size-small);
+    background: url(/icons/cancel.svg)  no-repeat center / contain;
+    opacity: 0;
+    transition-delay: 1s;
+    transition: 0.5s;
+    visibility: hidden;
+}
+
+.nav__menu[data-open = "true"] .nav-menu__cancel {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-menu__link-container {
+    padding: calc(var(--padding-size-small)  / 1.25) var(--padding-size-small);
+    display: flex;
+    gap: calc(var(--padding-size-small) / 1.5);
+    flex-direction: column;
+    list-style: none;
+    font-family: var(--secondary-font);
+    font-size: calc(var(--font-size-large) / 1.5);
+}
+
+.nav-menu__link {
+    position: relative;
+    width: 100%;
+    color: var(--secondary-color);
+    text-decoration: none;
+    
+}
+
+/* Pseudo Element */
+.nav__title::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: var(--font-size-med);
+    aspect-ratio: 1 / 1;
+    background: url(/icons/logo.svg) no-repeat center / contain;
+    content: "";
+    translate: 0 -50%;
+}
+
+.nav-menu__link::before {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 0;
+    background-color: var(--secondary-color);
+    content: "";
+    translate: 0 -50%;
+    transition: 0.50s ease-in-out;
+}
+
+/* Animation */
+.nav-menu__link:hover::before {
+    width: 100%;
+}

@@ -1,0 +1,16 @@
+/* Scorll Bar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #606266;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #33353b;
+}

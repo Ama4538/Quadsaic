@@ -16,6 +16,7 @@ A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, 
 - Tutorial (How play)
 - Themes (Color palettes)
 - JSON With all words
+- Design https://dribbble.com/shots/24442988-ApexPay-Pitchdeck
 
 - Wordle Reimagine 
     - Change amount of letters

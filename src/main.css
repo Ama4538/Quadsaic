@@ -1,0 +1,88 @@
+/* Format
+    - Position / Position Format (Top = right - bot - left)
+    - z index
+    - Displat / Display Format
+    - gap/padding/marging
+    - aligments
+    - size
+    - font
+    - extras
+*/
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+
+/* CSS */
+@import "./components/app/extra.css";
+@import "./components/nav/nav.css";
+
+:root {
+    /* Color */
+    --primary-color: #25292c;
+    --secondary-color: #f5f5f5;
+
+    /* Fonts */
+    --primary-font: "Montserrat", sans-serif;
+    --secondary-font: "Lora", serif;
+
+    /* Font sizes  */
+    --font-size-med: clamp(2rem, max(2rem, 2.5vmax), max(3rem, 3.5vmax));
+    --font-size-large: clamp(5rem, max(6rem, 6.5vmax), max(7rem, 7.5vmax));
+
+    /* Padding/Margin */
+    --padding-size-small: clamp(1rem, max(2rem, 2.5vmax), max(4rem, 5vmax));
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Home */
+/* Header */
+.home__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.home__header-title {
+    position: relative;
+    padding-left: calc(var(--font-size-large) * 1.075);
+    font-family: var(--primary-font);
+    font-size: var(--font-size-large);
+    font-weight: 600;
+}
+
+.home__header-subtitle {
+    font-family: var(--secondary-font);
+    font-size: calc(var(--font-size-med) / 1.025);
+    font-weight: 600;
+    opacity: 0.75;
+}
+
+/* Main */
+.home__main {
+    min-height: 100dvh;
+    background-color: var(--secondary-color);
+}
+/* Pseudo Element */
+.home__header-title::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: calc(var(--font-size-large) * 1.075);
+    aspect-ratio: 1 / 1;
+    background: url(/icons/logo-white.svg) no-repeat center / contain;
+    content: "";
+    translate: 0 -50%;
+}
+
+
+

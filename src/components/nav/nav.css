@@ -10,6 +10,7 @@
     min-height: calc(var(--font-size-med) * 2.75);
     font-family: var(--secondary-font);
     background-color: var(--secondary-color);
+    border-bottom: solid 1px var(--primary-color);
     color: var(--primary-color);
 }
 
@@ -73,8 +74,9 @@
 .nav-menu__link-container {
     padding: calc(var(--padding-size-small)  / 1.25) var(--padding-size-small);
     display: flex;
-    gap: calc(var(--padding-size-small) / 1.5);
     flex-direction: column;
+    gap: calc(var(--padding-size-small) / 1.5);
+    padding-top: var(--padding-size-med);
     list-style: none;
     font-family: var(--secondary-font);
     font-size: calc(var(--font-size-large) / 1.5);

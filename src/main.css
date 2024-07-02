@@ -31,7 +31,8 @@
     --font-size-large: clamp(5rem, max(6rem, 6.5vmax), max(7rem, 7.5vmax));
 
     /* Padding/Margin */
-    --padding-size-small: clamp(1rem, max(2rem, 2.5vmax), max(4rem, 5vmax));
+    --padding-size-small: clamp(1rem, max(2rem, 3vmax), max(4rem, 5vmax));
+    --padding-size-med: clamp(2rem, max(4rem, 5vmax), max(6rem, 7vmax));
 }
 
 * {
@@ -69,9 +70,17 @@
 
 /* Main */
 .home__main {
+    display: flex;
+    flex-direction: column;
     min-height: 100dvh;
     background-color: var(--secondary-color);
 }
+
+.home-main__display-container {
+    display: flex;
+    flex: 1;
+}
+
 /* Pseudo Element */
 .home__header-title::before {
     position: absolute;
@@ -85,4 +94,28 @@
 }
 
 
+/* GameDisplay */
+.gamedisplay__content-display {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr;
+    grid-row: 0.5fr 1fr;
+    flex: 1;
+    padding: calc(var(--padding-size-small)  / 1.25) var(--padding-size-small);;
+    font-family: var(--primary-font);
+    color: var(--primary-color);
+}
 
+.gamedisplay__content-name {
+    font-size: calc(var(--font-size-large) / 1.5);
+    text-align: center;
+}
+
+.gamedisplay__image-container {
+    grid-row: 2;
+}
+
+.gamedisplay__image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}

@@ -81,7 +81,7 @@ A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, 
 Accessible from {REDACTED}
 
 ## Installation
-1. Clone the repository: git clone https://github.com/Ama4538/Personal-PortfolioV2.git
+1. Clone the repository: git clone https://github.com/Ama4538/Quadsaic.git
 2. Install dependencies: npm install
 3. Run built in script: npm run build
 4. Open on localHost: npm run preview

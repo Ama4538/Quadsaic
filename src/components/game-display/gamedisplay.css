@@ -2,17 +2,21 @@
 .gamedisplay__content-display {
     display: grid;
     grid-template-columns: 1fr 0.5fr;
-    min-width: 100dvw;
+    width: 100dvw;
 }
 
 .gamedisplay__image-container {
     position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 .gamedisplay__image {
     height: 100%;
     width: 100%;
     object-fit: cover;
+    transition: 0.35s ease-out;
 }
 
 .gamedisplay__information-container {
@@ -35,14 +39,29 @@
 
 .gamedisplay__description {
     font-size: var(--font-size-small);
-    overflow: auto;
 }
+
+.gamedisplay__link {
+    position: relative;
+    z-index: 1;
+    padding: calc(var(--padding-size-very-small) / 2);
+    margin-top: auto;
+    font-family: var(--secondary-font);
+    font-size: calc(var(--font-size-small) * 1.25);
+    border: solid 1px var(--primary-color);
+    color: var(--primary-color);
+    text-align: center;
+    text-decoration: none;   
+    transition: 0.30s ease-out;
+}
+
 
 /* Pseudo Element */
 .gamedisplay__image-container::before {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1;
     height: 100%;
     width: 100%;
     background: radial-gradient(circle,
@@ -50,4 +69,29 @@
             rgba(0, 0, 0, 0.2),
             rgba(0, 0, 0, 0.4));
     content: "";
+}
+
+.gamedisplay__link::before {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    height: 0;
+    width: 100%;
+    background: var(--primary-color);
+    content: "";
+    transition: inherit;
+}
+
+/* Animation */
+.gamedisplay__link:hover {
+    color: var(--secondary-color);
+}
+
+.gamedisplay__link:hover::before {
+    height: 100%;
+}
+
+.gamedisplay__image-container:hover .gamedisplay__image {
+    scale: 1.025;
 }

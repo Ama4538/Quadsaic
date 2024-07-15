@@ -18,19 +18,19 @@ const Home = () => {
     const gameDisplay = [
         {
             name: "Wordle",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
+            description: " Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
         },
         {
             name: "Word Search",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
+            description: " Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
         },
         {
             name: "Sudoku",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
+            description: " Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
         },
         {
             name: "2048",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
+            description: " Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
         }
     ]
 
@@ -114,7 +114,6 @@ const Home = () => {
             </header>
             <main className="home__main">
                 <Nav />
-
                 <motion.section
                     className="home__display"
                 >
@@ -135,10 +134,7 @@ const Home = () => {
                             />
                         ))}
                     </motion.div>
-
-
                 </motion.section>
-
                 <div className="home__button-container">
                     <button
                         className="home__page-button"

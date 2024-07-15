@@ -15,6 +15,7 @@
 
 /* CSS */
 @import "./components/app/extra.css";
+@import "./page/home/home.css";
 @import "./components/nav/nav.css";
 @import "./components/game-display/gamedisplay.css";
 
@@ -42,101 +43,4 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-}
-
-/* Home */
-/* Header */
-.home__header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100dvh;
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-}
-
-.home__header-title-container {
-    position: relative;
-    padding-left: calc(var(--font-size-large) * 1.075);
-    display: flex;
-}
-
-.home__header-title {
-    font-family: var(--primary-font);
-    font-size: var(--font-size-large);
-    font-weight: 600;
-}
-
-.home__header-subtitle-container {
-    display: flex;
-    overflow: hidden;
-}
-
-.home__header-subtitle {
-    font-family: var(--secondary-font);
-    font-size: var(--font-size-med);
-    font-weight: 600;
-}
-
-.home__main {
-    display: flex;
-    flex-direction: column;
-    max-height: 100dvh;
-    background-color: var(--secondary-color);
-}
-
-.home__display {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-}
-
-.home_display-inner {
-    display: flex;
-}
-
-.home__button-container {
-    display: flex;
-    border-top: solid 1px var(--primary-color);
-}
-
-.home__page-button {
-    padding: calc(var(--padding-size-small) / 1.35) 0;
-    width: 50%;
-    border: none;
-    cursor: pointer;
-    transition: 0.35s ease-in-out;
-}
-
-.home__button-container .home__page-button:nth-child(1) {
-    background: url(/icons/arrow-left.svg) no-repeat center / contain;
-}
-
-.home__button-container .home__page-button:nth-child(2) {
-    background: url(/icons/arrow-right.svg) no-repeat center / contain;
-    border-left: solid 1px var(--primary-color);
-}
-
-/* Pseudo Element */
-.home__header-title-container::before {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    height: calc(var(--font-size-large) * 1.075);
-    aspect-ratio: 1 / 1;
-    background: url(/icons/logo-white.svg) no-repeat center / contain;
-    content: "";
-    translate: 0 -50%;
-}
-
-/* Animation */
-.home__button-container .home__page-button:nth-child(1):hover {
-    background: url(/icons/arrow-left-alt.svg) no-repeat center / contain;
-    background-color: var(--primary-color);
-}
-
-.home__button-container .home__page-button:nth-child(2):hover  {
-    background: url(/icons/arrow-right-alt.svg) no-repeat center / contain;
-    background-color: var(--primary-color);
 }

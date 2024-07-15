@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom";
 
 const Nav = ({ location = null }) => {
     // State used to manage the menu status
@@ -16,11 +17,14 @@ const Nav = ({ location = null }) => {
     return (
         <>
             <nav className="nav">
-                <h3 className="nav__title">Quadsaic</h3>
+                <Link
+                    className="nav__title"
+                    to="/"
+                >Quadsaic</Link>
                 <h2 className="nav__location">{location}</h2>
                 <button
                     className="nav__menu-button"
-                    onClick={() => { setMenuOpenStatus(!menuOpenStatus)}}
+                    onClick={() => { setMenuOpenStatus(!menuOpenStatus) }}
                 ></button>
             </nav>
             <section
@@ -30,21 +34,33 @@ const Nav = ({ location = null }) => {
                 <div className="nav-menu__button-container">
                     <button
                         className="nav__menu-button nav-menu__cancel"
-                        onClick={() => { setMenuOpenStatus(!menuOpenStatus)}}
+                        onClick={() => { setMenuOpenStatus(!menuOpenStatus) }}
                     ></button>
                 </div>
                 <ul className="nav-menu__link-container">
                     <li>
-                        <a className="nav-menu__link" href="">Wordle </a>
+                        <Link
+                            className="nav-menu__link"
+                            to="wordle"
+                        >Wordle </Link>
                     </li>
                     <li>
-                        <a className="nav-menu__link" href="">Word Search</a>
+                        <Link
+                            className="nav-menu__link"
+                            to="word-search"
+                        >Word Search</Link>
                     </li>
                     <li>
-                        <a className="nav-menu__link" href="">Sudoku</a>
+                        <Link
+                            className="nav-menu__link"
+                            to="sudoku"
+                        >Sudoku</Link>
                     </li>
                     <li>
-                        <a className="nav-menu__link" href="">2048</a>
+                        <Link
+                            className="nav-menu__link"
+                            to="2048"
+                        >2048</Link>
                     </li>
                 </ul>
             </section>

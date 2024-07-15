@@ -14,8 +14,11 @@
 .nav__title {
     position: relative;
     padding-left: var(--font-size-med);
+    width: max-content;
     font-size: calc(var(--font-size-med) / 1.20);
     font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
 }
 
 .nav__location {
@@ -99,6 +102,17 @@
     translate: 0 -50%;
 }
 
+.nav__title::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background-color: var(--primary-color);
+    content: "";
+    transition: 0.25s;
+}
+
 .nav-menu__link::before {
     position: absolute;
     bottom: 0;
@@ -108,10 +122,15 @@
     background-color: var(--secondary-color);
     content: "";
     translate: 0 -50%;
-    transition: 0.50s ease-in-out;
+    transition: 0.40s ease-in-out;
 }
 
 /* Animation */
 .nav-menu__link:hover::before {
     width: 100%;
 }
+
+.nav__title:hover::after {
+    left: var(--font-size-med);
+    width: calc(100% -  var(--font-size-med));
+} 

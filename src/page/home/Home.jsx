@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Nav from "../../components/nav/Nav"
 import GameDisplay from "../../components/game-display/GameDisplay"
+import PageTransition from "../../components/page-transition/PageTransition";
 
 const Home = () => {
     // State used to manage the current display
@@ -50,7 +51,7 @@ const Home = () => {
     }
 
     return (
-        <>
+        <PageTransition>
             <header className="home__header">
                 <motion.div
                     className="home__header-title-container"
@@ -146,7 +147,7 @@ const Home = () => {
                     ></button>
                 </div>
             </main>
-        </>
+        </PageTransition>
     )
 }
 

@@ -15,6 +15,7 @@
 
 /* CSS */
 @import "./components/app/extra.css";
+@import "./components/page-transition/page-transtion.css";
 @import "./page/home/home.css";
 @import "./components/nav/nav.css";
 @import "./components/game-display/gamedisplay.css";
@@ -44,3 +45,4 @@
     margin: 0;
     box-sizing: border-box;
 }
+

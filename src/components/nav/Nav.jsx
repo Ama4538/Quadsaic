@@ -41,25 +41,25 @@ const Nav = ({ location = null }) => {
                     <li>
                         <Link
                             className="nav-menu__link"
-                            to="wordle"
+                            to="/wordle"
                         >Wordle </Link>
                     </li>
                     <li>
                         <Link
                             className="nav-menu__link"
-                            to="word-search"
+                            to="/word-search"
                         >Word Search</Link>
                     </li>
                     <li>
                         <Link
                             className="nav-menu__link"
-                            to="sudoku"
+                            to="/sudoku"
                         >Sudoku</Link>
                     </li>
                     <li>
                         <Link
                             className="nav-menu__link"
-                            to="2048"
+                            to="/2048"
                         >2048</Link>
                     </li>
                 </ul>

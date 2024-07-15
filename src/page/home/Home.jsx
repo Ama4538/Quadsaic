@@ -7,6 +7,13 @@ const Home = () => {
     // State used to manage the current display
     const [currentDisplay, setCurrentDisplay] = useState(0);
 
+    // TitleArray
+    const title = "Quadsaic";
+    const titleArray = title.split("")
+
+    // Based on -25% to move to the next display
+    const SLIDE_LENGTH = 25;
+
     // Array of all game object
     const gameDisplay = [
         {
@@ -27,9 +34,6 @@ const Home = () => {
         }
     ]
 
-    // Based on -25% to move to the next display
-    const SLIDE_LENGTH = 25;
-
     const handleNextDisplay = (value) => {
         // Temp variable used to make calculation
         let currentSliderAmount = currentDisplay + (SLIDE_LENGTH * value)
@@ -45,21 +49,68 @@ const Home = () => {
         setCurrentDisplay(currentSliderAmount);
     }
 
-    const sliderAnimation = {
-        slide: {
-            x: `${currentDisplay}%`,
-            transition: {
-                duration: 0.75,
-                ease: [0.33, 1, 0.68, 1]
-            }
-        }
-    }
-
     return (
         <>
             <header className="home__header">
-                <h1 className="home__header-title"> Quadsaic </h1>
-                <h3 className="home__header-subtitle">Where Reimagination Meets Classics</h3>
+                <motion.div
+                    className="home__header-title-container"
+                    variants={{
+                        init: {
+                            opacity: 0,
+                        },
+                        animate: {
+                            opacity: 1,
+                            transition: {
+                                delay: 0.15,
+                                duration: 1.25,
+                                delayChildren: 0.15,
+                                staggerChildren: 0.05,
+                                ease: [0.33, 1, 0.68, 1],
+                            }
+                        }
+                    }}
+                    initial="init"
+                    animate="animate"
+                >
+                    {titleArray.map((letter, index) => (
+                        <motion.span
+                            className="home__header-title"
+                            key={letter + index + "hometitle"}
+                            variants={{
+                                init: {
+                                    opacity: 0,
+                                },
+                                animate: {
+                                    opacity: 1,
+                                    transition: {
+                                        duration: 0.75,
+                                        ease: [0.33, 1, 0.68, 1],
+                                    }
+                                }
+                            }}
+                        >
+                            {letter}
+                        </motion.span>
+                    ))}
+                </motion.div>
+                <div className="home__header-subtitle-container">
+                    <motion.h3
+                        className="home__header-subtitle"
+                        initial={{
+                            y: 60,
+                            opacity: 0,
+                        }}
+                        animate={{
+                            y: 0,
+                            opacity: 0.75,
+                            transition: {
+                                delay: 0.65,
+                                duration: 1,
+                                ease: [0.33, 1, 0.68, 1],
+                            }
+                        }}
+                    >Where Reimagination Meets Classics</motion.h3>
+                </div>
             </header>
             <main className="home__main">
                 <Nav />
@@ -69,8 +120,13 @@ const Home = () => {
                 >
                     <motion.div
                         className="home_display-inner"
-                        variants={sliderAnimation}
-                        animate="slide"
+                        animate={{
+                            x: `${currentDisplay}%`,
+                            transition: {
+                                duration: 0.75,
+                                ease: [0.33, 1, 0.68, 1]
+                            }
+                        }}
                     >
                         {gameDisplay.map((game, index) => (
                             <GameDisplay

@@ -56,19 +56,27 @@
     color: var(--secondary-color);
 }
 
-.home__header-title {
+.home__header-title-container {
     position: relative;
     padding-left: calc(var(--font-size-large) * 1.075);
+    display: flex;
+}
+
+.home__header-title {
     font-family: var(--primary-font);
     font-size: var(--font-size-large);
     font-weight: 600;
+}
+
+.home__header-subtitle-container {
+    display: flex;
+    overflow: hidden;
 }
 
 .home__header-subtitle {
     font-family: var(--secondary-font);
     font-size: var(--font-size-med);
     font-weight: 600;
-    opacity: 0.75;
 }
 
 .home__main {
@@ -111,7 +119,7 @@
 }
 
 /* Pseudo Element */
-.home__header-title::before {
+.home__header-title-container::before {
     position: absolute;
     top: 50%;
     left: 0;

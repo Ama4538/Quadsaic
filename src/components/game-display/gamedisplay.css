@@ -1,0 +1,53 @@
+/* Game Display */
+.gamedisplay__content-display {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr;
+    min-width: 100dvw;
+}
+
+.gamedisplay__image-container {
+    position: relative;
+}
+
+.gamedisplay__image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.gamedisplay__information-container {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--padding-size-very-small) / 2);
+    padding: var(--padding-size-very-small) var(--padding-size-small);
+    font-family: var(--secondary-font);
+    border-left: solid 1px var(--primary-color);
+    color: var(--primary-color);
+}
+
+.gamedisplay__title {
+    display: flex;
+    justify-content: center;
+    font-family: var(--primary-font);
+    font-size: calc(var(--font-size-med) * 1.20);
+    font-weight: 500;
+}
+
+.gamedisplay__description {
+    font-size: var(--font-size-small);
+    overflow: auto;
+}
+
+/* Pseudo Element */
+.gamedisplay__image-container::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: radial-gradient(circle,
+            transparent 10%,
+            rgba(0, 0, 0, 0.2),
+            rgba(0, 0, 0, 0.4));
+    content: "";
+}

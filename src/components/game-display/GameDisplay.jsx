@@ -1,7 +1,6 @@
 const GameDisplay = ({ game }) => {
     return (
         <article className="gamedisplay__content-display">
-            <h3 className="gamedisplay__content-name">{game.name}</h3>
             <div className="gamedisplay__image-container">
                 <img
                     className="gamedisplay__image"
@@ -9,6 +8,10 @@ const GameDisplay = ({ game }) => {
                     alt=""
                 />
             </div>
+            <aside className="gamedisplay__information-container">
+                <h4 className="gamedisplay__title">{game.name}</h4>
+                <p className="gamedisplay__description">{game.description}</p>
+            </aside>
         </article>
     )
 }

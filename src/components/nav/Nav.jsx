@@ -35,16 +35,16 @@ const Nav = ({ location = null }) => {
                 </div>
                 <ul className="nav-menu__link-container">
                     <li>
-                        <a className="nav-menu__link" href="">Wordle Reimagine </a>
+                        <a className="nav-menu__link" href="">Wordle </a>
                     </li>
                     <li>
-                        <a className="nav-menu__link" href="">Word Search Enchanced</a>
+                        <a className="nav-menu__link" href="">Word Search</a>
                     </li>
                     <li>
-                        <a className="nav-menu__link" href="">Sudoku Revamped</a>
+                        <a className="nav-menu__link" href="">Sudoku</a>
                     </li>
                     <li>
-                        <a className="nav-menu__link" href="">2048 Augmented</a>
+                        <a className="nav-menu__link" href="">2048</a>
                     </li>
                 </ul>
             </section>

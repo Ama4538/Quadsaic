@@ -16,6 +16,7 @@
 /* CSS */
 @import "./components/app/extra.css";
 @import "./components/nav/nav.css";
+@import "./components/game-display/gamedisplay.css";
 
 :root {
     /* Color */
@@ -27,11 +28,13 @@
     --secondary-font: "Lora", serif;
 
     /* Font sizes  */
-    --font-size-med: clamp(2rem, max(2rem, 2.5vmax), max(3rem, 3.5vmax));
-    --font-size-large: clamp(5rem, max(6rem, 6.5vmax), max(7rem, 7.5vmax));
+    --font-size-small: clamp(1rem, 0.5rem + 1.5vh, 2rem);
+    --font-size-med: clamp(2rem, 1.5rem + 2vh, 3rem);
+    --font-size-large: clamp(5rem, 5rem + 2vh, 7rem);
 
     /* Padding/Margin */
-    --padding-size-small: clamp(1rem, max(2rem, 3vmax), max(4rem, 5vmax));
+    --padding-size-very-small: clamp(0.25rem, 0.5rem + 0.75vh, 1rem);
+    --padding-size-small: clamp(1rem, 1.5rem + 1.25vh, 4rem);
     --padding-size-med: clamp(2rem, max(4rem, 5vmax), max(6rem, 7vmax));
 }
 
@@ -63,22 +66,48 @@
 
 .home__header-subtitle {
     font-family: var(--secondary-font);
-    font-size: calc(var(--font-size-med) / 1.025);
+    font-size: var(--font-size-med);
     font-weight: 600;
     opacity: 0.75;
 }
 
-/* Main */
 .home__main {
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
+    max-height: 100dvh;
     background-color: var(--secondary-color);
 }
 
-.home-main__display-container {
+.home__display {
     display: flex;
     flex: 1;
+    overflow: hidden;
+}
+
+.home_display-inner {
+    display: flex;
+}
+
+.home__button-container {
+    display: flex;
+    border-top: solid 1px var(--primary-color);
+}
+
+.home__page-button {
+    padding: calc(var(--padding-size-small) / 1.35) 0;
+    width: 50%;
+    border: none;
+    cursor: pointer;
+    transition: 0.35s ease-in-out;
+}
+
+.home__button-container .home__page-button:nth-child(1) {
+    background: url(/icons/arrow-left.svg) no-repeat center / contain;
+}
+
+.home__button-container .home__page-button:nth-child(2) {
+    background: url(/icons/arrow-right.svg) no-repeat center / contain;
+    border-left: solid 1px var(--primary-color);
 }
 
 /* Pseudo Element */
@@ -93,29 +122,13 @@
     translate: 0 -50%;
 }
 
-
-/* GameDisplay */
-.gamedisplay__content-display {
-    display: grid;
-    grid-template-columns: 1fr 0.5fr;
-    grid-row: 0.5fr 1fr;
-    flex: 1;
-    padding: calc(var(--padding-size-small)  / 1.25) var(--padding-size-small);;
-    font-family: var(--primary-font);
-    color: var(--primary-color);
+/* Animation */
+.home__button-container .home__page-button:nth-child(1):hover {
+    background: url(/icons/arrow-left-alt.svg) no-repeat center / contain;
+    background-color: var(--primary-color);
 }
 
-.gamedisplay__content-name {
-    font-size: calc(var(--font-size-large) / 1.5);
-    text-align: center;
-}
-
-.gamedisplay__image-container {
-    grid-row: 2;
-}
-
-.gamedisplay__image {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
+.home__button-container .home__page-button:nth-child(2):hover  {
+    background: url(/icons/arrow-right-alt.svg) no-repeat center / contain;
+    background-color: var(--primary-color);
 }

@@ -1,13 +1,10 @@
 /* Nav */
 .nav {
-    position: sticky;
-    top: 0;
     z-index: 999;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    padding: calc(var(--padding-size-small)  / 1.85) var(--padding-size-small);
+    padding: calc(var(--padding-size-small) / 2) var(--padding-size-small);
     align-items: center;
-    min-height: calc(var(--font-size-med) * 2.75);
     font-family: var(--secondary-font);
     background-color: var(--secondary-color);
     border-bottom: solid 1px var(--primary-color);
@@ -17,7 +14,7 @@
 .nav__title {
     position: relative;
     padding-left: var(--font-size-med);
-    font-size: calc(var(--font-size-med) / 1.075);
+    font-size: calc(var(--font-size-med) / 1.20);
     font-weight: 600;
 }
 
@@ -29,7 +26,7 @@
 
 .nav__menu-button {
     justify-self: end;
-    height: calc(var(--font-size-med) * 1.25);
+    height: calc(var(--font-size-med) * 1.05);
     aspect-ratio: 1 / 1;
     background: url(/icons/menu.svg)  no-repeat center / contain;
     border: none;
@@ -58,7 +55,7 @@
 }
 
 .nav-menu__cancel {
-    margin: calc(var(--padding-size-small)  / 1.25) var(--padding-size-small);
+    margin: calc(var(--padding-size-small) / 2) var(--padding-size-small);
     background: url(/icons/cancel.svg)  no-repeat center / contain;
     opacity: 0;
     transition-delay: 1s;

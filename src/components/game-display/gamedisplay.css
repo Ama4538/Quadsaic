@@ -53,6 +53,7 @@
     text-align: center;
     text-decoration: none;   
     transition: 0.30s ease-out;
+    user-select: none;
 }
 
 

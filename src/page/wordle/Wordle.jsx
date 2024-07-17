@@ -5,15 +5,31 @@ import { useEffect, useState } from "react";
 const Wordle = ({ setting, updateSetting }) => {
     // Set Game word LATTER
 
+
+
     // Current row index
     const [currentRow, setCurrentRow] = useState(0)
     // Variable representing the game board
     const [gameBoard, setGameBoard] = useState([]);
 
+    // Default cell used to updated proporties
+    const defaultCell = {
+        content: 0,
+        backgroundColor: null,
+        textColor: null,
+    }
+
+    // Colors used based on criteria
+    const color = {
+        corrent: "#48552b",
+        partial: "#a9903e",
+        incorrect: "#3b3e41",
+    }
+
     // Get the game board on mount
     useEffect(() => {
         if (setting.gameBoard === null) {
-            const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(0));
+            const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
             setGameBoard(tempGameBoard);
         } else {
             setGameBoard(setting.gameBoard);
@@ -59,11 +75,43 @@ const Wordle = ({ setting, updateSetting }) => {
         const updatedGameBoard = [...gameBoard];
 
         // TODO CHECK WORD IS VALUD AND ADDED LETTER MESSAGE
-        if (updatedGameBoard[currentRow].includes(0)) {
+        if (updatedGameBoard[currentRow].some(cell => cell.content === 0)) {
             // Not enough letter add message later
             return;
         } else {
+            // Get current word and the current working word
+            const currentWord = (setting.currentWord).toLowerCase().split("");
+            const workingWord = updatedGameBoard[currentRow];
+            // Match counter to find next word
+            let matchCounter = 0;
+
+            // Going through both word
+            for (let i = 0; i < currentWord.length; i++) {
+                if (workingWord[i].content === currentWord[i]) {
+                    // Checking if the letter is in the right spot
+                    workingWord[i].backgroundColor = color["corrent"];
+                    matchCounter = matchCounter + 1;
+                } else if (workingWord[i].backgroundColor !== color["corrent"] && currentWord.includes(workingWord[i].content)) {
+                    // Checking if letter is in the word
+                    workingWord[i].backgroundColor = color["partial"];
+                } else if (workingWord[i].backgroundColor !== color["corrent"] || workingWord[i].backgroundColor !== color["partial"]) {
+                    // No Letter or word
+                    workingWord[i].backgroundColor = color["incorrect"];
+                }
+
+                // Change the textColor to not be null
+                workingWord[i].textColor = 1;
+            }
+
+            // Wordle is a complete match
+            if (matchCounter === currentWord.length) {
+                console.log("Matched");
+            }
+
+
+            setGameBoard(updatedGameBoard)
             setCurrentRow(currentRow + 1);
+            console.log(setting.currentWord);
         }
 
     }
@@ -72,8 +120,9 @@ const Wordle = ({ setting, updateSetting }) => {
     const removeLetter = () => {
         // Creating a copy of the game board
         const updatedGameBoard = [...gameBoard];
+        const updateRow = updatedGameBoard[currentRow]
         // Finding the current working space
-        let workingLetterIndex = gameBoard[currentRow].indexOf(0);
+        let workingLetterIndex = updateRow.findIndex(cell => cell.content === 0);
 
         // Updating the current letter index
         if (workingLetterIndex === 0) {
@@ -87,22 +136,23 @@ const Wordle = ({ setting, updateSetting }) => {
             workingLetterIndex = workingLetterIndex - 1;
         }
 
-        updatedGameBoard[currentRow][workingLetterIndex] = 0;
+        updateRow[workingLetterIndex].content = 0;
         setGameBoard(updatedGameBoard)
-
     }
 
     // Handled lettter press
     const updateLetter = (letter) => {
-        // Creating a copy of the game board
-        const updatedGameBoard = [...gameBoard];
+        // Creating a depp copy of the game board
+        const updatedGameBoard = gameBoard.map(row =>
+            row.map(cell => ({ ...cell }))
+        );
         const updateRow = updatedGameBoard[currentRow]
         // Finding the current working space
-        const workingLetterIndex = updateRow.indexOf(0);
+        const workingLetterIndex = updateRow.findIndex(cell => cell.content === 0);
 
         // Seeing if the spot is valid and updating
         if (workingLetterIndex > -1) {
-            updateRow[workingLetterIndex] = letter;
+            updateRow[workingLetterIndex].content = letter;
             setGameBoard(updatedGameBoard)
         }
     }
@@ -110,7 +160,7 @@ const Wordle = ({ setting, updateSetting }) => {
 
     return (
         <PageTransition>
-            <Nav />
+            <Nav location={"wordle"} />
             <section className="wordle">
                 {/* Display the information */}
                 <header className="wordle__information-display">
@@ -144,9 +194,14 @@ const Wordle = ({ setting, updateSetting }) => {
                                     <div
                                         className="wordle-gameboard__cell"
                                         key={"wordle__gameboard-row-" + rowNum + "-cell-" + cellNum}
+                                        style={{
+                                            backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
+                                            color: cell.textColor !== null ? "var(--secondary-color)" : "var(--primary-color)"
+                                        }}
+                                        data-filled={cell.content !== 0 ? true : false}
                                     >
                                         {/* Render the cell text if their is content */}
-                                        {cell !== 0 ? <p>{cell}</p> : null}
+                                        {cell.content !== 0 ? <p>{cell.content}</p> : null}
                                     </div>
                                 ))}
                             </div>

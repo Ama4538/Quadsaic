@@ -97,5 +97,11 @@
     font-weight: 400;
     aspect-ratio: 1 / 1;
     border: solid 1px var(--primary-color);
+    opacity: 0.50;
     text-transform: uppercase;
+    user-select: none;
+}
+
+.wordle-gameboard__cell[data-filled = "true"] {
+    opacity: 1;
 }

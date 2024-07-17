@@ -4,7 +4,7 @@ import { useState } from "react"
 
 function App() {
     const [wordleSetting, setWordleSetting] = useState({
-        currentWord: null,
+        currentWord: "Audio",
         gameBoard: null,
         start: false,
         timer: true,

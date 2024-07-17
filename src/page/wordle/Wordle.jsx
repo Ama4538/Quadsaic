@@ -1,12 +1,14 @@
+import { useEffect, useState } from "react";
 import PageTransition from "../../components/page-transition/PageTransition"
 import Nav from "../../components/nav/Nav"
-import { useEffect, useState } from "react";
+import useFetchWord from "../../components/hooks/useFetchWord";
 
 const Wordle = ({ setting, updateSetting }) => {
     // Set Game word LATTER
-
-
-
+    useEffect(() => {
+        console.log(useFetchWord(setting.letterCount));
+    }, [])
+   
     // Current row index
     const [currentRow, setCurrentRow] = useState(0)
     // Variable representing the game board

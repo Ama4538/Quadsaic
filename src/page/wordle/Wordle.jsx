@@ -37,6 +37,12 @@ const Wordle = ({ setting, updateSetting }) => {
         incorrect: "#3b3e41",
     }
 
+    const keyBoardDisplay = [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+        ["Enter", "z", "x", "c", "v", "b", "n", "m", "Delete"]
+    ]
+
     // Set word if empty
     useEffect(() => {
         if (setting.currentWord === "") {
@@ -174,6 +180,19 @@ const Wordle = ({ setting, updateSetting }) => {
         }
     }
 
+    // const addToInputLetter = (cell, input) => {
+    //     // Check if cell is already inside
+    //     const presented = input.some(element => element.content === cell.content)
+    //     console.log("presented " + presented);
+    //     console.log(input);
+
+    //     if (!presented) {
+    //         console.log("ran");
+    //         return input.push(cell)
+    //     }
+    //     return input;
+    // }
+
     // Update Message
     const updateMessage = (message) => {
         setMessage(message);
@@ -268,6 +287,17 @@ const Wordle = ({ setting, updateSetting }) => {
         }
     }
 
+    // Handle Display KeyBoard Input 
+    const handleDisplayKeyBoard = (letter) => {
+        if (letter === "Enter") {
+            nextLine();
+        } else if (letter === "Delete") {
+            removeLetter();
+        } else {
+            updateLetter(letter);
+        }
+    }
+
     // Animations
     const rowAnimation = {
         error: {
@@ -351,17 +381,43 @@ const Wordle = ({ setting, updateSetting }) => {
                             </motion.div>
                         ))}
                     </div>
+
+                    {/* Keyboard */}
+                    <div className="wordle__keyboard">
+                        {keyBoardDisplay.map((row, rowNum) => (
+                            <div
+                                className="wordle-keyboard__row"
+                                key={"wordle-keyboard__row-" + rowNum}
+                            >
+                                {row.map((letter, letterNum) => (
+                                    <div
+                                        className="wordle-keyboard__letter"
+                                        key={"wordle__gameboard-row-" + rowNum + "-letter-" + letterNum}
+                                    >
+                                        <button 
+                                        className= {letter.length > 1 ? "wordle-keyboard__button wordle-keyboard__button-big" : "wordle-keyboard__button"}
+                                        onClick={() => {
+                                            handleDisplayKeyBoard(letter)
+                                        }}
+                                        >
+                                        {letter}</button>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+
                 </main>
-                {/* <footer>
+                <footer className="wordle__footer">
                     <div className="wordle__footer-left">
                         <button></button>
                         <button></button>
                     </div>
                     <div className="wordle__footer-right">
-                        <button></button>
-                        <button></button>
+                        <button>Show Hint</button>
+                        <button>Reveal Answer</button>
                     </div>
-                </footer> */}
+                </footer>
             </section>
         </PageTransition>
     )

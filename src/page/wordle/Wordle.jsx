@@ -14,9 +14,11 @@ const Wordle = ({ setting, updateSetting }) => {
     const [currentRow, setCurrentRow] = useState(0)
     // Variable representing the game board
     const [gameBoard, setGameBoard] = useState([]);
-    // Error Message
-    const [errorMessage, setErrorMessage] = useState("")
-    const [showError, setShowError] = useState(false)
+    // Message
+    const [message, setMessage] = useState("")
+    const [showMessage, setShowMessage] = useState(false)
+    // Timer
+    const [time, setTime] = useState(setting.timerAmount)
 
     // Default point
     const BASE_POINT = 100;
@@ -40,7 +42,10 @@ const Wordle = ({ setting, updateSetting }) => {
         if (setting.currentWord === "") {
             const newWord = useFetchWord(setting.letterCount)
             updateSetting(prev => (
-                { ...prev, currentWord: newWord }
+                {
+                    ...prev,
+                    currentWord: newWord,
+                }
             ))
         }
     }, [])
@@ -87,11 +92,33 @@ const Wordle = ({ setting, updateSetting }) => {
         };
     }, [gameBoard, currentRow])
 
+    // Timer
+    useEffect(() => {
+        let timeInterval = null;
+
+        if (setting.timer && time > 0) {
+            timeInterval = setInterval(() => {
+                setTime(prev => prev - 1)
+            }, 1000)
+        } else if (time <= 0) {
+            clearInterval(timeInterval)
+            updateMessage("Game Over")
+        }
+        return () => clearInterval(timeInterval)
+    }, [setting.timer, time])
+
+    //format the time
+    const formatTime = (time) => {
+        const min = Math.floor(time / 60);
+        const sec = time % 60;
+        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
     // Handle next line 
     const nextLine = () => {
         // Out of Guess
         if (currentRow >= setting.guessAmount - 1) {
-            updateErrorMessage("Game Over")
+            updateMessage("Game Over")
             setTimeout(() => {
                 resetGame()
             }, 1000)
@@ -102,7 +129,8 @@ const Wordle = ({ setting, updateSetting }) => {
 
         if (updatedGameBoard[currentRow].some(cell => cell.content === 0)) {
             // Not enough letter add message later
-            updateErrorMessage("Not enough letters entered")
+            updateMessage("Not enough letters entered")
+            // Play animation
             animationController.start("error")
             return;
         } else {
@@ -131,9 +159,12 @@ const Wordle = ({ setting, updateSetting }) => {
             }
 
             setGameBoard(updatedGameBoard)
+            // Play Animation
+            animationController.start("complete")
 
             // Wordle is a complete match
             if (matchCounter === currentWord.length) {
+                updateMessage("The Word has been Found!")
                 setTimeout(() => {
                     resetGame(BASE_POINT)
                 }, 1000)
@@ -143,12 +174,12 @@ const Wordle = ({ setting, updateSetting }) => {
         }
     }
 
-    // Update Error Message
-    const updateErrorMessage = (message) => {
-        setErrorMessage(message);
-        setShowError(true);
+    // Update Message
+    const updateMessage = (message) => {
+        setMessage(message);
+        setShowMessage(true);
         setTimeout(() => {
-            setShowError(false);
+            setShowMessage(false);
         }, 1000)
     }
 
@@ -159,6 +190,8 @@ const Wordle = ({ setting, updateSetting }) => {
         // Create a new board
         const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
         setGameBoard(tempGameBoard);
+        // Reset Timer
+        setTime(setting.timerAmount);
 
         // Getting new word
         const newWord = useFetchWord(setting.letterCount)
@@ -243,8 +276,19 @@ const Wordle = ({ setting, updateSetting }) => {
                 duration: 0.15,
                 ease: [0.45, 0, 0.55, 1],
                 repeat: 2
-            } 
-        }
+            }
+        },
+    }
+
+    const cellAnimation = {
+        complete: (index) => ({
+            y: [0, -5, 0],
+            transition: {
+                duration: 0.15,
+                delay: index * 0.05,
+                ease: [0.45, 0, 0.55, 1],
+            }
+        })
     }
 
     return (
@@ -260,7 +304,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     {setting.timer ?
                         <div className="wordle__information-format">
                             <p>Timer</p>
-                            <p>0:00</p>
+                            <p>{formatTime(time)}</p>
                         </div>
                         : null
                     }
@@ -275,22 +319,25 @@ const Wordle = ({ setting, updateSetting }) => {
                     {/* Generate the board based on the 2D array */}
                     <div
                         className="wordle__gameboard"
-                        data-error={showError ? true : false}
+                        data-message={showMessage ? true : false}
                     >
-                        <div className="wordle__error-message">
-                            <p>{errorMessage}</p>
+                        <div className="wordle__message">
+                            <p>{message}</p>
                         </div>
                         {gameBoard.map((row, rowNum) => (
                             <motion.div
                                 className="wordle-gameboard__row"
                                 key={"wordle__gameboard-row-" + rowNum}
                                 variants={rowNum === currentRow ? rowAnimation : null}
-                                animate = {animationController}
+                                animate={animationController}
                             >
                                 {row.map((cell, cellNum) => (
-                                    <div
+                                    <motion.div
                                         className="wordle-gameboard__cell"
                                         key={"wordle__gameboard-row-" + rowNum + "-cell-" + cellNum}
+                                        variants={rowNum === currentRow ? cellAnimation : null}
+                                        animate={animationController}
+                                        custom={cellNum}
                                         style={{
                                             backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
                                             color: cell.textColor !== null ? "var(--secondary-color)" : "var(--primary-color)"
@@ -299,12 +346,22 @@ const Wordle = ({ setting, updateSetting }) => {
                                     >
                                         {/* Render the cell text if their is content */}
                                         {cell.content !== 0 ? <p>{cell.content}</p> : null}
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </motion.div>
                         ))}
                     </div>
                 </main>
+                {/* <footer>
+                    <div className="wordle__footer-left">
+                        <button></button>
+                        <button></button>
+                    </div>
+                    <div className="wordle__footer-right">
+                        <button></button>
+                        <button></button>
+                    </div>
+                </footer> */}
             </section>
         </PageTransition>
     )

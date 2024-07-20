@@ -77,11 +77,28 @@
 
 /* Game Board */
 .wordle__gameboard {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: max-content;
     gap: calc(var(--padding-size-very-small) / 2);
+}
+
+.wordle__error-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    padding: var(--padding-size-very-small);
+    width: 100%;
+    font-size: calc(var(--font-size-small) * 1.10);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    opacity: 0;
+    text-align: center;
+    translate: -50% -50%;
+    transition: 0.15s ease-in-out;
 }
 
 .wordle-gameboard__row {
@@ -99,9 +116,17 @@
     border: solid 1px var(--primary-color);
     opacity: 0.50;
     text-transform: uppercase;
+    transition: 0.05s ease-out;
     user-select: none;
 }
 
+
+
 .wordle-gameboard__cell[data-filled = "true"] {
+    opacity: 1;
+}
+
+/* Animation */
+.wordle__gameboard[data-error = "true"] .wordle__error-message{
     opacity: 1;
 }

@@ -7,6 +7,7 @@ function App() {
         currentWord: "",
         gameBoard: null,
         lettersAttempt: [],
+        lettersFound: [],
         start: false,
         timer: false,
         timerAmount: 10,

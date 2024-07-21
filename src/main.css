@@ -50,6 +50,7 @@
 /* Wordle */
 .wordle {
     font-family: var(--secondary-font);
+    background-color: var(--secondary-color);
 }
 
 .wordle__information-display {
@@ -177,6 +178,7 @@
 }
 
 .wordle__footer-left button:nth-child(1) {
+    height: calc(var(--font-size-med) / 1.15);
     background: url(/icons/setting.svg) no-repeat center / contain;
 }
 

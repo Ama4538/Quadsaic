@@ -121,10 +121,6 @@
     user-select: none;
 }
 
-.wordle-gameboard__cell[data-filled="true"] {
-    opacity: 1;
-}
-
 /* KeyBoard */
 .wordle__keyboard {
     display: flex;
@@ -149,6 +145,7 @@
     color: var(--primary-color);
     cursor: pointer;
     text-transform: uppercase;
+    transition: background-color 0.20s ease-out, color 0.20s ease-out, translate 0.15s ease-out;
 }
 
 .wordle-keyboard__button-big {
@@ -205,7 +202,6 @@
     transition: 0.25s ease-out;
 }
 
-
 /* Psuedo Element */
 .wordle__footer-right button::before {
     position: absolute;
@@ -220,8 +216,16 @@
 }
 
 /* Animation */
+.wordle-gameboard__cell[data-filled="true"] {
+    opacity: 1;
+}
+
 .wordle__gameboard[data-message="true"] .wordle__message {
     opacity: 1;
+}
+
+.wordle-keyboard__button:hover {
+    translate: 0 -3%;
 }
 
 .wordle__footer-left button:hover {

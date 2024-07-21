@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion"
+import correctSound from "/sound/correct.mp3"
 import PageTransition from "../../components/page-transition/PageTransition"
 import Nav from "../../components/nav/Nav"
 import useFetchWord from "../../components/hooks/useFetchWord";
@@ -140,9 +141,11 @@ const Wordle = ({ setting, updateSetting }) => {
             animationController.start("error")
             return;
         } else {
-            // Get current word and the current working word
+            // Get current word of the game and the current working word
             const currentWord = (setting.currentWord).toLowerCase().split("");
             const workingWord = updatedGameBoard[currentRow];
+            // All unqiue letter attempted
+            let lettersAttempt = setting.lettersAttempt;
             // Match counter to find next word
             let matchCounter = 0;
 
@@ -150,6 +153,10 @@ const Wordle = ({ setting, updateSetting }) => {
             for (let i = 0; i < currentWord.length; i++) {
                 if ((workingWord[i].content).toLowerCase() === currentWord[i]) {
                     // Checking if the letter is in the right spot
+
+                    console.log("working", (workingWord[i].content).toLowerCase() );
+                    console.log("current", currentWord[i] );
+
                     workingWord[i].backgroundColor = color["correct"];
                     matchCounter = matchCounter + 1;
                 } else if (workingWord[i].backgroundColor !== color["correct"] && currentWord.includes((workingWord[i].content).toLowerCase())) {
@@ -162,36 +169,56 @@ const Wordle = ({ setting, updateSetting }) => {
 
                 // Change the textColor to not be null
                 workingWord[i].textColor = 1;
+
+                // Check if letter is inside
+                lettersAttempt = addToInputLetter(workingWord[i], lettersAttempt);
             }
 
-            setGameBoard(updatedGameBoard)
+            console.log(workingWord);
             // Play Animation
             animationController.start("complete")
 
             // Wordle is a complete match
             if (matchCounter === currentWord.length) {
+                // Play Audio
+                const audio = new Audio(correctSound);
+                audio.volume = 0.50;
+                audio.play();
+
                 updateMessage("The Word has been Found!")
                 setTimeout(() => {
                     resetGame(BASE_POINT)
                 }, 1000)
             } else {
+                // Update the game
+                setGameBoard(updatedGameBoard);
                 setCurrentRow(currentRow + 1);
+                updateSetting(prev => (
+                    {
+                        ...prev,
+                        gameBoard: gameBoard,
+                        lettersAttempt: lettersAttempt,
+                    }
+                ))
             }
         }
     }
 
-    // const addToInputLetter = (cell, input) => {
-    //     // Check if cell is already inside
-    //     const presented = input.some(element => element.content === cell.content)
-    //     console.log("presented " + presented);
-    //     console.log(input);
+    // Add letter to array to show all attempted inputs
+    const addToInputLetter = (cell, lettersAttempt) => {
+        // Check if letter is inside
+        const present = lettersAttempt.some(element => element.content === cell.content)
+        const index = lettersAttempt.findIndex(element => element.content === cell.content)
 
-    //     if (!presented) {
-    //         console.log("ran");
-    //         return input.push(cell)
-    //     }
-    //     return input;
-    // }
+        // Added if not
+        if (!present) {
+            lettersAttempt.push({ ...cell });
+        } else if (cell.backgroundColor === color["correct"] && lettersAttempt[index].backgroundColor !== color["correct"]) {
+            lettersAttempt[index].backgroundColor = color["correct"];
+        }
+
+        return lettersAttempt;
+    }
 
     // Update Message
     const updateMessage = (message) => {
@@ -222,6 +249,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     ...prev,
                     currentWord: newWord,
                     gameBoard: tempGameBoard,
+                    lettersAttempt: [],
                     currentScore: 0,
                 }
             ))
@@ -233,6 +261,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     ...prev,
                     currentWord: newWord,
                     gameBoard: tempGameBoard,
+                    lettersAttempt: [],
                     currentScore: newScore,
                     highestScore: newScore > prev.highestScore ? newScore : prev.highestScore,
                 }
@@ -288,7 +317,11 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     // Handle Display KeyBoard Input 
-    const handleDisplayKeyBoard = (letter) => {
+    const handleDisplayKeyBoard = (letter, event) => {
+        // Prevent focusable
+        event.target.blur();
+
+        // Condition for which button is pressed
         if (letter === "Enter") {
             nextLine();
         } else if (letter === "Delete") {
@@ -394,13 +427,21 @@ const Wordle = ({ setting, updateSetting }) => {
                                         className="wordle-keyboard__letter"
                                         key={"wordle__gameboard-row-" + rowNum + "-letter-" + letterNum}
                                     >
-                                        <button 
-                                        className= {letter.length > 1 ? "wordle-keyboard__button wordle-keyboard__button-big" : "wordle-keyboard__button"}
-                                        onClick={() => {
-                                            handleDisplayKeyBoard(letter)
-                                        }}
+                                        <button
+                                            className={letter.length > 1 ? "wordle-keyboard__button wordle-keyboard__button-big" : "wordle-keyboard__button"}
+                                            onClick={(event) => {
+                                                handleDisplayKeyBoard(letter, event)
+                                            }}
+                                            style = {{
+                                                backgroundColor: (setting.lettersAttempt).some(cell => cell.content === letter) 
+                                                ? (setting.lettersAttempt)[(setting.lettersAttempt).findIndex(cell => cell.content === letter)].backgroundColor 
+                                                : null,
+                                                color: (setting.lettersAttempt).some(cell => cell.content === letter) 
+                                                ? "var(--secondary-color)"
+                                                : "var(--primary-color)",
+                                            }}
                                         >
-                                        {letter}</button>
+                                            {letter}</button>
                                     </div>
                                 ))}
                             </div>

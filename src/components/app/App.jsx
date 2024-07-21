@@ -6,10 +6,10 @@ function App() {
     const [wordleSetting, setWordleSetting] = useState({
         currentWord: "",
         gameBoard: null,
-        inputLetters: [],
+        lettersAttempt: [],
         start: false,
         timer: false,
-        timerAmount: 300,
+        timerAmount: 10,
         currentScore: 0,
         highestScore: 0,
         guessAmount: 6,

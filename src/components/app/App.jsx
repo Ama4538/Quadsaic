@@ -15,6 +15,7 @@ function App() {
         highestScore: 0,
         guessAmount: 6,
         letterCount: 5,
+        hintAmount: 0,
     });
 
     // Taken from local strage/update when need, Later.

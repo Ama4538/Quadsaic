@@ -12,6 +12,13 @@ const Wordle = ({ setting, updateSetting }) => {
         console.log(setting);
     }, [setting])
 
+    // Default cell used to updated proporties
+    const defaultCell = {
+        content: 0,
+        backgroundColor: null,
+        textColor: null,
+    }
+
     const animationController = useAnimation()
     // Current row index
     const [currentRow, setCurrentRow] = useState(0)
@@ -26,13 +33,8 @@ const Wordle = ({ setting, updateSetting }) => {
     // Default point
     const BASE_POINT = 100;
     const totalPoints = BASE_POINT;
-
-    // Default cell used to updated proporties
-    const defaultCell = {
-        content: 0,
-        backgroundColor: null,
-        textColor: null,
-    }
+    const hintPointRemoval = Math.floor(totalPoints / (setting.letterCount * 1.5));
+    const hintAmount = Math.floor(setting.letterCount / 2);
 
     // Colors used based on criteria
     const color = {
@@ -41,36 +43,36 @@ const Wordle = ({ setting, updateSetting }) => {
         incorrect: "#3b3e41",
     }
 
+    // Audio
+    const errorAudio = new Audio(errorSound);
+    const submitAudio = new Audio(submitSound);
+    const CorrectAudio = new Audio(correctSound);
+    errorAudio.volume = 0.50;
+    submitAudio.volume = 0.50;
+    CorrectAudio.volume = 0.50;
+
+    // Key Board
     const keyBoardDisplay = [
         ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
         ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
         ["Enter", "z", "x", "c", "v", "b", "n", "m", "Delete"]
     ]
 
-    // Set word if empty
-    useEffect(() => {
-        if (setting.currentWord === "") {
-            const newWord = useFetchWord(setting.letterCount)
-            updateSetting(prev => (
-                {
-                    ...prev,
-                    currentWord: newWord,
-                }
-            ))
-        }
-    }, [])
-
     // Get the game board on mount
     useEffect(() => {
         if (setting.gameBoard === null) {
             const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
+            const newWord = useFetchWord(setting.letterCount)
+
             setGameBoard(tempGameBoard);
             // Start up the game
             updateSetting(prev => (
                 {
                     ...prev,
+                    currentWord: newWord,
                     gameBoard: tempGameBoard,
-                    lettersFound: new Array(setting.letterCount).fill(null)
+                    lettersFound: new Array(setting.letterCount).fill(null),
+                    hintAmount: hintAmount,
                 }
             ))
         } else {
@@ -146,28 +148,18 @@ const Wordle = ({ setting, updateSetting }) => {
         const updatedGameBoard = [...gameBoard];
 
         if (updatedGameBoard[currentRow].some(cell => cell.content === 0)) {
-            // Play error audio
-            const audio = new Audio(errorSound);
-            audio.volume = 0.50;
-            audio.play();
-
-            // Not enough letter add message later
+            errorAudio.play();
             updateMessage("Not enough letters entered")
 
             // Play animation
             animationController.start("error")
             return;
         } else {
-            // Get current word of the game and the current working word
             const currentWord = (setting.currentWord).toLowerCase().split("");
             const workingWord = updatedGameBoard[currentRow];
-            // All unqiue letter attempted
             let lettersAttempt = setting.lettersAttempt;
-            // All unqiue letters found (not including duplicate letter if word contains)
             let lettersFound = setting.lettersFound;
-            // Match counter to find next word
             let matchCounter = 0;
-            // points gained from working word
             let pointsGained = 0;
 
             // Going through both word
@@ -175,12 +167,12 @@ const Wordle = ({ setting, updateSetting }) => {
                 if ((workingWord[i].content).toLowerCase() === currentWord[i]) {
                     // Checking if the letter is in the right spot
                     workingWord[i].backgroundColor = color["correct"];
-                    // Letter has been found add to the letters found array if unqiue
-                    if(lettersFound[i] === null) {
+                    // Add to the lettersfound array if unqiue
+                    if (lettersFound[i] === null) {
                         pointsGained = pointsGained + (totalPoints / setting.letterCount);
-                        lettersFound[i] =  workingWord[i].content;
+                        lettersFound[i] = workingWord[i].content;
                     }
-                    
+
                     matchCounter = matchCounter + 1;
                 } else if (workingWord[i].backgroundColor !== color["correct"] && currentWord.includes((workingWord[i].content).toLowerCase())) {
                     // Checking if letter is in the word
@@ -202,22 +194,14 @@ const Wordle = ({ setting, updateSetting }) => {
 
             // Wordle is a complete match
             if (matchCounter === currentWord.length) {
-                // Play correct audio
-                const audio = new Audio(correctSound);
-                audio.volume = 0.50;
-                audio.play();
-
+                CorrectAudio.play();
                 updateMessage("The Word has been Found!")
                 setTimeout(() => {
                     resetGame(false, pointsGained)
                 }, 1000)
             } else {
                 // Update the game
-                // Play submit audio
-                const audio = new Audio(submitSound);
-                audio.volume = 0.50;
-                audio.play();
-
+                submitAudio.play();
                 const newScore = setting.currentScore + pointsGained;
                 setGameBoard(updatedGameBoard);
                 setCurrentRow(currentRow + 1);
@@ -262,18 +246,15 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Reset the Game
     const resetGame = (resetPoints = true, points = 0) => {
-        // Set currentRow to default
         setCurrentRow(0);
-        // Create a new board
+
+        // Creating a new board
         const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
         setGameBoard(tempGameBoard);
+
         // Reset Timer
         setTime(setting.timerAmount);
-
-        // Getting new word
         const newWord = useFetchWord(setting.letterCount)
-
-        // New Current Score
         const newScore = setting.currentScore + points
 
         // reset required information
@@ -286,6 +267,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 lettersFound: new Array(setting.letterCount).fill(null),
                 currentScore: resetPoints ? 0 : newScore,
                 highestScore: newScore >= prev.highestScore ? newScore : prev.highestScore,
+                hintAmount: hintAmount,
             }
         ))
     }
@@ -295,7 +277,6 @@ const Wordle = ({ setting, updateSetting }) => {
         // Creating a copy of the game board
         const updatedGameBoard = [...gameBoard];
         const updateRow = updatedGameBoard[currentRow]
-        // Finding the current working space
         let workingLetterIndex = updateRow.findIndex(cell => cell.content === 0);
 
         // Updating the current letter index
@@ -321,12 +302,11 @@ const Wordle = ({ setting, updateSetting }) => {
             return;
         }
 
-        // Creating a depp copy of the game board
+        // Deep copying gameboard to update
         const updatedGameBoard = gameBoard.map(row =>
             row.map(cell => ({ ...cell }))
         );
         const updateRow = updatedGameBoard[currentRow]
-        // Finding the current working space
         const workingLetterIndex = updateRow.findIndex(cell => cell.content === 0);
 
         // Seeing if the spot is valid and updating
@@ -336,11 +316,9 @@ const Wordle = ({ setting, updateSetting }) => {
         }
     }
 
-
-
     // Handle Display KeyBoard Input 
     const handleDisplayKeyBoard = (letter, event) => {
-        // Prevent focusable
+        // Prevent focusable (enter key putting another letter)
         event.target.blur();
 
         // Condition for which button is pressed
@@ -351,6 +329,47 @@ const Wordle = ({ setting, updateSetting }) => {
         } else {
             updateLetter(letter);
         }
+    }
+
+    const showHint = (event) => {
+        // Prevent focusable (enter key putting calling the hint button again)
+        event.target.blur();
+
+        // Check if there is any remaining hints
+        if (setting.hintAmount <= 0) {
+            errorAudio.play();
+            updateMessage("No More Hints Available")
+            return
+        }
+
+        const currentWord = (setting.currentWord).toLowerCase().split("");
+        const newLettersAttempt = [...setting.lettersAttempt];
+        // Check if all currentWord's letter is already attempted
+        const allPresent = currentWord.every(letter => newLettersAttempt.some(cell => cell.content === letter))
+
+        if (allPresent) {
+            errorAudio.play();
+            updateMessage("All Correct Letters Attempted")
+            return;
+        }
+
+        let hintLetter = { ...defaultCell, backgroundColor: color["partial"], textColor: 1 };
+
+        // Find a random letter that hasnt been attempted
+        do {
+            hintLetter.content = currentWord[Math.floor(Math.random() * currentWord.length)]
+        } while ((setting.lettersFound).includes(hintLetter.content) || newLettersAttempt.some(cell => cell.content === hintLetter.content))
+        
+        newLettersAttempt.push(hintLetter)
+        updateSetting(prev => (
+            {
+                ...prev,
+                lettersAttempt: newLettersAttempt,
+                currentScore: prev.currentScore - hintPointRemoval,
+                hintAmount: prev.hintAmount - 1,
+            }
+        ))
+
     }
 
     // Animations
@@ -478,7 +497,9 @@ const Wordle = ({ setting, updateSetting }) => {
                         <button></button>
                     </div>
                     <div className="wordle__footer-right">
-                        <button>Show Hint</button>
+                        <button
+                            onClick={(event) => showHint(event)}
+                        >Show Hint</button>
                         <button>Reveal Answer</button>
                     </div>
                 </footer>

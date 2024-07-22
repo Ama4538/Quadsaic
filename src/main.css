@@ -63,8 +63,9 @@
 .wordle__information-format {
     display: flex;
     flex-direction: column;
-    font-size: var(--font-size-small);
+    font-size: calc(var(--font-size-small));
     text-align: center;
+    text-transform: capitalize;
 }
 
 .wordle__information-format p:nth-child(1) {
@@ -94,11 +95,12 @@
     z-index: 1;
     padding: var(--padding-size-very-small);
     width: 100%;
-    font-size: calc(var(--font-size-small) * 1.10);
+    font-size: calc(var(--font-size-small));
     background-color: var(--primary-color);
     color: var(--secondary-color);
     opacity: 0;
     text-align: center;
+    text-transform: capitalize;
     translate: -50% -50%;
     transition: 0.15s ease-in-out;
 }

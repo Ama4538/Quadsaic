@@ -5,7 +5,8 @@ import { useState } from "react"
 function App() {
     const [wordleSetting, setWordleSetting] = useState({
         currentWord: "",
-        gameBoard: null,
+        gameBoard: [],
+        completedWords: [],
         lettersAttempt: [],
         lettersFound: [],
         start: false,

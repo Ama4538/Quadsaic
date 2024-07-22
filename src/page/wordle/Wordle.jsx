@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion"
 import correctSound from "/sound/correct.mp3"
 import errorSound from "/sound/error.mp3"
 import submitSound from "/sound/submit.mp3"
+import hintSound from "/sound/hint.mp3"
+import revealSound from "/sound/reveal.mp3"
 import PageTransition from "../../components/page-transition/PageTransition"
 import Nav from "../../components/nav/Nav"
 import useFetchWord from "../../components/hooks/useFetchWord";
@@ -10,7 +12,7 @@ import useFetchWord from "../../components/hooks/useFetchWord";
 const Wordle = ({ setting, updateSetting }) => {
     useEffect(() => {
         console.log(setting);
-    }, [setting])
+    }, [setting.currentWord])
 
     // Default cell used to updated proporties
     const defaultCell = {
@@ -20,6 +22,10 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     const animationController = useAnimation()
+    // Manage Overlay
+    const [overlayStatus, setOverlayStatus] = useState(true);
+    const [welcomePage, setWelcomePage] = useState(true);
+
     // Current row index
     const [currentRow, setCurrentRow] = useState(0)
     // Variable representing the game board
@@ -29,11 +35,14 @@ const Wordle = ({ setting, updateSetting }) => {
     const [showMessage, setShowMessage] = useState(false)
     // Timer
     const [time, setTime] = useState(setting.timerAmount)
+    // Ref to timeout timer
+    const timeoutRef = useRef(null);
+    // Loading Status
+    const [dataLoadingStatus, setDataLoadingStatus] = useState(false);
 
     // Default point
     const BASE_POINT = 100;
     const totalPoints = BASE_POINT;
-    const hintPointRemoval = Math.floor(totalPoints / (setting.letterCount * 1.5));
     const hintAmount = Math.floor(setting.letterCount / 2);
 
     // Colors used based on criteria
@@ -41,15 +50,20 @@ const Wordle = ({ setting, updateSetting }) => {
         correct: "#48552b",
         partial: "#a9903e",
         incorrect: "#3b3e41",
+        reveal: "#781626",
     }
 
     // Audio
+    const CorrectAudio = new Audio(correctSound);
     const errorAudio = new Audio(errorSound);
     const submitAudio = new Audio(submitSound);
-    const CorrectAudio = new Audio(correctSound);
+    const hintAudio = new Audio(hintSound);
+    const revealAudio = new Audio(revealSound);
+    CorrectAudio.volume = 0.50;
     errorAudio.volume = 0.50;
     submitAudio.volume = 0.50;
-    CorrectAudio.volume = 0.50;
+    hintAudio.volume = 0.50
+    revealAudio.volume = 0.50
 
     // Key Board
     const keyBoardDisplay = [
@@ -60,7 +74,7 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Get the game board on mount
     useEffect(() => {
-        if (setting.gameBoard === null) {
+        if (setting.gameBoard.length === 0) {
             const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
             const newWord = useFetchWord(setting.letterCount)
 
@@ -71,22 +85,23 @@ const Wordle = ({ setting, updateSetting }) => {
                     ...prev,
                     currentWord: newWord,
                     gameBoard: tempGameBoard,
+                    currentLine: new Array(setting.letterCount).fill({ ...defaultCell }),
                     lettersFound: new Array(setting.letterCount).fill(null),
                     hintAmount: hintAmount,
                 }
             ))
         } else {
             setGameBoard(setting.gameBoard);
-            // Finding the current row
             for (let i = 0; i < setting.gameBoard.length; i++) {
-                // 0 === unfilled
-                if (setting.gameBoard[i][0] === 0) {
+                // Check if the first cell in the row is unfilled (assuming 0 means unfilled)
+                if (setting.gameBoard[i].every(cell => cell.content === 0)) {
                     setCurrentRow(i);
                     break;
                 }
             }
         }
-    }, [setting])
+        setDataLoadingStatus(true);
+    }, [])
 
     // Manage the key press down
     useEffect(() => {
@@ -103,14 +118,16 @@ const Wordle = ({ setting, updateSetting }) => {
             }
         }
 
-        // Checking for user key press
-        window.addEventListener("keydown", handleKeyPress)
+        if (!overlayStatus) {
+            // Checking for user key press
+            window.addEventListener("keydown", handleKeyPress)
+        }
 
         // Clean on unmount
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
         };
-    }, [gameBoard, currentRow])
+    }, [gameBoard, currentRow, overlayStatus])
 
     // Timer
     useEffect(() => {
@@ -239,7 +256,13 @@ const Wordle = ({ setting, updateSetting }) => {
     const updateMessage = (message) => {
         setMessage(message);
         setShowMessage(true);
-        setTimeout(() => {
+
+        // Reset the timer if pressed again
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef)
+        }
+
+        timeoutRef.current = setTimeout(() => {
             setShowMessage(false);
         }, 1000)
     }
@@ -254,7 +277,17 @@ const Wordle = ({ setting, updateSetting }) => {
 
         // Reset Timer
         setTime(setting.timerAmount);
-        const newWord = useFetchWord(setting.letterCount)
+
+        // Manage found words
+        const completedWords = setting.completedWords;
+        completedWords.push(setting.currentWord);
+
+        // Get new and unqie word
+        let newWord;
+        do {
+            newWord = useFetchWord(setting.letterCount);
+        } while (completedWords.includes(newWord));
+
         const newScore = setting.currentScore + points
 
         // reset required information
@@ -263,6 +296,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 ...prev,
                 currentWord: newWord,
                 gameBoard: tempGameBoard,
+                completedWords: resetPoints ? [] : completedWords,
                 lettersAttempt: [],
                 lettersFound: new Array(setting.letterCount).fill(null),
                 currentScore: resetPoints ? 0 : newScore,
@@ -313,7 +347,14 @@ const Wordle = ({ setting, updateSetting }) => {
         if (workingLetterIndex > -1) {
             updateRow[workingLetterIndex].content = letter;
             setGameBoard(updatedGameBoard)
+            updateSetting(prev => (
+                {
+                    ...prev,
+                    gameBoard: updatedGameBoard,
+                }
+            ))
         }
+
     }
 
     // Handle Display KeyBoard Input 
@@ -354,22 +395,69 @@ const Wordle = ({ setting, updateSetting }) => {
         }
 
         let hintLetter = { ...defaultCell, backgroundColor: color["partial"], textColor: 1 };
+        const pointsLost = setting.currentScore > 0 ? Math.floor(totalPoints / (setting.letterCount * 1.5)) : 0;
 
         // Find a random letter that hasnt been attempted
         do {
             hintLetter.content = currentWord[Math.floor(Math.random() * currentWord.length)]
         } while ((setting.lettersFound).includes(hintLetter.content) || newLettersAttempt.some(cell => cell.content === hintLetter.content))
-        
+
         newLettersAttempt.push(hintLetter)
         updateSetting(prev => (
             {
                 ...prev,
                 lettersAttempt: newLettersAttempt,
-                currentScore: prev.currentScore - hintPointRemoval,
+                currentScore: prev.currentScore - pointsLost,
                 hintAmount: prev.hintAmount - 1,
             }
         ))
 
+        hintAudio.play();
+    }
+
+    // reveal the anwser
+    const revealAnwser = (event) => {
+        // Prevent focusable (enter key putting calling the button again)
+        event.target.blur();
+
+        // Creating a copy of the game board
+        const updatedGameBoard = gameBoard.map(row =>
+            row.map(cell => ({ ...cell }))
+        );
+        const updateRow = updatedGameBoard[currentRow]
+        const currentWord = setting.currentWord.split("")
+
+        // Update all leteter in the row
+        for (let i = 0; i < currentWord.length; i++) {
+            updateRow[i].content = currentWord[i];
+            updateRow[i].backgroundColor = color["reveal"];
+            updateRow[i].textColor = 1;
+        }
+
+        // Play Animation
+        animationController.start("complete")
+        setGameBoard(updatedGameBoard);
+        const pointsLost = setting.currentScore > 0 ? Math.floor((totalPoints / -2.50)) : 0;
+
+        updateMessage("The Word Has Been Revealed")
+
+        // Reset the game and remove points
+        setTimeout(() => {
+            resetGame(false, pointsLost)
+        }, 1000)
+
+        revealAudio.play();
+    }
+
+    // Start the game
+    const startGame = (reset = false) => {
+        // Turn off all pages
+        setOverlayStatus(false);
+        setWelcomePage(false);
+
+        if (reset) {
+            resetGame();
+        }
     }
 
     // Animations
@@ -398,112 +486,158 @@ const Wordle = ({ setting, updateSetting }) => {
     return (
         <PageTransition>
             <Nav location={"wordle"} />
-            <section className="wordle">
-                {/* Display the information */}
-                <header className="wordle__information-display">
-                    <div className="wordle__information-format">
-                        <p>Current Score</p>
-                        <p>{setting.currentScore}</p>
-                    </div>
-                    {setting.timer ?
-                        <div className="wordle__information-format">
-                            <p>Timer</p>
-                            <p>{formatTime(time)}</p>
-                        </div>
-                        : null
-                    }
-                    <div className="wordle__information-format">
-                        <p>Highest Score</p>
-                        <p>{setting.highestScore}</p>
-                    </div>
-                </header>
-
-                {/* Game Board */}
-                <main className="wordle__content">
-                    {/* Generate the board based on the 2D array */}
-                    <div
-                        className="wordle__gameboard"
-                        data-message={showMessage ? true : false}
-                    >
-                        <div className="wordle__message">
-                            <p>{message}</p>
-                        </div>
-                        {gameBoard.map((row, rowNum) => (
-                            <motion.div
-                                className="wordle-gameboard__row"
-                                key={"wordle__gameboard-row-" + rowNum}
-                                variants={rowNum === currentRow ? rowAnimation : null}
-                                animate={animationController}
-                            >
-                                {row.map((cell, cellNum) => (
-                                    <motion.div
-                                        className="wordle-gameboard__cell"
-                                        key={"wordle__gameboard-row-" + rowNum + "-cell-" + cellNum}
-                                        variants={rowNum === currentRow ? cellAnimation : null}
-                                        animate={animationController}
-                                        custom={cellNum}
-                                        style={{
-                                            backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
-                                            color: cell.textColor !== null ? "var(--secondary-color)" : "var(--primary-color)"
-                                        }}
-                                        data-filled={cell.content !== 0 ? true : false}
-                                    >
-                                        {/* Render the cell text if their is content */}
-                                        {cell.content !== 0 ? <p>{cell.content}</p> : null}
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        ))}
-                    </div>
-
-                    {/* Keyboard */}
-                    <div className="wordle__keyboard">
-                        {/* Generating keyboard based on 2D array */}
-                        {keyBoardDisplay.map((row, rowNum) => (
-                            <div
-                                className="wordle-keyboard__row"
-                                key={"wordle-keyboard__row-" + rowNum}
-                            >
-                                {row.map((letter, letterNum) => (
-                                    <div
-                                        className="wordle-keyboard__letter"
-                                        key={"wordle__gameboard-row-" + rowNum + "-letter-" + letterNum}
-                                    >
-                                        <button
-                                            className={letter.length > 1 ? "wordle-keyboard__button wordle-keyboard__button-big" : "wordle-keyboard__button"}
-                                            onClick={(event) => {
-                                                handleDisplayKeyBoard(letter, event)
-                                            }}
-                                            style={{
-                                                backgroundColor: (setting.lettersAttempt).some(cell => cell.content === letter)
-                                                    ? (setting.lettersAttempt)[(setting.lettersAttempt).findIndex(cell => cell.content === letter)].backgroundColor
-                                                    : null,
-                                                color: (setting.lettersAttempt).some(cell => cell.content === letter)
-                                                    ? "var(--secondary-color)"
-                                                    : "var(--primary-color)",
-                                            }}
-                                        >
-                                            {letter}</button>
-                                    </div>
-                                ))}
+            {dataLoadingStatus
+                ? <section className="wordle">
+                    {
+                        overlayStatus
+                            ? <div className="wordle__overly">
+                                <div className="wordle-overly__content-container">
+                                    {/* Generate the page when they are active */}
+                                    {welcomePage
+                                        ? <>
+                                            <h3 className="wordle-overly__title">Wordle</h3>
+                                            <p className="wordle-overly__welcome-message">Guess the hidden word within a limited number of attempts</p>
+                                            <div className="wordle-welcome__button-container">
+                                                <button className="wordle-welcome__button">Setting</button>
+                                                <button className="wordle-welcome__button">How to Play</button>
+                                            </div>
+                                            <div className="wordle-welcome__button-container">
+                                                {currentRow !== 0 || !gameBoard[currentRow].every(cell => cell.content === 0)
+                                                    ? <>
+                                                        <button
+                                                            className="wordle-welcome__button wordle-welcome__button-big"
+                                                            onClick={() => startGame(true)}
+                                                        > New Game </button>
+                                                        <button
+                                                            className="wordle-welcome__button wordle-welcome__button-big"
+                                                            onClick={() => startGame()}
+                                                        > Resume </button>
+                                                    </>
+                                                    : <button
+                                                        className="wordle-welcome__button wordle-welcome__button-big"
+                                                        onClick={() => startGame()}
+                                                    > Start Game</button>}
+                                            </div>
+                                        </>
+                                        : null}
+                                </div>
                             </div>
-                        ))}
-                    </div>
+                            : null
+                    }
 
-                </main>
-                <footer className="wordle__footer">
-                    <div className="wordle__footer-left">
-                        <button></button>
-                        <button></button>
-                    </div>
-                    <div className="wordle__footer-right">
-                        <button
-                            onClick={(event) => showHint(event)}
-                        >Show Hint</button>
-                        <button>Reveal Answer</button>
-                    </div>
-                </footer>
-            </section>
+
+                    {/* Display the information */}
+                    <header className="wordle__information-display">
+                        <div className="wordle__information-format">
+                            <p>Current Score</p>
+                            <p>{setting.currentScore}</p>
+                        </div>
+                        {setting.timer ?
+                            <div className="wordle__information-format">
+                                <p>Timer</p>
+                                <p>{formatTime(time)}</p>
+                            </div>
+                            : null
+                        }
+                        <div className="wordle__information-format">
+                            <p>Highest Score</p>
+                            <p>{setting.highestScore}</p>
+                        </div>
+                    </header>
+
+                    {/* Game Board */}
+                    <main className="wordle__content">
+                        {/* Generate the board based on the 2D array */}
+                        <div
+                            className="wordle__gameboard"
+                            data-message={showMessage ? true : false}
+                        >
+                            <div className="wordle__message">
+                                <p>{message}</p>
+                            </div>
+                            {gameBoard.map((row, rowNum) => (
+                                <motion.div
+                                    className="wordle-gameboard__row"
+                                    key={"wordle__gameboard-row-" + rowNum}
+                                    variants={rowNum === currentRow ? rowAnimation : null}
+                                    animate={animationController}
+                                >
+                                    {row.map((cell, cellNum) => (
+                                        <motion.div
+                                            className="wordle-gameboard__cell"
+                                            key={"wordle__gameboard-row-" + rowNum + "-cell-" + cellNum}
+                                            variants={rowNum === currentRow ? cellAnimation : null}
+                                            animate={animationController}
+                                            custom={cellNum}
+                                            style={{
+                                                backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
+                                                color: cell.textColor !== null ? "var(--secondary-color)" : "var(--primary-color)"
+                                            }}
+                                            data-filled={cell.content !== 0 ? true : false}
+                                        >
+                                            {/* Render the cell text if their is content */}
+                                            {cell.content !== 0 ? <p>{cell.content}</p> : null}
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* Keyboard */}
+                        <div className="wordle__keyboard">
+                            {/* Generating keyboard based on 2D array */}
+                            {keyBoardDisplay.map((row, rowNum) => (
+                                <div
+                                    className="wordle-keyboard__row"
+                                    key={"wordle-keyboard__row-" + rowNum}
+                                >
+                                    {row.map((letter, letterNum) => (
+                                        <div
+                                            className="wordle-keyboard__letter"
+                                            key={"wordle__gameboard-row-" + rowNum + "-letter-" + letterNum}
+                                        >
+                                            <button
+                                                className={letter.length > 1 ? "wordle-keyboard__button wordle-keyboard__button-big" : "wordle-keyboard__button"}
+                                                onClick={(event) => {
+                                                    handleDisplayKeyBoard(letter, event)
+                                                }}
+                                                style={{
+                                                    backgroundColor: (setting.lettersAttempt).some(cell => cell.content === letter)
+                                                        ? (setting.lettersAttempt)[(setting.lettersAttempt).findIndex(cell => cell.content === letter)].backgroundColor
+                                                        : null,
+                                                    color: (setting.lettersAttempt).some(cell => cell.content === letter)
+                                                        ? "var(--secondary-color)"
+                                                        : "var(--primary-color)",
+                                                }}
+                                            >
+                                                {letter}</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+
+                    </main>
+                    <footer className="wordle__footer">
+                        <div className="wordle__footer-left">
+                            <button></button>
+                            <button></button>
+                        </div>
+                        <div className="wordle__footer-right">
+                            <div className="wordle-footer__button-container">
+                                <button
+                                    className="wordle-footer__hints"
+                                    onClick={(event) => showHint(event)}
+                                >Show Hint</button>
+                                <p className="wordle-footer__hints-message">Hints Remaining: {setting.hintAmount}</p>
+                            </div>
+                            <button
+                                onClick={(event) => revealAnwser(event)}
+                            >Reveal Answer</button>
+                        </div>
+                    </footer>
+                </section>
+                : null}
         </PageTransition>
     )
 }

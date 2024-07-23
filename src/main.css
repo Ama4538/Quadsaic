@@ -96,7 +96,7 @@
 .wordle-overlay__title {
     display: flex;
     justify-content: center;
-    font-size: calc(var(--font-size-med) * 1.15);
+    font-size: var(--font-size-med);
     font-weight: 400;
 }
 
@@ -113,7 +113,7 @@
 
 .wordle-overlay__welcome-message {
     margin-bottom: var(--padding-size-very-small);
-    font-size: calc(var(--font-size-med) / 1.60);
+    font-size: calc(var(--font-size-med) / 1.75);
     text-align: center;
 }
 
@@ -195,7 +195,23 @@
 }
 
 .wordle-setting__description {
-    font-size: calc(var(--font-size-small) / 1.25);
+    font-size: calc(var(--font-size-small) / 1.35);
+}
+
+.wordle-overlay__default .wordle-overlay__setting-module {
+    padding-top: calc(var(--padding-size-very-small));
+    margin-top: calc(var(--padding-size-very-small));
+    border-top: solid 1px rgba(0, 0, 0, 0.25);
+}
+
+.wordle-overlay__default .wordle-overlay__setting-module:first-of-type {
+    padding-top: 0;
+    margin-top: calc(var(--padding-size-very-small) / 3);
+    border: none;
+}
+
+.wordle-overlay__setting .wordle-welcome__button-container {
+    margin-top: calc(var(--padding-size-very-small) / 3);
 }
 
 /* Game Board */
@@ -344,6 +360,7 @@
     transition: 0.30s ease-out;
     transition-delay: 0.175s;
 }
+
 
 /* Psuedo Element */
 .wordle__footer-right button::before,

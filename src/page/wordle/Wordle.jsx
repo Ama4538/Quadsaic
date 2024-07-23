@@ -39,10 +39,19 @@ const Wordle = ({ setting, updateSetting }) => {
     const [showMessage, setShowMessage] = useState(false)
 
     // Timer
-    const [time, setTime] = useState(setting.timerAmount)
+    const [currentTime, setCurrentTime] = useState(0)
 
     // Loading Status
     const [dataLoadingStatus, setDataLoadingStatus] = useState(false);
+
+    // Data
+    const [letterAmount, setLetterAmount] = useState(0)
+    const [guessAmount, setGuessAmount] = useState(0)
+    const [enableHints, setEnableHints] = useState(false)
+    const [enableAnwserReveal, setEnableAnwserReveal] = useState(false)
+    const [enableTimer, setEnableTimer] = useState(false)
+    const [timeAmount, setTimeAmount] = useState(0)
+    const [soundAmount, setSoundAmount] = useState(0)
 
     // Variables
 
@@ -92,11 +101,11 @@ const Wordle = ({ setting, updateSetting }) => {
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
     const revealAudio = new Audio(revealSound);
-    CorrectAudio.volume = 0.50;
-    errorAudio.volume = 0.50;
-    submitAudio.volume = 0.50;
-    hintAudio.volume = 0.50
-    revealAudio.volume = 0.50
+    CorrectAudio.volume = soundAmount;
+    errorAudio.volume = soundAmount;
+    submitAudio.volume = soundAmount;
+    hintAudio.volume = soundAmount
+    revealAudio.volume = soundAmount
 
     // Key Board
     const keyBoardDisplay = [
@@ -142,6 +151,14 @@ const Wordle = ({ setting, updateSetting }) => {
     useEffect(() => {
         if (dataLoadingStatus) {
             setHasGameInProgress(currentRow !== 0 || !gameBoard[currentRow].every(cell => cell.content === 0));
+            setEnableAnwserReveal(setting.enableAnwserReveal);
+            setEnableHints(setting.enableHints);
+            setEnableTimer(setting.enableTimer);
+            setTimeAmount(setting.timerAmount);
+            setCurrentTime(setting.timerAmount);
+            setLetterAmount(setting.letterAmount);
+            setGuessAmount(setting.guessAmount);
+            setSoundAmount(setting.soundAmount);
         }
     }, [dataLoadingStatus])
 
@@ -174,17 +191,19 @@ const Wordle = ({ setting, updateSetting }) => {
     // Timer
     useEffect(() => {
         let timeInterval = null;
-
-        if (setting.timer && time > 0) {
-            timeInterval = setInterval(() => {
-                setTime(prev => prev - 1)
-            }, 1000)
-        } else if (time <= 0) {
-            clearInterval(timeInterval)
-            updateMessage("Game Over")
+        if (!overlayStatus) {
+            if (enableTimer && currentTime > 0) {
+                timeInterval = setInterval(() => {
+                    setCurrentTime(prev => prev - 1)
+                }, 1000)
+            } else if (currentTime <= 0) {
+                clearInterval(timeInterval)
+                resetGame()
+            }
         }
+
         return () => clearInterval(timeInterval)
-    }, [setting.timer, time])
+    }, [enableTimer, currentTime, overlayStatus])
 
     // Page Manager
     useEffect(() => {
@@ -348,7 +367,7 @@ const Wordle = ({ setting, updateSetting }) => {
         setGameBoard(tempGameBoard);
 
         // Reset Timer
-        setTime(setting.timerAmount);
+        setCurrentTime(setting.timerAmount);
 
         // Manage found words
         const completedWords = setting.completedWords;
@@ -413,6 +432,13 @@ const Wordle = ({ setting, updateSetting }) => {
         // Prevent focusable (enter key putting calling the hint button again)
         event.target.blur();
 
+        // Hints disabled
+        if (!enableHints) {
+            errorAudio.play();
+            updateMessage("Hints has been disabled")
+            return
+        }
+
         // Check if there is any remaining hints
         if (setting.hintAmount <= 0) {
             errorAudio.play();
@@ -457,6 +483,13 @@ const Wordle = ({ setting, updateSetting }) => {
     const revealAnwser = (event) => {
         // Prevent focusable (enter key putting calling the button again)
         event.target.blur();
+
+        // Hints disabled
+        if (!enableAnwserReveal) {
+            errorAudio.play();
+            updateMessage("Reveal has been disabled")
+            return
+        }
 
         // Creating a copy of the game board
         const updatedGameBoard = gameBoard.map(row =>
@@ -619,7 +652,7 @@ const Wordle = ({ setting, updateSetting }) => {
                                     </article>
                                     : null}
                                 {settingPage
-                                    ? <article className="wordle-overlay__default">
+                                    ? <article className="wordle-overlay__default wordle-overlay__setting">
                                         <h3 className="wordle-overlay__title">Settings</h3>
                                         <div className="wordle-overlay__setting-module">
                                             <div className="wordle-setting__text">
@@ -663,6 +696,17 @@ const Wordle = ({ setting, updateSetting }) => {
                                                 <p className="wordle-setting__description">Adjust sound effects for actions</p>
                                             </div>
                                         </div>
+
+                                        <div className="wordle-welcome__button-container">
+                                            <button
+                                                className="wordle-overlay__button wordle-overlay__button-big"
+                                                onClick={() => setSettingPage(false)}
+                                            > Cancel </button>
+                                            <button
+                                                className="wordle-overlay__button wordle-overlay__button-big"
+                                                onClick={() => setSettingPage(false)}
+                                            > Apply </button>
+                                        </div>
                                     </article>
                                     : null}
                             </div>
@@ -676,10 +720,10 @@ const Wordle = ({ setting, updateSetting }) => {
                             <p>Current Score</p>
                             <p>{setting.currentScore}</p>
                         </div>
-                        {setting.timer ?
+                        {setting.enableTimer ?
                             <div className="wordle__information-format">
                                 <p>Timer</p>
-                                <p>{formatTime(time)}</p>
+                                <p>{formatTime(currentTime)}</p>
                             </div>
                             : null
                         }
@@ -764,7 +808,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     </main>
                     <footer className="wordle__footer">
                         <div className="wordle__footer-left">
-                            <button></button>
+                            <button onClick={() => setSettingPage(true)}></button>
                             <button onClick={() => setTutorialPage(true)}></button>
                         </div>
                         <div className="wordle__footer-right">
@@ -773,11 +817,19 @@ const Wordle = ({ setting, updateSetting }) => {
                                     className="wordle-footer__hints"
                                     onClick={(event) => showHint(event)}
                                 >Show Hint</button>
-                                <p className="wordle-footer__hints-message">Hints Remaining: {setting.hintAmount}</p>
+                                <p className="wordle-footer__hints-message">{enableHints ? `Hints Remaining: ${setting.hintAmount}` : "Disabled"}</p>
                             </div>
-                            <button
-                                onClick={(event) => revealAnwser(event)}
-                            >Reveal Answer</button>
+
+
+                            <div className="wordle-footer__button-container">
+                                <button
+                                    className="wordle-footer__hints"
+                                    onClick={(event) => revealAnwser(event)}
+                                >Reveal Answer</button>
+                                {!enableAnwserReveal
+                                    ? <p className="wordle-footer__hints-message">Disabled</p>
+                                    : null}
+                            </div>
                         </div>
                     </footer>
                 </section>

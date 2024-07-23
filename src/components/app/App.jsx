@@ -10,13 +10,16 @@ function App() {
         lettersAttempt: [],
         lettersFound: [],
         start: false,
-        timer: false,
-        timerAmount: 10,
+        enableTimer: true,
+        timerAmount: 180,
         currentScore: 0,
         highestScore: 0,
         guessAmount: 6,
         letterCount: 5,
+        enableHints: true,
         hintAmount: 0,
+        enableAnwserReveal: true,
+        soundAmount: 0.50,
     });
 
     // Taken from local strage/update when need, Later.

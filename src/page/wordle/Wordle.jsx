@@ -524,7 +524,10 @@ const Wordle = ({ setting, updateSetting }) => {
                                         <h3 className="wordle-overlay__title">{hasGameInProgress ? "Welcome Back" : "Wordle"}</h3>
                                         <p className="wordle-overlay__welcome-message">{hasGameInProgress ? `You've made ${currentRow - 1} of ${setting.guessAmount} guess. Keep trying, you're on the right track!` : "Guess the hidden word within a limited number of attempts"}</p>
                                         <div className="wordle-welcome__button-container">
-                                            <button className="wordle-overlay__button">Setting</button>
+                                            <button
+                                                className="wordle-overlay__button"
+                                                onClick={() => setSettingPage(true)}
+                                            >Setting</button>
                                             <button
                                                 className="wordle-overlay__button"
                                                 onClick={() => setTutorialPage(true)}
@@ -550,7 +553,7 @@ const Wordle = ({ setting, updateSetting }) => {
                                     </article>
                                     : null}
                                 {tutorialPage
-                                    ? <article className="wordle-overlay__tutorial">
+                                    ? <article className="wordle-overlay__default">
                                         <h3 className="wordle-overlay__title">How To Play</h3>
                                         <h4 className="wordle-overlay__subtitle">Game Play</h4>
                                         <ul className="wordle-tutorial__list">
@@ -615,7 +618,53 @@ const Wordle = ({ setting, updateSetting }) => {
                                         >{welcomePage ? "Return" : "Resume"}</button>
                                     </article>
                                     : null}
-
+                                {settingPage
+                                    ? <article className="wordle-overlay__default">
+                                        <h3 className="wordle-overlay__title">Settings</h3>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Number of Letters</h4>
+                                                <p className="wordle-setting__description">Adjust the number of letters</p>
+                                            </div>
+                                        </div>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Number of Guesses</h4>
+                                                <p className="wordle-setting__description">Adjust the number of guesses</p>
+                                            </div>
+                                        </div>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Hints</h4>
+                                                <p className="wordle-setting__description">Enable or disable hints</p>
+                                            </div>
+                                        </div>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Reveal Anwser</h4>
+                                                <p className="wordle-setting__description">Enable or disable reveal answer option</p>
+                                            </div>
+                                        </div>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Timer</h4>
+                                                <p className="wordle-setting__description">Enable or disable the timer</p>
+                                            </div>
+                                        </div>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Amount of Time</h4>
+                                                <p className="wordle-setting__description">Adjust the amount of time</p>
+                                            </div>
+                                        </div>
+                                        <div className="wordle-overlay__setting-module">
+                                            <div className="wordle-setting__text">
+                                                <h4 className="wordle-setting__title">Sound</h4>
+                                                <p className="wordle-setting__description">Adjust sound effects for actions</p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                    : null}
                             </div>
                             : null
                     }

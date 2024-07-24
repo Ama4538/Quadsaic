@@ -56,22 +56,6 @@
     user-select: none;
 }
 
-
-/* Pseudo Element */
-.gamedisplay__image-container::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    height: 100%;
-    width: 100%;
-    background: radial-gradient(circle,
-            transparent 10%,
-            rgba(0, 0, 0, 0.2),
-            rgba(0, 0, 0, 0.4));
-    content: "";
-}
-
 .gamedisplay__link::before {
     position: absolute;
     bottom: 0;

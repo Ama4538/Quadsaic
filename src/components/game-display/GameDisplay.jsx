@@ -12,7 +12,7 @@ const GameDisplay = ({ game }) => {
             >
                 <img
                     className="gamedisplay__image"
-                    src={`/game-image/${gameName}.jpg`}
+                    src={`/game-image/${gameName}.png`}
                     alt=""
                 />
             </Link>

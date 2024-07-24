@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 
-function DropDown({ content, setSelected }) {
+function DropDown({ content, name = "" }) {
     // State to manage visibility 
     const [visible, setVisible] = useState(false)
     const [displayName, setDisplayName] = useState(content[0])
@@ -43,10 +43,9 @@ function DropDown({ content, setSelected }) {
                     return (
                         <li
                             className="dropdown__option"
-                            key={index}
+                            key={"dropdown__Menu-name-" + index}
                             onClick={() => {
                                 setDisplayName(element);
-                                setSelected(element);
                             }}
                         >{element}</li>
                     )

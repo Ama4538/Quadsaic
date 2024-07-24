@@ -8,6 +8,7 @@ import revealSound from "/sound/reveal.mp3"
 import PageTransition from "../../components/page-transition/PageTransition"
 import Nav from "../../components/nav/Nav"
 import useFetchWord from "../../components/hooks/useFetchWord";
+import DropDown from "../../components/dropdown/DropDown";
 
 const Wordle = ({ setting, updateSetting }) => {
     useEffect(() => {
@@ -94,6 +95,10 @@ const Wordle = ({ setting, updateSetting }) => {
         incorrect: "#3b3e41",
         reveal: "#781626",
     }
+
+    // Setting drop menu option
+    const possibleLetterAmount = [4, 5, 6, 7, 8, 9];
+    const possibleGuessAmount = [3, 4, 5, 6, 7, 8];
 
     // Audio
     const CorrectAudio = new Audio(correctSound);
@@ -555,7 +560,7 @@ const Wordle = ({ setting, updateSetting }) => {
                                 {welcomePage
                                     ? <article className="wordle-overlay__welcome">
                                         <h3 className="wordle-overlay__title">{hasGameInProgress ? "Welcome Back" : "Wordle"}</h3>
-                                        <p className="wordle-overlay__welcome-message">{hasGameInProgress ? `You've made ${currentRow - 1} of ${setting.guessAmount} guess. Keep trying, you're on the right track!` : "Guess the hidden word within a limited number of attempts"}</p>
+                                        <p className="wordle-overlay__welcome-message">{hasGameInProgress ? `You've made ${currentRow} of ${setting.guessAmount} guess. Keep trying, you're on the right track!` : "Guess the hidden word within a limited number of attempts"}</p>
                                         <div className="wordle-welcome__button-container">
                                             <button
                                                 className="wordle-overlay__button"
@@ -659,6 +664,7 @@ const Wordle = ({ setting, updateSetting }) => {
                                                 <h4 className="wordle-setting__title">Number of Letters</h4>
                                                 <p className="wordle-setting__description">Adjust the number of letters</p>
                                             </div>
+                                            <DropDown content={possibleLetterAmount} name = {"lettercount"}/>
                                         </div>
                                         <div className="wordle-overlay__setting-module">
                                             <div className="wordle-setting__text">

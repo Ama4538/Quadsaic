@@ -20,6 +20,7 @@
 @import "./page/home/home.css";
 @import "./components/nav/nav.css";
 @import "./components/game-display/gamedisplay.css";
+@import "./components/dropdown/dropdown.css";
 
 :root {
     /* Color */
@@ -189,6 +190,12 @@
 }
 
 /* Setting */
+.wordle-overlay__setting-module  {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .wordle-setting__title {
     font-size: var(--font-size-small);
     font-weight: 500;
@@ -377,11 +384,9 @@
 }
 
 /* Animation */
-.wordle-gameboard__cell[data-filled="true"] {
-    opacity: 1;
-}
-
-.wordle__gameboard[data-message="true"] .wordle__message {
+.wordle-gameboard__cell[data-filled="true"],
+.wordle__gameboard[data-message="true"] .wordle__message,
+.wordle-footer__hints:hover+.wordle-footer__hints-message {
     opacity: 1;
 }
 
@@ -393,22 +398,13 @@
     scale: 1.05;
 }
 
-.wordle__footer-right button:hover {
+.wordle__footer-right button:hover,
+.wordle-overlay__button:hover  {
     color: var(--secondary-color);
 }
 
-.wordle__footer-right button:hover::before {
-    height: 100%;
-}
-
-.wordle-footer__hints:hover+.wordle-footer__hints-message {
-    opacity: 1;
-}
-
-.wordle-overlay__button:hover {
-    color: var(--secondary-color);
-}
-
+.wordle__footer-right button:hover::before,
 .wordle-overlay__button:hover::before {
     height: 100%;
 }
+

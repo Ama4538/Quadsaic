@@ -1,19 +1,35 @@
+// libraires
 import { useEffect, useRef, useState } from "react";
-import { motion, useAnimation } from "framer-motion"
+
+// Components
+import PageTransition from "../../components/page-transition/PageTransition"
+import Nav from "../../components/nav/Nav"
+import WelcomePage from "./wordle-component/WelcomePage";
+import TutorialPage from "./wordle-component/TutorialPage";
+import SettingPage from "./wordle-component/SettingPage";
+import GameBoard from "./wordle-component/GameBoard";
+import KeyBoard from "./wordle-component/KeyBoard";
+import Timer from "../../components/timer/Timer";
+
+// Variables
+import WordleAnimations from "./wordle-component/WordleAnimations"
+
+// Hooks
+import useFetchWord from "../../components/hooks/useFetchWord";
+import useOverlayManagement from "../../components/hooks/useOverlayManagement";
+
+// Sound
 import correctSound from "/sound/correct.mp3"
 import errorSound from "/sound/error.mp3"
 import submitSound from "/sound/submit.mp3"
 import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
-import PageTransition from "../../components/page-transition/PageTransition"
-import Nav from "../../components/nav/Nav"
-import useFetchWord from "../../components/hooks/useFetchWord";
-import DropDown from "../../components/dropdown/DropDown";
+
 
 const Wordle = ({ setting, updateSetting }) => {
     useEffect(() => {
         console.log(setting);
-    }, [setting.currentWord])
+    }, [setting])
 
     // Default cell used to updated proporties
     const defaultCell = {
@@ -23,12 +39,6 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     // States
-
-    // Overlay Management
-    const [overlayStatus, setOverlayStatus] = useState(true);
-    const [welcomePage, setWelcomePage] = useState(true);
-    const [settingPage, setSettingPage] = useState(false);
-    const [tutorialPage, setTutorialPage] = useState(false);
 
     // Game State
     const [currentRow, setCurrentRow] = useState(0)
@@ -54,34 +64,21 @@ const Wordle = ({ setting, updateSetting }) => {
     const [timeAmount, setTimeAmount] = useState(0)
     const [soundAmount, setSoundAmount] = useState(0)
 
+    // Overlay
+    const {
+        overlayStatus,
+        welcomePage,
+        settingPage,
+        tutorialPage,
+        setWelcomePage,
+        setSettingPage,
+        setTutorialPage,
+    } = useOverlayManagement();
+
     // Variables
 
     // Ref to timeout timer
     const timeoutRef = useRef(null);
-
-    // Animations
-    const animationController = useAnimation()
-    const rowAnimation = {
-        error: {
-            x: [0, 2.5, -2.5, 0],
-            transition: {
-                duration: 0.15,
-                ease: [0.45, 0, 0.55, 1],
-                repeat: 2
-            }
-        },
-    }
-
-    const cellAnimation = {
-        complete: (index) => ({
-            y: [0, -5, 0],
-            transition: {
-                duration: 0.15,
-                delay: index * 0.05,
-                ease: [0.45, 0, 0.55, 1],
-            }
-        })
-    }
 
     // Point System
     const BASE_POINT = 100;
@@ -96,34 +93,31 @@ const Wordle = ({ setting, updateSetting }) => {
         reveal: "#781626",
     }
 
-    // Setting drop menu option
-    const possibleLetterAmount = [4, 5, 6, 7, 8, 9];
-    const possibleGuessAmount = [3, 4, 5, 6, 7, 8];
-
     // Audio
     const CorrectAudio = new Audio(correctSound);
     const errorAudio = new Audio(errorSound);
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
     const revealAudio = new Audio(revealSound);
-    CorrectAudio.volume = soundAmount;
-    errorAudio.volume = soundAmount;
-    submitAudio.volume = soundAmount;
-    hintAudio.volume = soundAmount
-    revealAudio.volume = soundAmount
 
-    // Key Board
-    const keyBoardDisplay = [
-        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
-        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-        ["Enter", "z", "x", "c", "v", "b", "n", "m", "Delete"]
-    ]
+    CorrectAudio.volume = setting.soundAmount;
+    errorAudio.volume = setting.soundAmount;
+    submitAudio.volume = setting.soundAmount;
+    hintAudio.volume = setting.soundAmount
+    revealAudio.volume = setting.soundAmount
+
+    // Animations
+    const {
+        animationController,
+        rowAnimation,
+        cellAnimation
+    } = WordleAnimations()
 
     // UseEffect
 
     // Get the game board
     useEffect(() => {
-        if (setting.gameBoard.length === 0) {
+        if ((setting.gameBoard).length === 0 || (setting.gameBoard).length !== setting.guessAmount) {
             const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
             const newWord = useFetchWord(setting.letterCount)
 
@@ -150,7 +144,7 @@ const Wordle = ({ setting, updateSetting }) => {
             }
         }
         setDataLoadingStatus(true);
-    }, [])
+    }, [setting.letterCount, setting.guessAmount])
 
     // Progress Checker
     useEffect(() => {
@@ -161,7 +155,7 @@ const Wordle = ({ setting, updateSetting }) => {
             setEnableTimer(setting.enableTimer);
             setTimeAmount(setting.timerAmount);
             setCurrentTime(setting.timerAmount);
-            setLetterAmount(setting.letterAmount);
+            setLetterAmount(setting.letterCount);
             setGuessAmount(setting.guessAmount);
             setSoundAmount(setting.soundAmount);
         }
@@ -193,40 +187,7 @@ const Wordle = ({ setting, updateSetting }) => {
         };
     }, [gameBoard, currentRow, overlayStatus])
 
-    // Timer
-    useEffect(() => {
-        let timeInterval = null;
-        if (!overlayStatus) {
-            if (enableTimer && currentTime > 0) {
-                timeInterval = setInterval(() => {
-                    setCurrentTime(prev => prev - 1)
-                }, 1000)
-            } else if (currentTime <= 0) {
-                clearInterval(timeInterval)
-                resetGame()
-            }
-        }
-
-        return () => clearInterval(timeInterval)
-    }, [enableTimer, currentTime, overlayStatus])
-
-    // Page Manager
-    useEffect(() => {
-        setOverlayStatus(welcomePage || tutorialPage || settingPage);
-    }, [welcomePage, tutorialPage, settingPage])
-
     // Functions
-
-    // Start the game
-    const startGame = (reset = false) => {
-        // Turn off all pages
-        setWelcomePage(!welcomePage);
-        setWelcomePage(false);
-
-        if (reset) {
-            resetGame();
-        }
-    }
 
     // Handled lettter press
     const updateLetter = (letter) => {
@@ -372,7 +333,7 @@ const Wordle = ({ setting, updateSetting }) => {
         setGameBoard(tempGameBoard);
 
         // Reset Timer
-        setCurrentTime(setting.timerAmount);
+        updateCurrentTime(setting.timerAmount);
 
         // Manage found words
         const completedWords = setting.completedWords;
@@ -402,21 +363,6 @@ const Wordle = ({ setting, updateSetting }) => {
         ))
     }
 
-    // Handle Display KeyBoard Input 
-    const handleDisplayKeyBoard = (letter, event) => {
-        // Prevent focusable (enter key putting another letter)
-        event.target.blur();
-
-        // Condition for which button is pressed
-        if (letter === "Enter") {
-            nextLine();
-        } else if (letter === "Delete") {
-            removeLetter();
-        } else {
-            updateLetter(letter);
-        }
-    }
-
     // Add letter to array to show all attempted inputs
     const addToInputLetter = (cell, lettersAttempt) => {
         // Check if letter is inside
@@ -434,15 +380,8 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     const showHint = (event) => {
-        // Prevent focusable (enter key putting calling the hint button again)
+        // Prevent focusable (enter key  calling the hint button again)
         event.target.blur();
-
-        // Hints disabled
-        if (!enableHints) {
-            errorAudio.play();
-            updateMessage("Hints has been disabled")
-            return
-        }
 
         // Check if there is any remaining hints
         if (setting.hintAmount <= 0) {
@@ -486,15 +425,8 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // reveal the anwser
     const revealAnwser = (event) => {
-        // Prevent focusable (enter key putting calling the button again)
+        // Prevent focusable (enter key  calling the button again)
         event.target.blur();
-
-        // Hints disabled
-        if (!enableAnwserReveal) {
-            errorAudio.play();
-            updateMessage("Reveal has been disabled")
-            return
-        }
 
         // Creating a copy of the game board
         const updatedGameBoard = gameBoard.map(row =>
@@ -526,6 +458,86 @@ const Wordle = ({ setting, updateSetting }) => {
         revealAudio.play();
     }
 
+    // Update the current overly page
+    const updatePage = (page, value) => {
+        switch (page) {
+            case "welcome":
+                setWelcomePage(value)
+                break;
+            case "setting":
+                setSettingPage(value);
+                break;
+            case "tutorial":
+                setTutorialPage(value);
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Setting dropdown menu update
+    const updateSelectedSettings = (property, value) => {
+        switch (property) {
+            case "letterAmount":
+                setLetterAmount(value);
+                break;
+            case "guessAmount":
+                setGuessAmount(value);
+                break;
+            case "timeAmount":
+                setTimeAmount(value * 60);
+                break;
+            case "enableHints":
+                setEnableHints(value);
+                break;
+            case "enableAnwserReveal":
+                setEnableAnwserReveal(value);
+                break;
+            case "enableTimer":
+                setEnableTimer(value);
+                break;
+            case "soundAmount":
+                const testAudio = new Audio(correctSound);
+                testAudio.volume = value;
+                testAudio.play();
+                setSoundAmount(value)
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Apply setting changes
+    const applySetting = () => {
+        setSettingPage(false);
+        resetGame();
+        updateCurrentTime(timeAmount);
+        updateSetting(prev => (
+            {
+                ...prev,
+                letterCount: letterAmount,
+                guessAmount: guessAmount,
+                enableAnwserReveal: enableAnwserReveal,
+                enableHints: enableHints,
+                enableTimer: enableTimer,
+                soundAmount: soundAmount,
+                timerAmount: timeAmount,
+            }
+        ))
+    }
+
+    // Cancel setting change
+    const cancelSetting = () => {
+        setSettingPage(false);
+        setEnableAnwserReveal(setting.enableAnwserReveal);
+        setEnableHints(setting.enableHints);
+        setEnableTimer(setting.enableTimer);
+        setTimeAmount(setting.timerAmount);
+        setLetterAmount(setting.letterCount);
+        setGuessAmount(setting.guessAmount);
+        setSoundAmount(setting.soundAmount);
+    }
+
     // Update Message
     const updateMessage = (message) => {
         setMessage(message);
@@ -541,11 +553,9 @@ const Wordle = ({ setting, updateSetting }) => {
         }, 1000)
     }
 
-    //format the time
-    const formatTime = (time) => {
-        const min = Math.floor(time / 60);
-        const sec = time % 60;
-        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    // Update the current time
+    const updateCurrentTime = (value) => {
+        setCurrentTime(value)
     }
 
     return (
@@ -558,167 +568,39 @@ const Wordle = ({ setting, updateSetting }) => {
                             ? <div className="wordle__overlay">
                                 {/* Generate the page when they are active */}
                                 {welcomePage
-                                    ? <article className="wordle-overlay__welcome">
-                                        <h3 className="wordle-overlay__title">{hasGameInProgress ? "Welcome Back" : "Wordle"}</h3>
-                                        <p className="wordle-overlay__welcome-message">{hasGameInProgress ? `You've made ${currentRow} of ${setting.guessAmount} guess. Keep trying, you're on the right track!` : "Guess the hidden word within a limited number of attempts"}</p>
-                                        <div className="wordle-welcome__button-container">
-                                            <button
-                                                className="wordle-overlay__button"
-                                                onClick={() => setSettingPage(true)}
-                                            >Setting</button>
-                                            <button
-                                                className="wordle-overlay__button"
-                                                onClick={() => setTutorialPage(true)}
-                                            >How to Play</button>
-                                        </div>
-                                        <div className="wordle-welcome__button-container">
-                                            {hasGameInProgress
-                                                ? <>
-                                                    <button
-                                                        className="wordle-overlay__button wordle-overlay__button-big"
-                                                        onClick={() => startGame(true)}
-                                                    > New Game </button>
-                                                    <button
-                                                        className="wordle-overlay__button wordle-overlay__button-big"
-                                                        onClick={() => startGame()}
-                                                    > Resume </button>
-                                                </>
-                                                : <button
-                                                    className="wordle-overlay__button wordle-overlay__button-big"
-                                                    onClick={() => startGame()}
-                                                > Start Game</button>}
-                                        </div>
-                                    </article>
+                                    ? <WelcomePage
+                                        hasGameInProgress={hasGameInProgress}
+                                        currentRow={currentRow}
+                                        guessAmount={setting.guessAmount}
+                                        updatePage={updatePage}
+                                        resetGame={resetGame}
+                                    />
                                     : null}
                                 {tutorialPage
-                                    ? <article className="wordle-overlay__default">
-                                        <h3 className="wordle-overlay__title">How To Play</h3>
-                                        <h4 className="wordle-overlay__subtitle">Game Play</h4>
-                                        <ul className="wordle-tutorial__list">
-                                            <li>Guess the Word Within a Set Number of Attempts</li>
-                                            <li>Tile colors will change to indicate how close your guess is to the target word.</li>
-                                            <li>Hints will deduct points, and the number of available hints is related to the number of letters in each word.</li>
-                                            <li>Revealing the answer will display the solution and deduct a larger number of points from your current score.</li>
-                                            <li>When the timer runs out, the game will end. You can adjust the timer in the settings.</li>
-                                            <li>Points are awarded for each correct letter in the correct spot. Total points are based on the selected difficulty level.</li>
-                                        </ul>
-                                        <h4 className="wordle-overlay__subtitle">Examples</h4>
-                                        {/* Examples */}
-                                        <div className="wordle-tutorial__example-row">
-                                            {["d", "e", "l", "t", "a"].map((letter, index) => (
-                                                <div
-                                                    className="wordle-gameboard__cell"
-                                                    key={"wordle-tutorial__example-row-1-letter-" + index}
-                                                    style={{
-                                                        backgroundColor: letter === "l" ? color["correct"] : null,
-                                                        color: letter === "l" ? "var(--secondary-color)" : "var(--primary-color)"
-                                                    }}
-                                                >
-                                                    <span>{letter}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p className="wordle-tutorial__example-text">The letter <strong>L</strong> is in the word and in the correct spot.</p>
-                                        <div className="wordle-tutorial__example-row">
-                                            {["s", "h", "a", "k", "e"].map((letter, index) => (
-                                                <div
-                                                    className="wordle-gameboard__cell"
-                                                    key={"wordle-tutorial__example-row-2-letter-" + index}
-                                                    style={{
-                                                        backgroundColor: letter === "e" ? color["partial"] : null,
-                                                        color: letter === "e" ? "var(--secondary-color)" : "var(--primary-color)"
-                                                    }}
-                                                >
-                                                    <span>{letter}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p className="wordle-tutorial__example-text">The letter <strong>E</strong> is in the word but not in the correct spot.</p>
-                                        <div className="wordle-tutorial__example-row">
-                                            {["r", "e", "b", "u", "s"].map((letter, index) => (
-                                                <div
-                                                    className="wordle-gameboard__cell"
-                                                    key={"wordle-tutorial__example-row-3-letter-" + index}
-                                                    style={{
-                                                        backgroundColor: letter === "r" ? color["incorrect"] : null,
-                                                        color: letter === "r" ? "var(--secondary-color)" : "var(--primary-color)"
-                                                    }}
-                                                >
-                                                    <span>{letter}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p className="wordle-tutorial__example-text"> The letter <strong>R</strong> is not in the word in any position.</p>
-
-                                        <button
-                                            className="wordle-overlay__button wordle-overlay__button-big"
-                                            onClick={() => setTutorialPage(false)}
-                                        >{welcomePage ? "Return" : "Resume"}</button>
-                                    </article>
+                                    ? <TutorialPage
+                                        color={color}
+                                        welcomePage={welcomePage}
+                                        updatePage={updatePage}
+                                    />
                                     : null}
                                 {settingPage
-                                    ? <article className="wordle-overlay__default wordle-overlay__setting">
-                                        <h3 className="wordle-overlay__title">Settings</h3>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Number of Letters</h4>
-                                                <p className="wordle-setting__description">Adjust the number of letters</p>
-                                            </div>
-                                            <DropDown content={possibleLetterAmount} name = {"lettercount"}/>
-                                        </div>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Number of Guesses</h4>
-                                                <p className="wordle-setting__description">Adjust the number of guesses</p>
-                                            </div>
-                                        </div>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Hints</h4>
-                                                <p className="wordle-setting__description">Enable or disable hints</p>
-                                            </div>
-                                        </div>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Reveal Anwser</h4>
-                                                <p className="wordle-setting__description">Enable or disable reveal answer option</p>
-                                            </div>
-                                        </div>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Timer</h4>
-                                                <p className="wordle-setting__description">Enable or disable the timer</p>
-                                            </div>
-                                        </div>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Amount of Time</h4>
-                                                <p className="wordle-setting__description">Adjust the amount of time</p>
-                                            </div>
-                                        </div>
-                                        <div className="wordle-overlay__setting-module">
-                                            <div className="wordle-setting__text">
-                                                <h4 className="wordle-setting__title">Sound</h4>
-                                                <p className="wordle-setting__description">Adjust sound effects for actions</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="wordle-welcome__button-container">
-                                            <button
-                                                className="wordle-overlay__button wordle-overlay__button-big"
-                                                onClick={() => setSettingPage(false)}
-                                            > Cancel </button>
-                                            <button
-                                                className="wordle-overlay__button wordle-overlay__button-big"
-                                                onClick={() => setSettingPage(false)}
-                                            > Apply </button>
-                                        </div>
-                                    </article>
+                                    ? <SettingPage
+                                        color={color}
+                                        updateSelectedSettings={updateSelectedSettings}
+                                        letterAmount={letterAmount}
+                                        guessAmount={guessAmount}
+                                        enableHints={enableHints}
+                                        enableAnwserReveal={enableAnwserReveal}
+                                        enableTimer={enableTimer}
+                                        timeAmount={timeAmount}
+                                        soundAmount={soundAmount}
+                                        cancelSetting={cancelSetting}
+                                        applySetting={applySetting}
+                                    />
                                     : null}
                             </div>
                             : null
                     }
-
 
                     {/* Display the information */}
                     <header className="wordle__information-display">
@@ -729,7 +611,12 @@ const Wordle = ({ setting, updateSetting }) => {
                         {setting.enableTimer ?
                             <div className="wordle__information-format">
                                 <p>Timer</p>
-                                <p>{formatTime(currentTime)}</p>
+                                <Timer
+                                    overlayStatus={overlayStatus}
+                                    enableTimer={enableTimer}
+                                    currentTime={currentTime}
+                                    updateCurrentTime={updateCurrentTime}
+                                />
                             </div>
                             : null
                         }
@@ -739,77 +626,25 @@ const Wordle = ({ setting, updateSetting }) => {
                         </div>
                     </header>
 
-                    {/* Game Board */}
                     <main className="wordle__content">
-                        {/* Generate the board based on the 2D array */}
-                        <div
-                            className="wordle__gameboard"
-                            data-message={showMessage ? true : false}
-                        >
-                            <div className="wordle__message">
-                                <p>{message}</p>
-                            </div>
-                            {gameBoard.map((row, rowNum) => (
-                                <motion.div
-                                    className="wordle-gameboard__row"
-                                    key={"wordle__gameboard-row-" + rowNum}
-                                    variants={rowNum === currentRow ? rowAnimation : null}
-                                    animate={animationController}
-                                >
-                                    {row.map((cell, cellNum) => (
-                                        <motion.div
-                                            className="wordle-gameboard__cell"
-                                            key={"wordle__gameboard-row-" + rowNum + "-cell-" + cellNum}
-                                            variants={rowNum === currentRow ? cellAnimation : null}
-                                            animate={animationController}
-                                            custom={cellNum}
-                                            style={{
-                                                backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
-                                                color: cell.textColor !== null ? "var(--secondary-color)" : "var(--primary-color)"
-                                            }}
-                                            data-filled={cell.content !== 0 ? true : false}
-                                        >
-                                            {/* Render the cell text if their is content */}
-                                            {cell.content !== 0 ? <span>{cell.content}</span> : null}
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-                            ))}
-                        </div>
+                        {/* Game Board */}
+                        <GameBoard
+                            gameBoard={gameBoard}
+                            message={message}
+                            showMessage={showMessage}
+                            currentRow={currentRow}
+                            rowAnimation={rowAnimation}
+                            cellAnimation={cellAnimation}
+                            animationController={animationController}
+                        />
 
                         {/* Keyboard */}
-                        <div className="wordle__keyboard">
-                            {/* Generating keyboard based on 2D array */}
-                            {keyBoardDisplay.map((row, rowNum) => (
-                                <div
-                                    className="wordle-keyboard__row"
-                                    key={"wordle-keyboard__row-" + rowNum}
-                                >
-                                    {row.map((letter, letterNum) => (
-                                        <div
-                                            className="wordle-keyboard__letter"
-                                            key={"wordle__gameboard-row-" + rowNum + "-letter-" + letterNum}
-                                        >
-                                            <button
-                                                className={letter.length > 1 ? "wordle-keyboard__button wordle-keyboard__button-big" : "wordle-keyboard__button"}
-                                                onClick={(event) => {
-                                                    handleDisplayKeyBoard(letter, event)
-                                                }}
-                                                style={{
-                                                    backgroundColor: (setting.lettersAttempt).some(cell => cell.content === letter)
-                                                        ? (setting.lettersAttempt)[(setting.lettersAttempt).findIndex(cell => cell.content === letter)].backgroundColor
-                                                        : null,
-                                                    color: (setting.lettersAttempt).some(cell => cell.content === letter)
-                                                        ? "var(--secondary-color)"
-                                                        : "var(--primary-color)",
-                                                }}
-                                            >
-                                                {letter}</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
+                        <KeyBoard
+                            lettersAttempt={setting.lettersAttempt}
+                            nextLine={nextLine}
+                            removeLetter={removeLetter}
+                            updateLetter={updateLetter}
+                        />
 
                     </main>
                     <footer className="wordle__footer">
@@ -821,18 +656,19 @@ const Wordle = ({ setting, updateSetting }) => {
                             <div className="wordle-footer__button-container">
                                 <button
                                     className="wordle-footer__hints"
-                                    onClick={(event) => showHint(event)}
+                                    onClick={(event) => { setting.enableHints ? showHint(event) : null }}
+                                    data-active={setting.enableHints}
                                 >Show Hint</button>
-                                <p className="wordle-footer__hints-message">{enableHints ? `Hints Remaining: ${setting.hintAmount}` : "Disabled"}</p>
+                                <p className="wordle-footer__hints-message">{setting.enableHints ? `Hints Remaining: ${setting.hintAmount}` : "Disabled"}</p>
                             </div>
-
 
                             <div className="wordle-footer__button-container">
                                 <button
                                     className="wordle-footer__hints"
-                                    onClick={(event) => revealAnwser(event)}
+                                    onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
+                                    data-active={setting.enableAnwserReveal}
                                 >Reveal Answer</button>
-                                {!enableAnwserReveal
+                                {!setting.enableAnwserReveal
                                     ? <p className="wordle-footer__hints-message">Disabled</p>
                                     : null}
                             </div>

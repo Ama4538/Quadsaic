@@ -11,6 +11,7 @@ import EndScreen from "./wordle-component/EndScreen";
 import GameBoard from "./wordle-component/GameBoard";
 import KeyBoard from "./wordle-component/KeyBoard";
 import Timer from "../../components/timer/Timer";
+import Loader from "../loader/Loader"
 
 // Variables
 import WordleAnimations from "./wordle-component/WordleAnimations"
@@ -582,8 +583,9 @@ const Wordle = ({ setting, updateSetting }) => {
     return (
         <PageTransition>
             <Nav location={"wordle"} />
+            <main className="wordle">
             {dataLoadingStatus
-                ? <section className="wordle">
+                ? <>
                     {
                         overlayStatus
                             ? <div className="wordle__overlay">
@@ -668,7 +670,7 @@ const Wordle = ({ setting, updateSetting }) => {
                         </div>
                     </header>
 
-                    <main className="wordle__content">
+                    <section className="wordle__content">
                         {/* Game Board */}
                         <GameBoard
                             gameBoard={gameBoard}
@@ -688,7 +690,7 @@ const Wordle = ({ setting, updateSetting }) => {
                             updateLetter={updateLetter}
                         />
 
-                    </main>
+                    </section>
                     <footer className="wordle__footer">
                         <div className="wordle__footer-left">
                             <button onClick={() => setSettingPage(true)}></button>
@@ -716,8 +718,9 @@ const Wordle = ({ setting, updateSetting }) => {
                             </div>
                         </div>
                     </footer>
-                </section>
-                : null}
+                </>
+                : <Loader />}
+                </main>
         </PageTransition>
     )
 }

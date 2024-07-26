@@ -2,6 +2,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from 'framer-motion';
 import Home from "../../page/home/Home.jsx";
 import Wordle from "../../page/wordle/Wordle.jsx";
+import Error from "../../page/error/Error.jsx";
 
 const AnimatedRoutes = ({ wordleSetting, updateWordleSetting }) => {
     // Listens to url changes to play render
@@ -14,6 +15,7 @@ const AnimatedRoutes = ({ wordleSetting, updateWordleSetting }) => {
                 <Route path="/wordle" element={
                     <Wordle setting={wordleSetting} updateSetting={updateWordleSetting} />
                 } />
+                <Route path="*" element={<Error />} />
             </Routes>
         </AnimatePresence>
     )

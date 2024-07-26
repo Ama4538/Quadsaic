@@ -57,7 +57,7 @@
 }
 
 .home__page-button {
-    padding: calc(var(--padding-size-small) / 1.35) 0;
+    padding: calc(var(--padding-size-small) / 1.85) 0;
     width: 50%;
     border: none;
     cursor: pointer;

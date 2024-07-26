@@ -19,7 +19,7 @@ const Home = () => {
     const gameDisplay = [
         {
             name: "Wordle",
-            description: " Engage in our unique version of Wordle, where you test your skills by guessing the word within a set number of attempts, with tile colors indicating how close you are. Customize your experience by adjusting settings such as the number of letters, guesses, and timer duration. Choose to enable or disable hints, or reveal the answer at a cost. Points are awarded for each correct letter in the right spot, with a point multiplier that automatically adjusts based on your selected settings. Enjoy an immersive experience enhanced with adjustable sound effects."
+            description: " Engage in our version of Wordle, where you test your skills by guessing the word within a set number of attempts, with tile colors indicating how close you are. Customize your experience by adjusting settings such as the number of letters, guesses, and timer duration. Choose to enable or disable hints, or reveal the answer at a cost. Points are awarded for each correct letter in the right spot, with a point multiplier that automatically adjusts based on your selected settings. Enjoy an immersive experience enhanced with adjustable sound effects."
         },
         {
             name: "Word Search",

@@ -1,31 +1,28 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
+import useCheckClickOutside from "../hooks/useCheckClickOutside";
 
-function DropDown({ content, name = "", startingValue, setSelected, updateChangesMade}) {
+function DropDown({ 
+    content, 
+    name = "", 
+    startingValue, 
+    setSelected, 
+    updateChangesMade,
+}) {
     // State to manage visibility 
     const [visible, setVisible] = useState(false)
     const [displayName, setDisplayName] = useState(startingValue)
 
     // ref to the drop down menu
     const drowDownRef = useRef(null);
-
+    
     // Filter the content to show all but the currrent selected
-    let dropDownMenu = (content.filter((choice) => choice !== displayName)).sort();
+    let dropDownMenu = (content.filter((choice) => choice !== displayName).sort())
 
-    // Added a mouse listener to document to check if outside has been clicked
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const updateStatus = () => {
+        setVisible(false);
+    }
 
-    // Check if the click happen outside the dropdown menu
-    function handleClickOutside (event) {
-        //drowDownRef.current to check if value is defined and not null/undefine
-        if (drowDownRef.current && !drowDownRef.current.contains(event.target)) {
-            setVisible(false);
-        }
-    };
+    useCheckClickOutside(drowDownRef, updateStatus)
 
     return (
         <div
@@ -35,6 +32,7 @@ function DropDown({ content, name = "", startingValue, setSelected, updateChange
                 setVisible(prev => !prev)
             }}
             data-visible={(visible) ? "visible" : "hidden"}
+            data-large = {startingValue.length > 1 ? true : false}
         >
             {displayName}
             <ul className="dropdown__menu">

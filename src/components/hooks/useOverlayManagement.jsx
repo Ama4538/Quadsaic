@@ -6,20 +6,23 @@ const useOverlayManagement = () => {
     const [welcomePage, setWelcomePage] = useState(true);
     const [settingPage, setSettingPage] = useState(false);
     const [tutorialPage, setTutorialPage] = useState(false);
+    const [endPage, setEndPage] = useState(false);
 
     // Page Manager
     useEffect(() => {
-        setOverlayStatus(welcomePage || tutorialPage || settingPage);
-    }, [welcomePage, tutorialPage, settingPage])
+        setOverlayStatus(welcomePage || tutorialPage || settingPage || endPage);
+    }, [welcomePage, tutorialPage, settingPage, endPage])
 
     return {
         overlayStatus,
         welcomePage,
         settingPage,
         tutorialPage,
+        endPage,
         setWelcomePage,
         setSettingPage,
         setTutorialPage,
+        setEndPage,
     }
 }
 

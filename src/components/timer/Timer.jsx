@@ -4,7 +4,9 @@ const Timer = ({
     overlayStatus,
     enableTimer,
     currentTime,
-    updateCurrentTime
+    updateCurrentTime,
+    updatePage,
+    updateMessage
 }) => {
     // Timer
     useEffect(() => {
@@ -16,7 +18,10 @@ const Timer = ({
                 }, 1000)
             } else if (currentTime <= 0) {
                 clearInterval(timeInterval)
-                resetGame()
+                updateMessage("Out of Time!")
+                setTimeout(() => {
+                    updatePage("end", true)
+                }, 1000)
             }
         }
 

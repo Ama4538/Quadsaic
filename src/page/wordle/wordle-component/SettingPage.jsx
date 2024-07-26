@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion"
 import DropDown from "./../../../components/dropdown/DropDown"
+import useCheckClickOutside from "../../../components/hooks/useCheckClickOutside";
 
 const SettingPage = ({
     color,
@@ -12,25 +14,89 @@ const SettingPage = ({
     timeAmount,
     soundAmount,
     cancelSetting,
-    applySetting, }) => {
+    applySetting,
+    pointMultiplier,
+    updatePointMultiplier,
+    pageAnimation
+}) => {
 
     // Setting State
     const [changesMade, setChangesMade] = useState(false)
 
-    // Setting drop menu option
-    const possibleLetterAmount = [4, 5, 6, 7, 8, 9];
-    const possibleGuessAmount = [3, 4, 5, 6, 7, 8];
-    const possibleTimeAmount = [1, 3, 5, 7, 9]
+    // ref used to close when not clicked inside
+    const settingRef = useRef(null)
+    useCheckClickOutside(settingRef, cancelSetting)
 
-    // UpdateChangeMade 
+    // Setting drop menu option
+    const possibleLetterAmount = [4, 5, 6, 7];
+    const possibleGuessAmount = [3, 4, 5, 6, 7, 8];
+    const possibleTimeAmount = [1, 2, 3, 5, 7]
+
+    // Auto adjust points based on settings
+    useEffect(() => {
+        updatePointMultiplier(adjustedPointMultiplier());
+    }, [letterAmount, guessAmount, timeAmount, enableHints, enableAnwserReveal, enableTimer])
+
+    // Handle point multiplier
+    const adjustedPointMultiplier = () => {
+        let newPointMultipler = 1;
+        // All possible points adjustments
+        const letterPointIncrease = {
+            4: -0.15,
+            5: 0,
+            6: 0.15,
+            7: 0.30
+        }
+        const guessPointIncrease = {
+            3: 0.50,
+            4: 0.25,
+            5: 0.10,
+            6: 0,
+            7: -0.05,
+            8: -0.15,
+        }
+        const timeAmountPointIncrease = {
+            1: 0.25,
+            2: 0.10,
+            3: 0,
+            5: -0.10,
+            7: -0.15,
+        }
+        // Increase points if enable
+        if (enableTimer) {
+            const defaultTimerIncrease = 0.25;
+            newPointMultipler = newPointMultipler + defaultTimerIncrease + timeAmountPointIncrease[timeAmount / 60];
+        }
+        // Increase points if disable
+        if (!enableHints) {
+            const defaultHintIncrease = 0.15;
+            newPointMultipler = newPointMultipler + defaultHintIncrease;
+        }
+        if (!enableAnwserReveal) {
+            const defaultAnwerRevealIncrease = 0.05
+            newPointMultipler = newPointMultipler + defaultAnwerRevealIncrease
+        }
+
+        newPointMultipler = newPointMultipler + letterPointIncrease[letterAmount] + guessPointIncrease[guessAmount]
+        return newPointMultipler.toString().length < 4 ? newPointMultipler.toFixed(1) : newPointMultipler.toFixed(2);
+    }
+
+    // Update ChangeMade 
     const updateChangesMade = (value) => {
         if (!changesMade) {
             setChangesMade(value)
         }
     }
 
+
     return (
-        <article className="wordle-overlay__default wordle-overlay__setting">
+        <motion.article
+            className="wordle-overlay__default wordle-overlay__setting"
+            ref={settingRef}
+            variants={pageAnimation}
+            initial="init"
+            animate="animate"
+        >
             <h3 className="wordle-overlay__title">Settings</h3>
             <div className="wordle-overlay__setting-module">
                 <div className="wordle-setting__text">
@@ -143,6 +209,13 @@ const SettingPage = ({
                     <span>{Math.floor(soundAmount * 100)}</span>
                 </div>
             </div>
+            <div className="wordle-overlay__setting-module">
+                <div className="wordle-setting__text">
+                    <h4 className="wordle-setting__title">Point Multiplier</h4>
+                    <p className="wordle-setting__description">Automatically set based on selected settings (not adjustable).</p>
+                </div>
+                <span>{pointMultiplier}x</span>
+            </div>
 
             <div className="wordle-welcome__button-container">
                 <button
@@ -155,7 +228,7 @@ const SettingPage = ({
                     data-active={changesMade}
                 > Apply </button>
             </div>
-        </article>
+        </motion.article>
     )
 }
 

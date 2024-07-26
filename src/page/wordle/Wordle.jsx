@@ -7,6 +7,7 @@ import Nav from "../../components/nav/Nav"
 import WelcomePage from "./wordle-component/WelcomePage";
 import TutorialPage from "./wordle-component/TutorialPage";
 import SettingPage from "./wordle-component/SettingPage";
+import EndScreen from "./wordle-component/EndScreen";
 import GameBoard from "./wordle-component/GameBoard";
 import KeyBoard from "./wordle-component/KeyBoard";
 import Timer from "../../components/timer/Timer";
@@ -24,13 +25,10 @@ import errorSound from "/sound/error.mp3"
 import submitSound from "/sound/submit.mp3"
 import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
+import endSound from "/sound/end.mp3"
 
 
 const Wordle = ({ setting, updateSetting }) => {
-    useEffect(() => {
-        console.log(setting);
-    }, [setting])
-
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -63,16 +61,18 @@ const Wordle = ({ setting, updateSetting }) => {
     const [enableTimer, setEnableTimer] = useState(false)
     const [timeAmount, setTimeAmount] = useState(0)
     const [soundAmount, setSoundAmount] = useState(0)
-
+    const [pointMultiplier, setPointMultiplier] = useState(1);
     // Overlay
     const {
         overlayStatus,
         welcomePage,
         settingPage,
         tutorialPage,
+        endPage,
         setWelcomePage,
         setSettingPage,
         setTutorialPage,
+        setEndPage,
     } = useOverlayManagement();
 
     // Variables
@@ -81,8 +81,8 @@ const Wordle = ({ setting, updateSetting }) => {
     const timeoutRef = useRef(null);
 
     // Point System
-    const BASE_POINT = 100;
-    const totalPoints = BASE_POINT;
+    const BASE_POINT = 200;
+    const totalPoints = BASE_POINT * setting.pointMultiplier;
     const hintAmount = Math.floor(setting.letterCount / 2);
 
     // Colors
@@ -99,18 +99,21 @@ const Wordle = ({ setting, updateSetting }) => {
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
     const revealAudio = new Audio(revealSound);
+    const endAudio = new Audio(endSound);
 
     CorrectAudio.volume = setting.soundAmount;
     errorAudio.volume = setting.soundAmount;
     submitAudio.volume = setting.soundAmount;
-    hintAudio.volume = setting.soundAmount
-    revealAudio.volume = setting.soundAmount
+    hintAudio.volume = setting.soundAmount;
+    revealAudio.volume = setting.soundAmount;
+    endAudio.volume = setting.soundAmount;
 
     // Animations
     const {
         animationController,
         rowAnimation,
-        cellAnimation
+        cellAnimation,
+        pageAnimation
     } = WordleAnimations()
 
     // UseEffect
@@ -143,6 +146,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 }
             }
         }
+
         setDataLoadingStatus(true);
     }, [setting.letterCount, setting.guessAmount])
 
@@ -150,6 +154,7 @@ const Wordle = ({ setting, updateSetting }) => {
     useEffect(() => {
         if (dataLoadingStatus) {
             setHasGameInProgress(currentRow !== 0 || !gameBoard[currentRow].every(cell => cell.content === 0));
+            // Update our data
             setEnableAnwserReveal(setting.enableAnwserReveal);
             setEnableHints(setting.enableHints);
             setEnableTimer(setting.enableTimer);
@@ -158,6 +163,7 @@ const Wordle = ({ setting, updateSetting }) => {
             setLetterAmount(setting.letterCount);
             setGuessAmount(setting.guessAmount);
             setSoundAmount(setting.soundAmount);
+            setPointMultiplier(setting.pointMultiplier);
         }
     }, [dataLoadingStatus])
 
@@ -245,7 +251,7 @@ const Wordle = ({ setting, updateSetting }) => {
         if (currentRow >= setting.guessAmount - 1) {
             updateMessage("Game Over")
             setTimeout(() => {
-                resetGame()
+                updatePage("end", true)
             }, 1000)
         }
 
@@ -307,7 +313,7 @@ const Wordle = ({ setting, updateSetting }) => {
             } else {
                 // Update the game
                 submitAudio.play();
-                const newScore = setting.currentScore + pointsGained;
+                const newScore = Math.floor(setting.currentScore + pointsGained);
                 setGameBoard(updatedGameBoard);
                 setCurrentRow(currentRow + 1);
                 updateSetting(prev => (
@@ -325,7 +331,7 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     // Reset the Game
-    const resetGame = (resetPoints = true, points = 0) => {
+    const resetGame = (resetPoints = true, points = 0, featureUsed = "") => {
         setCurrentRow(0);
 
         // Creating a new board
@@ -359,6 +365,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 currentScore: resetPoints ? 0 : newScore,
                 highestScore: newScore >= prev.highestScore ? newScore : prev.highestScore,
                 hintAmount: hintAmount,
+                totalRevealAnwserUsed: featureUsed === 'reveal' ? prev.totalRevealAnwserUsed + 1 : prev.totalRevealAnwserUsed,
             }
         ))
     }
@@ -402,7 +409,7 @@ const Wordle = ({ setting, updateSetting }) => {
         }
 
         let hintLetter = { ...defaultCell, backgroundColor: color["partial"], textColor: 1 };
-        const pointsToRemove = Math.floor(totalPoints / (setting.letterCount * 1.75));
+        const pointsToRemove = Math.floor(totalPoints / (setting.letterCount * 1.50));
         const pointsLost = setting.currentScore > pointsToRemove ? pointsToRemove : (setting.currentScore * 1);
 
         // Find a random letter that hasnt been attempted
@@ -417,6 +424,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 lettersAttempt: newLettersAttempt,
                 currentScore: prev.currentScore - pointsLost,
                 hintAmount: prev.hintAmount - 1,
+                totalHintsUsed: prev.totalHintsUsed + 1,
             }
         ))
 
@@ -445,14 +453,14 @@ const Wordle = ({ setting, updateSetting }) => {
         // Play Animation
         animationController.start("complete")
         setGameBoard(updatedGameBoard);
-        const pointsToRemove = Math.floor((totalPoints / 2.50))
+        const pointsToRemove = Math.floor((totalPoints / 2))
         const pointsLost = setting.currentScore > pointsToRemove ? (pointsToRemove * -1) : (setting.currentScore * -1);
 
         updateMessage("The Word Has Been Revealed")
 
         // Reset the game and remove points
         setTimeout(() => {
-            resetGame(false, pointsLost)
+            resetGame(false, pointsLost, "reveal")
         }, 1000)
 
         revealAudio.play();
@@ -469,6 +477,12 @@ const Wordle = ({ setting, updateSetting }) => {
                 break;
             case "tutorial":
                 setTutorialPage(value);
+                break;
+            case "end":
+                if (value) {
+                    endAudio.play()
+                }
+                setEndPage(value);
                 break;
             default:
                 break;
@@ -522,6 +536,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 enableTimer: enableTimer,
                 soundAmount: soundAmount,
                 timerAmount: timeAmount,
+                pointMultiplier: pointMultiplier
             }
         ))
     }
@@ -536,6 +551,12 @@ const Wordle = ({ setting, updateSetting }) => {
         setLetterAmount(setting.letterCount);
         setGuessAmount(setting.guessAmount);
         setSoundAmount(setting.soundAmount);
+        setPointMultiplier(setting.pointMultiplier)
+    }
+
+    // Update the current point multiplier
+    const updatePointMultiplier = (value) => {
+        setPointMultiplier(value);
     }
 
     // Update Message
@@ -574,6 +595,21 @@ const Wordle = ({ setting, updateSetting }) => {
                                         guessAmount={setting.guessAmount}
                                         updatePage={updatePage}
                                         resetGame={resetGame}
+                                        pageAnimation={pageAnimation}
+                                    />
+                                    : null}
+                                {endPage
+                                    ? <EndScreen
+                                        highestScore={setting.highestScore}
+                                        currentScore={setting.currentScore}
+                                        word={setting.currentWord}
+                                        wordCompleted={(setting.completedWords).length}
+                                        totalHintsUsed={setting.totalHintsUsed}
+                                        totalRevealAnwserUsed={setting.totalRevealAnwserUsed}
+                                        pointMultiplier={setting.pointMultiplier}
+                                        updatePage={updatePage}
+                                        resetGame={resetGame}
+                                        pageAnimation={pageAnimation}
                                     />
                                     : null}
                                 {tutorialPage
@@ -581,6 +617,7 @@ const Wordle = ({ setting, updateSetting }) => {
                                         color={color}
                                         welcomePage={welcomePage}
                                         updatePage={updatePage}
+                                        pageAnimation={pageAnimation}
                                     />
                                     : null}
                                 {settingPage
@@ -596,6 +633,9 @@ const Wordle = ({ setting, updateSetting }) => {
                                         soundAmount={soundAmount}
                                         cancelSetting={cancelSetting}
                                         applySetting={applySetting}
+                                        pointMultiplier={pointMultiplier}
+                                        updatePointMultiplier={updatePointMultiplier}
+                                        pageAnimation={pageAnimation}
                                     />
                                     : null}
                             </div>
@@ -616,6 +656,8 @@ const Wordle = ({ setting, updateSetting }) => {
                                     enableTimer={enableTimer}
                                     currentTime={currentTime}
                                     updateCurrentTime={updateCurrentTime}
+                                    updatePage={updatePage}
+                                    updateMessage={updateMessage}
                                 />
                             </div>
                             : null

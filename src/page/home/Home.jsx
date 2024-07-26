@@ -19,7 +19,7 @@ const Home = () => {
     const gameDisplay = [
         {
             name: "Wordle",
-            description: " Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
+            description: " Engage in our unique version of Wordle, where you test your skills by guessing the word within a set number of attempts, with tile colors indicating how close you are. Customize your experience by adjusting settings such as the number of letters, guesses, and timer duration. Choose to enable or disable hints, or reveal the answer at a cost. Points are awarded for each correct letter in the right spot, with a point multiplier that automatically adjusts based on your selected settings. Enjoy an immersive experience enhanced with adjustable sound effects."
         },
         {
             name: "Word Search",

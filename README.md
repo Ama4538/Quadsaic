@@ -1,3 +1,5 @@
+![Default Screenshot](image/home-screenshot.png)
+
 # Quadsaic
 A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, and 2048. Each game is enhanced with unique customizations to provide a fresh and engaging experience while retaining the charm of the originals.
 
@@ -10,20 +12,11 @@ A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, 
 - [License](#license)
 
 ## TODO
-- Backend to maintain all data
 - Audio for games
 - End of game summary (Highest points and current attempted)
 - Tutorial (How play)
-- Themes (Color palettes)
 - JSON With all words
-- Design https://dribbble.com/shots/24442988-ApexPay-Pitchdeck
 
-- Wordle Reimagine 
-    - Change amount of letters
-        - 3 - 7
-    - Change amount of guess
-        - 6 8 10 
- 
 - Word Search Enchanced
     - Change Word Lengh
         - Max - Min

@@ -23,6 +23,7 @@
 @import "./components/dropdown/dropdown.css";
 @import "./page/loader/loader.css";
 @import "./page/wordle/wordle.css";
+@import "./page/error/error.css";
 
 :root {
     /* Color */
@@ -34,15 +35,15 @@
     --secondary-font: "Lora", serif;
 
     /* Font sizes  */
-    --font-size-small: clamp(1rem, 0.5rem + 0.75vw, 2rem);
-    --font-size-med: clamp(2rem, 1rem + 1.25vw, 3rem);
-    --font-size-large: clamp(3rem, 3rem + 4vw, 7rem);
+    --font-size-small: clamp(1rem, 0.50rem + 0.75vw, 2rem);
+    --font-size-med: clamp(2rem, 0.50rem + 2vw, 4rem);
+    --font-size-large: clamp(3rem, 2rem + 5.75vw, 10rem);
 
     /* Padding/Margin */
-    --padding-size-very-small: clamp(0.25rem, 0.5rem + 0.75vw, 1rem);
-    --padding-size-small: clamp(1rem, 1rem + 1.25vw, 4rem);
-    --padding-size-med: clamp(2rem, 3rem + 1.75vw, 7rem);
-    --padding-size-large: clamp(4rem, 5rem + 2.50vw, 10rem);
+    --padding-size-very-small: clamp(0.25rem, 0.15rem + 0.75vw, 1.5rem);
+    --padding-size-small: clamp(1rem, 0.35rem + 2vw, 4rem);
+    --padding-size-med: clamp(1.50rem, 1.25rem + 4vw, 7rem);
+    --padding-size-large: clamp(2rem, 2rem + 7vw, 10rem);
 }
 
 * {
@@ -55,29 +56,3 @@ body {
     background-color: var(--secondary-color);
 }
 
-.error {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 2) - calc(var(--font-size-med) * 1.15));
-    font-family: var(--secondary-font);
-    color: var(--primary-color);
-}
-
-.error h2 {
-    font-size: calc(var(--font-size-large) / 2);
-    font-weight: 500;
-}
-
-.error h3 {
-    font-size: calc(var(--font-size-med) / 1.40);
-    font-weight: 500;
-}
-
-.error .gamedisplay__link {
-    padding: calc(var(--padding-size-very-small) / 4)  calc(var(--padding-size-large));
-    margin-top: calc(var(--padding-size-very-small) / 1.50);
-    width: max-content;
-    font-size: calc(var(--font-size-small) * 1.15);
-}

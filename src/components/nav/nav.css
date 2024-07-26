@@ -3,7 +3,7 @@
     z-index: 999;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    padding: calc(var(--padding-size-small) / 2.25) var(--padding-size-small);
+    padding: calc(var(--padding-size-small) / 2.50) var(--padding-size-small);
     font-family: var(--primary-font);
     align-items: center;
     background-color: var(--secondary-color);

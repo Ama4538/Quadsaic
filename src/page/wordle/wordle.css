@@ -2,7 +2,7 @@
 .wordle {
     display: flex;
     flex-direction: column;
-    min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 2) - calc(var(--font-size-med) * 1.15));
+    min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 1.90) - var(--font-size-med));
     position: relative;
     font-family: var(--secondary-font);
     background-color: var(--secondary-color);
@@ -339,7 +339,7 @@
     display: flex;
     flex-direction: column;
     gap: calc(var(--padding-size-very-small) / 2);
-    margin-top: var(--padding-size-very-small);
+    margin-top: calc(var(--padding-size-very-small) * 1.50);
 }
 
 .wordle-keyboard__row {

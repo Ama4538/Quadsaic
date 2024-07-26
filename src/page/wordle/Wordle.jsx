@@ -28,7 +28,6 @@ import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 
-
 const Wordle = ({ setting, updateSetting }) => {
     // Default cell used to updated proporties
     const defaultCell = {
@@ -138,13 +137,20 @@ const Wordle = ({ setting, updateSetting }) => {
                 }
             ))
         } else {
+            let gameEnd = true;
             setGameBoard(setting.gameBoard);
             for (let i = 0; i < setting.gameBoard.length; i++) {
                 // Check if the first cell in the row is unfilled (assuming 0 means unfilled)
                 if (setting.gameBoard[i].some(cell => cell.content === 0)) {
+                    gameEnd = false;
                     setCurrentRow(i);
                     break;
                 }
+            }
+
+            // Check if game was refresh at end screen
+            if (gameEnd) {
+                resetGame();
             }
         }
 
@@ -354,6 +360,9 @@ const Wordle = ({ setting, updateSetting }) => {
 
         const newScore = setting.currentScore + points
 
+        // Update our total reveal used
+        let newTotalRevealAnwserUsed = featureUsed === 'reveal' ? setting.totalRevealAnwserUsed + 1 :  setting.totalRevealAnwserUsed;
+
         // reset required information
         updateSetting(prev => (
             {
@@ -366,7 +375,8 @@ const Wordle = ({ setting, updateSetting }) => {
                 currentScore: resetPoints ? 0 : newScore,
                 highestScore: newScore >= prev.highestScore ? newScore : prev.highestScore,
                 hintAmount: hintAmount,
-                totalRevealAnwserUsed: featureUsed === 'reveal' ? prev.totalRevealAnwserUsed + 1 : prev.totalRevealAnwserUsed,
+                totalHintsUsed: resetPoints ? 0 : prev.totalHintsUsed,
+                totalRevealAnwserUsed: resetPoints ? 0 : newTotalRevealAnwserUsed,
             }
         ))
     }

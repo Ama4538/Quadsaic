@@ -14,7 +14,7 @@ const EndScreen = ({
 }) => {
     return (
         <motion.article
-            className="wordle-overlay__small"
+            className="wordle-overlay__small wordle-overlay__small-big"
             variants={pageAnimation}
             initial="init"
             animate="animate"
@@ -23,7 +23,7 @@ const EndScreen = ({
                 ? "New High Score!"
                 : "Game Over"
             }</h3>
-            <p className="wordle-overlay__welcome-message">That was a tough one! The word was <strong>{word}</strong>. Want to try again?</p>
+            <p className="wordle-overlay__welcome-message">That was a tough one! The word was "<strong>{word}</strong>" <br /> Want to try again?</p>
             <div className="wordle-overly__endscreen-information">
                 <div className="wordle__information-format">
                     <p>Current Score</p>
@@ -34,7 +34,7 @@ const EndScreen = ({
                     <p>{currentScore}</p>
                 </div>
                 <div className="wordle__information-format">
-                    <p>Words completed</p>
+                    <p>Words Completed</p>
                     <p>{wordCompleted}</p>
                 </div>
                 <div className="wordle__information-format">

@@ -29,10 +29,6 @@ import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 
 const Wordle = ({ setting, updateSetting }) => {
-    useEffect(() => {
-        console.log(setting.currentWord);
-    }, [setting.currentWord])
-
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -86,7 +82,7 @@ const Wordle = ({ setting, updateSetting }) => {
     const timeoutRef = useRef(null);
 
     // Point System
-    const BASE_POINT = 200;
+    const BASE_POINT = 175;
     const totalPoints = BASE_POINT * setting.pointMultiplier;
     const hintAmount = Math.floor(setting.letterCount / 2);
 

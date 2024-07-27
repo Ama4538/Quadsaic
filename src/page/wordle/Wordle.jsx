@@ -29,6 +29,10 @@ import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 
 const Wordle = ({ setting, updateSetting }) => {
+    useEffect(() => {
+        console.log(setting.currentWord);
+    }, [setting.currentWord])
+
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -62,6 +66,7 @@ const Wordle = ({ setting, updateSetting }) => {
     const [timeAmount, setTimeAmount] = useState(0)
     const [soundAmount, setSoundAmount] = useState(0)
     const [pointMultiplier, setPointMultiplier] = useState(1);
+    
     // Overlay
     const {
         overlayStatus,
@@ -120,7 +125,11 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Get the game board
     useEffect(() => {
-        if ((setting.gameBoard).length === 0 || (setting.gameBoard).length !== setting.guessAmount) {
+        if (
+            (setting.gameBoard).length === 0
+            || (setting.gameBoard).length !== setting.guessAmount
+            || (setting.letterCount) !== (setting.gameBoard)[0].length
+        ) {
             const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
             const newWord = useFetchWord(setting.letterCount)
 
@@ -160,7 +169,7 @@ const Wordle = ({ setting, updateSetting }) => {
     // Progress Checker
     useEffect(() => {
         if (dataLoadingStatus) {
-            setHasGameInProgress(currentRow !== 0 || !gameBoard[currentRow].every(cell => cell.content === 0));
+            setHasGameInProgress(currentRow !== 0 || !gameBoard[currentRow].every(cell => cell.content === 0) || setting.currentScore !== 0);
             // Update our data
             setEnableAnwserReveal(setting.enableAnwserReveal);
             setEnableHints(setting.enableHints);
@@ -287,7 +296,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     workingWord[i].backgroundColor = color["correct"];
                     // Add to the lettersfound array if unqiue
                     if (lettersFound[i] === null) {
-                        pointsGained = pointsGained + (totalPoints / setting.letterCount);
+                        pointsGained = Math.floor(pointsGained + (totalPoints / setting.letterCount));
                         lettersFound[i] = workingWord[i].content;
                     }
 
@@ -361,7 +370,7 @@ const Wordle = ({ setting, updateSetting }) => {
         const newScore = setting.currentScore + points
 
         // Update our total reveal used
-        let newTotalRevealAnwserUsed = featureUsed === 'reveal' ? setting.totalRevealAnwserUsed + 1 :  setting.totalRevealAnwserUsed;
+        let newTotalRevealAnwserUsed = featureUsed === 'reveal' ? setting.totalRevealAnwserUsed + 1 : setting.totalRevealAnwserUsed;
 
         // reset required information
         updateSetting(prev => (
@@ -550,6 +559,10 @@ const Wordle = ({ setting, updateSetting }) => {
                 pointMultiplier: pointMultiplier
             }
         ))
+
+        if (endPage) {
+            updatePage("end", false)
+        }
     }
 
     // Cancel setting change
@@ -594,143 +607,143 @@ const Wordle = ({ setting, updateSetting }) => {
         <PageTransition>
             <Nav location={"wordle"} />
             <main className="wordle">
-            {dataLoadingStatus
-                ? <>
-                    {
-                        overlayStatus
-                            ? <div className="wordle__overlay">
-                                {/* Generate the page when they are active */}
-                                {welcomePage
-                                    ? <WelcomePage
-                                        hasGameInProgress={hasGameInProgress}
-                                        currentRow={currentRow}
-                                        guessAmount={setting.guessAmount}
-                                        updatePage={updatePage}
-                                        resetGame={resetGame}
-                                        pageAnimation={pageAnimation}
-                                    />
-                                    : null}
-                                {endPage
-                                    ? <EndScreen
-                                        highestScore={setting.highestScore}
-                                        currentScore={setting.currentScore}
-                                        word={setting.currentWord}
-                                        wordCompleted={(setting.completedWords).length}
-                                        totalHintsUsed={setting.totalHintsUsed}
-                                        totalRevealAnwserUsed={setting.totalRevealAnwserUsed}
-                                        pointMultiplier={setting.pointMultiplier}
-                                        updatePage={updatePage}
-                                        resetGame={resetGame}
-                                        pageAnimation={pageAnimation}
-                                    />
-                                    : null}
-                                {tutorialPage
-                                    ? <TutorialPage
-                                        color={color}
-                                        welcomePage={welcomePage}
-                                        updatePage={updatePage}
-                                        pageAnimation={pageAnimation}
-                                    />
-                                    : null}
-                                {settingPage
-                                    ? <SettingPage
-                                        color={color}
-                                        updateSelectedSettings={updateSelectedSettings}
-                                        letterAmount={letterAmount}
-                                        guessAmount={guessAmount}
-                                        enableHints={enableHints}
-                                        enableAnwserReveal={enableAnwserReveal}
-                                        enableTimer={enableTimer}
-                                        timeAmount={timeAmount}
-                                        soundAmount={soundAmount}
-                                        cancelSetting={cancelSetting}
-                                        applySetting={applySetting}
-                                        pointMultiplier={pointMultiplier}
-                                        updatePointMultiplier={updatePointMultiplier}
-                                        pageAnimation={pageAnimation}
-                                    />
-                                    : null}
-                            </div>
-                            : null
-                    }
-
-                    {/* Display the information */}
-                    <header className="wordle__information-display">
-                        <div className="wordle__information-format">
-                            <p>Current Score</p>
-                            <p>{setting.currentScore}</p>
-                        </div>
-                        {setting.enableTimer ?
-                            <div className="wordle__information-format">
-                                <p>Timer</p>
-                                <Timer
-                                    overlayStatus={overlayStatus}
-                                    enableTimer={enableTimer}
-                                    currentTime={currentTime}
-                                    updateCurrentTime={updateCurrentTime}
-                                    updatePage={updatePage}
-                                    updateMessage={updateMessage}
-                                />
-                            </div>
-                            : null
+                {dataLoadingStatus
+                    ? <>
+                        {
+                            overlayStatus
+                                ? <div className="wordle__overlay">
+                                    {/* Generate the page when they are active */}
+                                    {welcomePage
+                                        ? <WelcomePage
+                                            hasGameInProgress={hasGameInProgress}
+                                            currentRow={currentRow}
+                                            guessAmount={setting.guessAmount}
+                                            updatePage={updatePage}
+                                            resetGame={resetGame}
+                                            pageAnimation={pageAnimation}
+                                        />
+                                        : null}
+                                    {endPage
+                                        ? <EndScreen
+                                            highestScore={setting.highestScore}
+                                            currentScore={setting.currentScore}
+                                            word={setting.currentWord}
+                                            wordCompleted={(setting.completedWords).length}
+                                            totalHintsUsed={setting.totalHintsUsed}
+                                            totalRevealAnwserUsed={setting.totalRevealAnwserUsed}
+                                            pointMultiplier={setting.pointMultiplier}
+                                            updatePage={updatePage}
+                                            resetGame={resetGame}
+                                            pageAnimation={pageAnimation}
+                                        />
+                                        : null}
+                                    {tutorialPage
+                                        ? <TutorialPage
+                                            color={color}
+                                            welcomePage={welcomePage}
+                                            updatePage={updatePage}
+                                            pageAnimation={pageAnimation}
+                                        />
+                                        : null}
+                                    {settingPage
+                                        ? <SettingPage
+                                            color={color}
+                                            updateSelectedSettings={updateSelectedSettings}
+                                            letterAmount={letterAmount}
+                                            guessAmount={guessAmount}
+                                            enableHints={enableHints}
+                                            enableAnwserReveal={enableAnwserReveal}
+                                            enableTimer={enableTimer}
+                                            timeAmount={timeAmount}
+                                            soundAmount={soundAmount}
+                                            cancelSetting={cancelSetting}
+                                            applySetting={applySetting}
+                                            pointMultiplier={pointMultiplier}
+                                            updatePointMultiplier={updatePointMultiplier}
+                                            pageAnimation={pageAnimation}
+                                        />
+                                        : null}
+                                </div>
+                                : null
                         }
-                        <div className="wordle__information-format">
-                            <p>Highest Score</p>
-                            <p>{setting.highestScore}</p>
-                        </div>
-                    </header>
 
-                    <section className="wordle__content">
-                        {/* Game Board */}
-                        <GameBoard
-                            gameBoard={gameBoard}
-                            message={message}
-                            showMessage={showMessage}
-                            currentRow={currentRow}
-                            rowAnimation={rowAnimation}
-                            cellAnimation={cellAnimation}
-                            animationController={animationController}
-                        />
-
-                        {/* Keyboard */}
-                        <KeyBoard
-                            lettersAttempt={setting.lettersAttempt}
-                            nextLine={nextLine}
-                            removeLetter={removeLetter}
-                            updateLetter={updateLetter}
-                        />
-
-                    </section>
-                    <footer className="wordle__footer">
-                        <div className="wordle__footer-left">
-                            <button onClick={() => setSettingPage(true)}></button>
-                            <button onClick={() => setTutorialPage(true)}></button>
-                        </div>
-                        <div className="wordle__footer-right">
-                            <div className="wordle-footer__button-container">
-                                <button
-                                    className="wordle-footer__hints"
-                                    onClick={(event) => { setting.enableHints ? showHint(event) : null }}
-                                    data-active={setting.enableHints}
-                                >Show Hint</button>
-                                <p className="wordle-footer__hints-message">{setting.enableHints ? `Hints Remaining: ${setting.hintAmount}` : "Disabled"}</p>
+                        {/* Display the information */}
+                        <header className="wordle__information-display">
+                            <div className="wordle__information-format">
+                                <p>Current Score</p>
+                                <p>{setting.currentScore}</p>
                             </div>
-
-                            <div className="wordle-footer__button-container">
-                                <button
-                                    className="wordle-footer__hints"
-                                    onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
-                                    data-active={setting.enableAnwserReveal}
-                                >Reveal Answer</button>
-                                {!setting.enableAnwserReveal
-                                    ? <p className="wordle-footer__hints-message">Disabled</p>
-                                    : null}
+                            {setting.enableTimer ?
+                                <div className="wordle__information-format">
+                                    <p>Timer</p>
+                                    <Timer
+                                        overlayStatus={overlayStatus}
+                                        enableTimer={enableTimer}
+                                        currentTime={currentTime}
+                                        updateCurrentTime={updateCurrentTime}
+                                        updatePage={updatePage}
+                                        updateMessage={updateMessage}
+                                    />
+                                </div>
+                                : null
+                            }
+                            <div className="wordle__information-format">
+                                <p>Highest Score</p>
+                                <p>{setting.highestScore}</p>
                             </div>
-                        </div>
-                    </footer>
-                </>
-                : <Loader />}
-                </main>
+                        </header>
+
+                        <section className="wordle__content">
+                            {/* Game Board */}
+                            <GameBoard
+                                gameBoard={gameBoard}
+                                message={message}
+                                showMessage={showMessage}
+                                currentRow={currentRow}
+                                rowAnimation={rowAnimation}
+                                cellAnimation={cellAnimation}
+                                animationController={animationController}
+                            />
+
+                            {/* Keyboard */}
+                            <KeyBoard
+                                lettersAttempt={setting.lettersAttempt}
+                                nextLine={nextLine}
+                                removeLetter={removeLetter}
+                                updateLetter={updateLetter}
+                            />
+
+                        </section>
+                        <footer className="wordle__footer">
+                            <div className="wordle__footer-left">
+                                <button onClick={() => setSettingPage(true)}></button>
+                                <button onClick={() => setTutorialPage(true)}></button>
+                            </div>
+                            <div className="wordle__footer-right">
+                                <div className="wordle-footer__button-container">
+                                    <button
+                                        className="wordle-footer__hints"
+                                        onClick={(event) => { setting.enableHints ? showHint(event) : null }}
+                                        data-active={setting.enableHints}
+                                    >Show Hint</button>
+                                    <p className="wordle-footer__hints-message">{setting.enableHints ? `Hints Remaining: ${setting.hintAmount}` : "Disabled"}</p>
+                                </div>
+
+                                <div className="wordle-footer__button-container">
+                                    <button
+                                        className="wordle-footer__hints"
+                                        onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
+                                        data-active={setting.enableAnwserReveal}
+                                    >Reveal Answer</button>
+                                    {!setting.enableAnwserReveal
+                                        ? <p className="wordle-footer__hints-message">Disabled</p>
+                                        : null}
+                                </div>
+                            </div>
+                        </footer>
+                    </>
+                    : <Loader />}
+            </main>
         </PageTransition>
     )
 }

@@ -29,7 +29,7 @@ const SettingPage = ({
 
     // Setting drop menu option
     const possibleLetterAmount = [4, 5, 6, 7];
-    const possibleGuessAmount = [3, 4, 5, 6, 7, 8];
+    const possibleGuessAmount = [3, 4, 5, 6, 7, 8, 9, 10];
     const possibleTimeAmount = [1, 2, 3, 5, 7]
 
     // Auto adjust points based on settings
@@ -42,10 +42,10 @@ const SettingPage = ({
         let newPointMultipler = 1;
         // All possible points adjustments
         const letterPointIncrease = {
-            4: -0.15,
+            4: -0.10,
             5: 0,
-            6: 0.15,
-            7: 0.30
+            6: 0.20,
+            7: 0.45
         }
         const guessPointIncrease = {
             3: 0.50,
@@ -53,7 +53,9 @@ const SettingPage = ({
             5: 0.10,
             6: 0,
             7: -0.05,
-            8: -0.15,
+            8: -0.10,
+            9: -0.15,
+            10: -0.20,
         }
         const timeAmountPointIncrease = {
             1: 0.25,
@@ -122,6 +124,7 @@ const SettingPage = ({
                     startingValue={guessAmount}
                     setSelected={updateSelectedSettings}
                     updateChangesMade={updateChangesMade}
+                    sort = {false}
                 />
             </div>
             <div className="wordle-overlay__setting-module">

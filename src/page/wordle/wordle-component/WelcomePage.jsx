@@ -17,7 +17,7 @@ const WelcomePage = ({
             animate = "animate"
         >
             <h3 className="wordle-overlay__title">{hasGameInProgress ? "Welcome Back" : "Wordle"}</h3>
-            <p className="wordle-overlay__welcome-message">{hasGameInProgress ? `You've made ${currentRow} of ${guessAmount} guess. Keep trying, you're on the right track!` : "Guess the hidden word within a limited number of attempts"}</p>
+            <p className="wordle-overlay__welcome-message">{hasGameInProgress ? `You've made ${currentRow} of ${guessAmount} guess. Keep going, you're on the right track!` : "Guess the hidden word within a limited number of attempts"}</p>
             <div className="wordle-welcome__button-container">
                 <button
                     className="wordle-overlay__button"

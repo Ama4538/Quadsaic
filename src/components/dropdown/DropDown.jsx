@@ -7,6 +7,7 @@ function DropDown({
     startingValue, 
     setSelected, 
     updateChangesMade,
+    sort = true,
 }) {
     // State to manage visibility 
     const [visible, setVisible] = useState(false)
@@ -16,7 +17,11 @@ function DropDown({
     const drowDownRef = useRef(null);
     
     // Filter the content to show all but the currrent selected
-    let dropDownMenu = (content.filter((choice) => choice !== displayName).sort())
+    let dropDownMenu = content.filter((choice) => choice !== displayName)
+    if (sort) {
+        dropDownMenu.sort();
+    }
+
 
     const updateStatus = () => {
         setVisible(false);

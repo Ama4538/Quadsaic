@@ -28,7 +28,14 @@ import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 
+// Constants
+const BASE_POINT = 125;
+
 const Wordle = ({ setting, updateSetting }) => {
+    useEffect(() => {
+        console.log(setting.currentWord);
+    }, [setting.currentWord])
+
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -62,7 +69,8 @@ const Wordle = ({ setting, updateSetting }) => {
     const [timeAmount, setTimeAmount] = useState(0)
     const [soundAmount, setSoundAmount] = useState(0)
     const [pointMultiplier, setPointMultiplier] = useState(1);
-    
+    const [totalPoints, setTotalPoints] = useState(0);
+
     // Overlay
     const {
         overlayStatus,
@@ -80,11 +88,6 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Ref to timeout timer
     const timeoutRef = useRef(null);
-
-    // Point System
-    const BASE_POINT = 175;
-    const totalPoints = BASE_POINT * setting.pointMultiplier;
-    const hintAmount = Math.floor(setting.letterCount / 2);
 
     // Colors
     const color = {
@@ -138,7 +141,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     gameBoard: tempGameBoard,
                     currentLine: new Array(setting.letterCount).fill({ ...defaultCell }),
                     lettersFound: new Array(setting.letterCount).fill(null),
-                    hintAmount: hintAmount,
+                    hintAmount: Math.floor(setting.letterCount / 2),
                 }
             ))
         } else {
@@ -154,7 +157,7 @@ const Wordle = ({ setting, updateSetting }) => {
             }
 
             // Check if game was refresh at end screen
-            if (gameEnd) {
+            if (gameEnd || setting.end) {
                 resetGame();
             }
         }
@@ -204,6 +207,14 @@ const Wordle = ({ setting, updateSetting }) => {
             window.removeEventListener('keydown', handleKeyPress);
         };
     }, [gameBoard, currentRow, overlayStatus])
+
+    // Point System
+    useEffect(() => {
+        // Update total popints based on streak multiplier from current streak
+        const streakBonusMultiplier = (1 + (setting.currentStreak * 0.02));
+        const newTotal = Math.round(BASE_POINT * setting.pointMultiplier * streakBonusMultiplier)
+        setTotalPoints(newTotal);
+    }, [setting.currentStreak, setting.pointMultiplier])
 
     // Functions
 
@@ -292,7 +303,7 @@ const Wordle = ({ setting, updateSetting }) => {
                     workingWord[i].backgroundColor = color["correct"];
                     // Add to the lettersfound array if unqiue
                     if (lettersFound[i] === null) {
-                        pointsGained = Math.floor(pointsGained + (totalPoints / setting.letterCount));
+                        pointsGained = pointsGained + (totalPoints / setting.letterCount);
                         lettersFound[i] = workingWord[i].content;
                     }
 
@@ -325,7 +336,7 @@ const Wordle = ({ setting, updateSetting }) => {
             } else {
                 // Update the game
                 submitAudio.play();
-                const newScore = Math.floor(setting.currentScore + pointsGained);
+                const newScore = Math.round(setting.currentScore + pointsGained);
                 setGameBoard(updatedGameBoard);
                 setCurrentRow(currentRow + 1);
                 updateSetting(prev => (
@@ -344,6 +355,7 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Reset the Game
     const resetGame = (resetPoints = true, points = 0, featureUsed = "") => {
+        // Update row
         setCurrentRow(0);
 
         // Creating a new board
@@ -357,16 +369,21 @@ const Wordle = ({ setting, updateSetting }) => {
         const completedWords = setting.completedWords;
         completedWords.push(setting.currentWord);
 
-        // Get new and unqie word
+        // Get new and unqiue word
         let newWord;
         do {
             newWord = useFetchWord(setting.letterCount);
         } while (completedWords.includes(newWord));
 
-        const newScore = setting.currentScore + points
+        const newScore = Math.round(setting.currentScore + points)
 
         // Update our total reveal used
-        let newTotalRevealAnwserUsed = featureUsed === 'reveal' ? setting.totalRevealAnwserUsed + 1 : setting.totalRevealAnwserUsed;
+        const newTotalRevealAnwserUsed = featureUsed === 'reveal' ? setting.totalRevealAnwserUsed + 1 : setting.totalRevealAnwserUsed;
+        // Streaks
+        const newCurrentStreak = featureUsed === 'reveal' ? 0 : setting.currentStreak + 1;
+        const newHighestStreak = newCurrentStreak >= setting.highestStreak ? newCurrentStreak : setting.highestStreak;
+        const newStreakBonus = featureUsed === 'reveal' ?  setting.streakBonusPoint : setting.streakBonusPoint + Math.round(totalPoints - (BASE_POINT * setting.pointMultiplier));
+
 
         // reset required information
         updateSetting(prev => (
@@ -379,9 +396,13 @@ const Wordle = ({ setting, updateSetting }) => {
                 lettersFound: new Array(setting.letterCount).fill(null),
                 currentScore: resetPoints ? 0 : newScore,
                 highestScore: newScore >= prev.highestScore ? newScore : prev.highestScore,
-                hintAmount: hintAmount,
+                hintAmount: Math.floor(setting.letterCount / 2),
                 totalHintsUsed: resetPoints ? 0 : prev.totalHintsUsed,
                 totalRevealAnwserUsed: resetPoints ? 0 : newTotalRevealAnwserUsed,
+                currentStreak: resetPoints ? 0 : newCurrentStreak,
+                highestStreak: resetPoints ? 0 : newHighestStreak,
+                streakBonusPoint: resetPoints ? 0 : newStreakBonus,
+                end: resetPoints ? true : false,
             }
         ))
     }
@@ -425,7 +446,7 @@ const Wordle = ({ setting, updateSetting }) => {
         }
 
         let hintLetter = { ...defaultCell, backgroundColor: color["partial"], textColor: 1 };
-        const pointsToRemove = Math.floor(totalPoints / (setting.letterCount * 1.50));
+        const pointsToRemove = totalPoints / (setting.letterCount * 1.50);
         const pointsLost = setting.currentScore > pointsToRemove ? pointsToRemove : (setting.currentScore * 1);
 
         // Find a random letter that hasnt been attempted
@@ -438,7 +459,7 @@ const Wordle = ({ setting, updateSetting }) => {
             {
                 ...prev,
                 lettersAttempt: newLettersAttempt,
-                currentScore: prev.currentScore - pointsLost,
+                currentScore: Math.round(prev.currentScore - pointsLost),
                 hintAmount: prev.hintAmount - 1,
                 totalHintsUsed: prev.totalHintsUsed + 1,
             }
@@ -469,7 +490,7 @@ const Wordle = ({ setting, updateSetting }) => {
         // Play Animation
         animationController.start("complete")
         setGameBoard(updatedGameBoard);
-        const pointsToRemove = Math.floor((totalPoints / 2))
+        const pointsToRemove = totalPoints / 2
         const pointsLost = setting.currentScore > pointsToRemove ? (pointsToRemove * -1) : (setting.currentScore * -1);
 
         updateMessage("The Word Has Been Revealed")
@@ -628,6 +649,9 @@ const Wordle = ({ setting, updateSetting }) => {
                                             totalHintsUsed={setting.totalHintsUsed}
                                             totalRevealAnwserUsed={setting.totalRevealAnwserUsed}
                                             pointMultiplier={setting.pointMultiplier}
+                                            currentStreak={setting.currentStreak}
+                                            highestStreak={setting.highestStreak}
+                                            streakBonus = {setting.streakBonusPoint}
                                             updatePage={updatePage}
                                             resetGame={resetGame}
                                             pageAnimation={pageAnimation}
@@ -668,6 +692,10 @@ const Wordle = ({ setting, updateSetting }) => {
                             <div className="wordle__information-format">
                                 <p>Current Score</p>
                                 <p>{setting.currentScore}</p>
+                            </div>
+                            <div className="wordle__information-format">
+                                <p>Streak</p>
+                                <p>{setting.currentStreak}</p>
                             </div>
                             {setting.enableTimer ?
                                 <div className="wordle__information-format">
@@ -725,16 +753,22 @@ const Wordle = ({ setting, updateSetting }) => {
                                     <p className="wordle-footer__hints-message">{setting.enableHints ? `Hints Remaining: ${setting.hintAmount}` : "Disabled"}</p>
                                 </div>
 
-                                <div className="wordle-footer__button-container">
-                                    <button
-                                        className="wordle-footer__hints"
-                                        onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
-                                        data-active={setting.enableAnwserReveal}
-                                    >Reveal Answer</button>
-                                    {!setting.enableAnwserReveal
-                                        ? <p className="wordle-footer__hints-message">Disabled</p>
-                                        : null}
-                                </div>
+                                <button
+                                    className="wordle-footer__hints"
+                                    onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
+                                    data-active={setting.enableAnwserReveal}
+                                >Reveal Answer</button>
+
+                                <button
+                                    className="wordle-footer__hints"
+                                    onClick={() => {
+                                        updatePage("end", true)
+                                        updateSetting(prev => ({
+                                            ...prev,
+                                            end: true,
+                                        }))
+                                    }}
+                                >Give Up</button>
                             </div>
                         </footer>
                     </>

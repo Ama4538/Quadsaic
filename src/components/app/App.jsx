@@ -4,16 +4,24 @@ import AnimatedRoutes from "../router/AnimatedRoutes"
 import Loader from "../../page/loader/Loader";
 
 function App() {
+    // Data loader state
     const [dataLoaded, setDataLoaded] = useState(false);
+    
+    // Settings
     const [wordleSetting, setWordleSetting] = useState({});
+    const [wordSearchSetting, setWordSearchSetting] = useState({
 
+    })
+
+    // Vairables
+    
     const defaultWordleSetting = {
         currentWord: "",
         gameBoard: [],
         completedWords: [],
         lettersAttempt: [],
         lettersFound: [],
-        start: false,
+        end: false,
         enableTimer: false,
         timerAmount: 180,
         currentScore: 0,
@@ -27,6 +35,9 @@ function App() {
         totalRevealAnwserUsed: 0,
         soundAmount: 0.50,
         pointMultiplier: 1,
+        currentStreak: 0,
+        highestStreak: 0,
+        streakBonusPoint: 0,
     }
 
     useEffect(() => {
@@ -59,8 +70,14 @@ function App() {
         }
     }, [wordleSetting])
 
+
+    // Function to update settings
     const updateWordleSetting = (newSetting) => {
         setWordleSetting(newSetting)
+    }
+
+    const updateWordSearchSetting = (newSetting) => {
+        setWordSearchSetting(newSetting)
     }
 
     return (
@@ -70,6 +87,8 @@ function App() {
                     <AnimatedRoutes
                         wordleSetting={wordleSetting}
                         updateWordleSetting={updateWordleSetting}
+                        wordSearchSetting={wordSearchSetting}
+                        updateWordSearchSetting={updateWordSearchSetting}
                     />
                 </BrowserRouter>
             ) : (

@@ -1,13 +1,16 @@
 import { motion } from "framer-motion"
 
 const EndScreen = ({
-    highScore,
+    highestScore,
     currentScore,
     word,
     wordCompleted,
     totalHintsUsed,
     totalRevealAnwserUsed,
     pointMultiplier,
+    currentStreak,
+    highestStreak,
+    streakBonus,
     updatePage,
     resetGame,
     pageAnimation,
@@ -19,7 +22,7 @@ const EndScreen = ({
             initial="init"
             animate="animate"
         >
-            <h3 className="wordle-overlay__title">{highScore === currentScore && highScore !== 0
+            <h3 className="wordle-overlay__title">{highestScore === currentScore && highestScore !== 0
                 ? "New High Score!"
                 : "Game Over"
             }</h3>
@@ -31,11 +34,23 @@ const EndScreen = ({
                 </div>
                 <div className="wordle__information-format">
                     <p>Highest Score</p>
-                    <p>{currentScore}</p>
+                    <p>{highestScore}</p>
                 </div>
                 <div className="wordle__information-format">
                     <p>Words Completed</p>
                     <p>{wordCompleted}</p>
+                </div>
+                <div className="wordle__information-format">
+                    <p>Current Streak</p>
+                    <p>{currentStreak}</p>
+                </div>
+                <div className="wordle__information-format">
+                    <p>Highest Streak</p>
+                    <p>{highestStreak}</p>
+                </div>
+                <div className="wordle__information-format">
+                    <p>Streak Bonus</p>
+                    <p>{streakBonus}</p>
                 </div>
                 <div className="wordle__information-format">
                     <p>Hints Used</p>

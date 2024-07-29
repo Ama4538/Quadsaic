@@ -10,7 +10,10 @@ function App() {
     // Settings
     const [wordleSetting, setWordleSetting] = useState({});
     const [wordSearchSetting, setWordSearchSetting] = useState({
-
+        gameBoard: [],
+        gridSize: 20,
+        currentScore: 0,
+        highestScore: 0,
     })
 
     // Vairables

@@ -32,10 +32,6 @@ import endSound from "/sound/end.mp3"
 const BASE_POINT = 125;
 
 const Wordle = ({ setting, updateSetting }) => {
-    useEffect(() => {
-        console.log(setting.currentWord);
-    }, [setting.currentWord])
-
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -139,7 +135,6 @@ const Wordle = ({ setting, updateSetting }) => {
                     ...prev,
                     currentWord: newWord,
                     gameBoard: tempGameBoard,
-                    currentLine: new Array(setting.letterCount).fill({ ...defaultCell }),
                     lettersFound: new Array(setting.letterCount).fill(null),
                     hintAmount: Math.floor(setting.letterCount / 2),
                 }

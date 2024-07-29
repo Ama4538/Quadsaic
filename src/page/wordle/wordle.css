@@ -1,9 +1,9 @@
 /* Wordle */
 .wordle {
+    position: relative;
     display: flex;
     flex-direction: column;
-    min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 1.90) - var(--font-size-med));
-    position: relative;
+    min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 1.95) - var(--font-size-med));
     font-family: var(--secondary-font);
     background-color: var(--secondary-color);
 }
@@ -280,7 +280,7 @@
 }
 
 .wordle-overly__endscreen-information .wordle__information-format {
-    margin-top: calc(var(--padding-size-small) / 1.05);
+    margin-top: calc(var(--padding-size-small) / 1.10);
     text-transform: none;
 }
 

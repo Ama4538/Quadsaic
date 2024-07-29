@@ -56,3 +56,43 @@ body {
     background-color: var(--secondary-color);
 }
 
+/* Word Search */
+.wordsearch {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--padding-size-very-small);;
+    min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 1.95) - var(--font-size-med));
+    font-family: var(--secondary-font);
+    background-color: var(--secondary-color);
+}
+
+.wordsearch__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* GameBoard */
+.wordsearch__gameboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    aspect-ratio: 1 / 1;
+    border: solid 1px var(--primary-color);
+}
+
+.wordsearch-gameboard__row {
+    display: flex;
+}
+
+.wordsearch-gameboard__cell {
+    display: grid;
+    place-items: center;
+    font-size: calc(var(--font-size-med) / 1.50);
+    font-weight: 400;
+    width: calc(var(--padding-size-med) / 2.25);
+    aspect-ratio: 1 / 1;
+    text-transform: uppercase;
+    user-select: none;
+}

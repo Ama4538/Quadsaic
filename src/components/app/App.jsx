@@ -14,6 +14,8 @@ function App() {
         gridSize: 20,
         currentScore: 0,
         highestScore: 0,
+        wordsFound: [],
+        wordsRequired: [],
     })
 
     // Vairables

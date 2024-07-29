@@ -78,21 +78,24 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 75dvh;
     aspect-ratio: 1 / 1;
     border: solid 1px var(--primary-color);
 }
 
 .wordsearch-gameboard__row {
     display: flex;
+    width: 100%;
 }
 
 .wordsearch-gameboard__cell {
     display: grid;
     place-items: center;
-    font-size: calc(var(--font-size-med) / 1.50);
+    flex: 1;
     font-weight: 400;
-    width: calc(var(--padding-size-med) / 2.25);
     aspect-ratio: 1 / 1;
     text-transform: uppercase;
     user-select: none;
+
+    border: solid 1px rgba(0, 0, 0, 0.10);
 }

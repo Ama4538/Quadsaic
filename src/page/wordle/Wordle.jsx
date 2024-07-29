@@ -43,7 +43,6 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Game State
     const [currentRow, setCurrentRow] = useState(0)
-    const [gameBoard, setGameBoard] = useState([]);
     const [hasGameInProgress, setHasGameInProgress] = useState(false);
 
     // Message
@@ -125,23 +124,20 @@ const Wordle = ({ setting, updateSetting }) => {
             || (setting.gameBoard).length !== setting.guessAmount
             || (setting.letterCount) !== (setting.gameBoard)[0].length
         ) {
-            const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
+            const initialGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
             const newWord = useFetchWord(setting.letterCount)
-
-            setGameBoard(tempGameBoard);
             // Start up the game
             updateSetting(prev => (
                 {
                     ...prev,
                     currentWord: newWord,
-                    gameBoard: tempGameBoard,
+                    gameBoard: initialGameBoard,
                     lettersFound: new Array(setting.letterCount).fill(null),
                     hintAmount: Math.floor(setting.letterCount / 2),
                 }
             ))
         } else {
             let gameEnd = true;
-            setGameBoard(setting.gameBoard);
             for (let i = 0; i < setting.gameBoard.length; i++) {
                 // Check if the first cell in the row is unfilled (assuming 0 means unfilled)
                 if (setting.gameBoard[i].some(cell => cell.content === 0)) {
@@ -163,7 +159,7 @@ const Wordle = ({ setting, updateSetting }) => {
     // Progress Checker
     useEffect(() => {
         if (dataLoadingStatus) {
-            setHasGameInProgress(currentRow !== 0 || !gameBoard[currentRow].every(cell => cell.content === 0) || setting.currentScore !== 0);
+            setHasGameInProgress(currentRow !== 0 || !(setting.gameBoard)[currentRow].every(cell => cell.content === 0) || setting.currentScore !== 0);
             // Update our data
             setEnableAnwserReveal(setting.enableAnwserReveal);
             setEnableHints(setting.enableHints);
@@ -201,7 +197,7 @@ const Wordle = ({ setting, updateSetting }) => {
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
         };
-    }, [gameBoard, currentRow, overlayStatus])
+    }, [(setting.gameBoard), currentRow, overlayStatus])
 
     // Point System
     useEffect(() => {
@@ -221,7 +217,7 @@ const Wordle = ({ setting, updateSetting }) => {
         }
 
         // Deep copying gameboard to update
-        const updatedGameBoard = gameBoard.map(row =>
+        const updatedGameBoard = (setting.gameBoard).map(row =>
             row.map(cell => ({ ...cell }))
         );
         const updateRow = updatedGameBoard[currentRow]
@@ -230,7 +226,6 @@ const Wordle = ({ setting, updateSetting }) => {
         // Seeing if the spot is valid and updating
         if (workingLetterIndex > -1) {
             updateRow[workingLetterIndex].content = letter;
-            setGameBoard(updatedGameBoard)
             updateSetting(prev => (
                 {
                     ...prev,
@@ -243,7 +238,7 @@ const Wordle = ({ setting, updateSetting }) => {
     // Handled removal of letter
     const removeLetter = () => {
         // Creating a copy of the game board
-        const updatedGameBoard = [...gameBoard];
+        const updatedGameBoard = [...(setting.gameBoard)];
         const updateRow = updatedGameBoard[currentRow]
         let workingLetterIndex = updateRow.findIndex(cell => cell.content === 0);
 
@@ -253,14 +248,19 @@ const Wordle = ({ setting, updateSetting }) => {
             return;
         } else if (workingLetterIndex === -1) {
             // At the end
-            workingLetterIndex = gameBoard[currentRow].length - 1;
+            workingLetterIndex = (setting.gameBoard)[currentRow].length - 1;
         } else {
             // At the middle
             workingLetterIndex = workingLetterIndex - 1;
         }
 
         updateRow[workingLetterIndex].content = 0;
-        setGameBoard(updatedGameBoard)
+        updateSetting(prev => (
+            {
+                ...prev,
+                gameBoard: updatedGameBoard,
+            }
+        ))
     }
 
     // Handle next line 
@@ -274,7 +274,7 @@ const Wordle = ({ setting, updateSetting }) => {
         }
 
         // Creating a copy of the game board
-        const updatedGameBoard = [...gameBoard];
+        const updatedGameBoard = [...(setting.gameBoard)];
 
         if (updatedGameBoard[currentRow].some(cell => cell.content === 0)) {
             errorAudio.play();
@@ -332,12 +332,11 @@ const Wordle = ({ setting, updateSetting }) => {
                 // Update the game
                 submitAudio.play();
                 const newScore = Math.round(setting.currentScore + pointsGained);
-                setGameBoard(updatedGameBoard);
                 setCurrentRow(currentRow + 1);
                 updateSetting(prev => (
                     {
                         ...prev,
-                        gameBoard: gameBoard,
+                        gameBoard: updatedGameBoard,
                         lettersAttempt: lettersAttempt,
                         lettersFound: lettersFound,
                         currentScore: newScore,
@@ -354,8 +353,7 @@ const Wordle = ({ setting, updateSetting }) => {
         setCurrentRow(0);
 
         // Creating a new board
-        const tempGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
-        setGameBoard(tempGameBoard);
+        const newGameBoard = Array(setting.guessAmount).fill().map(() => Array(setting.letterCount).fill(defaultCell));
 
         // Reset Timer
         updateCurrentTime(setting.timerAmount);
@@ -377,7 +375,7 @@ const Wordle = ({ setting, updateSetting }) => {
         // Streaks
         const newCurrentStreak = featureUsed === 'reveal' ? 0 : setting.currentStreak + 1;
         const newHighestStreak = newCurrentStreak >= setting.highestStreak ? newCurrentStreak : setting.highestStreak;
-        const newStreakBonus = featureUsed === 'reveal' ?  setting.streakBonusPoint : setting.streakBonusPoint + Math.round(totalPoints - (BASE_POINT * setting.pointMultiplier));
+        const newStreakBonus = featureUsed === 'reveal' ? setting.streakBonusPoint : setting.streakBonusPoint + Math.round(totalPoints - (BASE_POINT * setting.pointMultiplier));
 
 
         // reset required information
@@ -385,7 +383,7 @@ const Wordle = ({ setting, updateSetting }) => {
             {
                 ...prev,
                 currentWord: newWord,
-                gameBoard: tempGameBoard,
+                gameBoard: newGameBoard,
                 completedWords: resetPoints ? [] : completedWords,
                 lettersAttempt: [],
                 lettersFound: new Array(setting.letterCount).fill(null),
@@ -469,7 +467,7 @@ const Wordle = ({ setting, updateSetting }) => {
         event.target.blur();
 
         // Creating a copy of the game board
-        const updatedGameBoard = gameBoard.map(row =>
+        const updatedGameBoard = (setting.gameBoard).map(row =>
             row.map(cell => ({ ...cell }))
         );
         const updateRow = updatedGameBoard[currentRow]
@@ -484,7 +482,12 @@ const Wordle = ({ setting, updateSetting }) => {
 
         // Play Animation
         animationController.start("complete")
-        setGameBoard(updatedGameBoard);
+        updateSetting(prev => (
+            {
+                ...prev,
+                gameBoard: updatedGameBoard,
+            }
+        ))
         const pointsToRemove = totalPoints / 2
         const pointsLost = setting.currentScore > pointsToRemove ? (pointsToRemove * -1) : (setting.currentScore * -1);
 
@@ -646,7 +649,7 @@ const Wordle = ({ setting, updateSetting }) => {
                                             pointMultiplier={setting.pointMultiplier}
                                             currentStreak={setting.currentStreak}
                                             highestStreak={setting.highestStreak}
-                                            streakBonus = {setting.streakBonusPoint}
+                                            streakBonus={setting.streakBonusPoint}
                                             updatePage={updatePage}
                                             resetGame={resetGame}
                                             pageAnimation={pageAnimation}
@@ -715,7 +718,7 @@ const Wordle = ({ setting, updateSetting }) => {
                         <section className="wordle__content">
                             {/* Game Board */}
                             <GameBoard
-                                gameBoard={gameBoard}
+                                gameBoard={setting.gameBoard}
                                 message={message}
                                 showMessage={showMessage}
                                 currentRow={currentRow}

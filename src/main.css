@@ -117,12 +117,15 @@ body {
     font-weight: 400;
 
 }
-
 .wordsearch__wordlist ul {
     display: grid;
-    gap: calc(var(--padding-size-very-small) / 2);
+    flex: 1;
+    align-items: center;
     font-size: var(--font-size-small);
     list-style: none;
-    flex: 1
+    
 }
 
+.wordsearch__wordlist ul li[data-found = "true"] {
+    text-decoration: line-through;
+}

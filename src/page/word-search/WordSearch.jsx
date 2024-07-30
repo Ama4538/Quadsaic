@@ -19,8 +19,11 @@ const WordSearch = ({ setting, updateSetting }) => {
     const defaultCell = {
         content: 0,
         backgroundColor: null,
+        foundColor: null,
+        text: null,
+        found: false,
     }
-
+    
     // State
 
     // Game State
@@ -127,6 +130,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                     x: null,
                     y: null,
                     direction: null,
+                    found: false,
                 })
             }
         }
@@ -149,9 +153,6 @@ const WordSearch = ({ setting, updateSetting }) => {
         const wordArray = (currentWord.word).split("")
         let placed = false;
         let attempts = 0;
-
-        // REMOVE
-        const tempColors = ["#CF1259", "#DD7596", "#B7C3F3", "#4F6272", "#404E5C"]
 
         // Find random location and place the word
         do {
@@ -186,8 +187,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                 // Add the word in a random direction
                 const placement = direction[Math.floor(Math.random() * direction.length)]
                 let canPlace = true;
-                // REMOVE
-                const currentColor = tempColors[Math.floor(Math.random() * tempColors.length)]
 
                 // Manage each possible directions
                 if (placement === "up") {
@@ -201,7 +200,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                     if (canPlace) {
                         for (let i = 0; i < wordArray.length; i++) {
                             updatedGameBoard[randomY - i][randomX].content = wordArray[(wordArray.length - 1) - i];
-                            updatedGameBoard[randomY - i][randomX].backgroundColor = currentColor;
                         }
                     }
                 } else if (placement === "down") {
@@ -214,7 +212,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                     if (canPlace) {
                         for (let i = 0; i < wordArray.length; i++) {
                             updatedGameBoard[randomY + i][randomX].content = wordArray[i];
-                            updatedGameBoard[randomY + i][randomX].backgroundColor = currentColor;
                         }
                     }
                 } else if (placement === "left") {
@@ -227,7 +224,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                     if (canPlace) {
                         for (let i = 0; i < wordArray.length; i++) {
                             updatedGameBoard[randomY][randomX - i].content = wordArray[(wordArray.length - 1) - i];
-                            updatedGameBoard[randomY][randomX - i].backgroundColor = currentColor;
                         }
                     }
                 } else {
@@ -240,7 +236,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                     if (canPlace) {
                         for (let i = 0; i < wordArray.length; i++) {
                             updatedGameBoard[randomY][randomX + i].content = wordArray[i];
-                            updatedGameBoard[randomY][randomX + i].backgroundColor = currentColor;
                         }
                     }
                 }
@@ -283,11 +278,13 @@ const WordSearch = ({ setting, updateSetting }) => {
 
                     <section className="wordsearch__content">
                         <WordList
+                            gridSize={setting.gridSize}
                             list={setting.wordsRequired}
-                            gridSize = {setting.gridSize}
                         />
                         <GameBoard
                             gameBoard={setting.gameBoard}
+                            list={setting.wordsRequired}
+                            updateSetting= {updateSetting}
                         />
                     </section>
                 </main>

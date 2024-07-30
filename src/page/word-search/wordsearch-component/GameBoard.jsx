@@ -8,7 +8,7 @@ const GameBoard = ({ gameBoard }) => {
         // Change Font size when grid layout changes
         const adjustFontSize = () => {
             cellRefs.current.forEach(cell => {
-                    const newFontSize = cell.getBoundingClientRect().width * 0.70; // Adjust this multiplier as needed
+                    const newFontSize = cell.getBoundingClientRect().width * 0.65; // Adjust this multiplier as needed
                     cell.style.fontSize = `${newFontSize}px`;
             });
         };
@@ -35,7 +35,6 @@ const GameBoard = ({ gameBoard }) => {
                             key={"wordsearch__gameboard-row-" + rowNum + "-cell-" + cellNum}
                             style={{
                                 backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
-                                color: cell.textColor !== null ? "var(--secondary-color)" : "var(--primary-color)"
                             }}
                             // Create a unqiue index for the cell ref
                             ref={element => cellRefs.current[rowNum * gameBoard[0].length + cellNum] = element}

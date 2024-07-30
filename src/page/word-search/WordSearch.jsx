@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PageTransition from "../../components/page-transition/PageTransition"
 import Nav from "../../components/nav/Nav"
 import GameBoard from "./wordsearch-component/GameBoard";
+import WordList from "./wordsearch-component/WordList";
 
 // Hooks
 import useFetchWord from "../../components/hooks/useFetchWord";
@@ -71,6 +72,16 @@ const WordSearch = ({ setting, updateSetting }) => {
                 newWordsRequired = newWordsRequired.filter(element => !wordsToRemove.includes(element.word))
             }
 
+            // Fill in the remaining spaces
+            updatedGameBoard.forEach(row => {
+                row.forEach(cell => {
+                    if (cell.content === 0) {
+                        // Generating random letter with ascii
+                        cell.content = String.fromCharCode(Math.floor(Math.random() * (24) + 97))
+                    }
+                });
+            });
+
             // Update information
             updateSetting(prev => (
                 {
@@ -88,8 +99,8 @@ const WordSearch = ({ setting, updateSetting }) => {
     // Get the new required words
     const generateWordSet = (gridSize) => {
         const totalCell = gridSize * gridSize;
-        // Generate enough words to fill at most 45% of the game board
-        let cellSpace = totalCell * 0.45;
+        // Generate enough words to fill at most 50% of the game board
+        let cellSpace = totalCell * 0.50;
         let allPossibleLetterCount = [];
         const wordSet = [];
 
@@ -109,7 +120,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             const newWord = useFetchWord(allPossibleLetterCount[Math.floor(Math.random() * allPossibleLetterCount.length)])
 
             // Making sure each word is unqiue
-            if (!wordSet.includes(currentWord => currentWord.word === newWord)) {
+            if (!wordSet.some(currentWord => currentWord.word === newWord)) {
                 cellSpace = cellSpace - newWord.length
                 wordSet.push({
                     word: newWord,
@@ -145,7 +156,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         // Find random location and place the word
         do {
             // Cannot place after 10 attempts
-            if (attempts === 10) {
+            if (attempts === 15) {
                 return false
             }
 
@@ -271,6 +282,10 @@ const WordSearch = ({ setting, updateSetting }) => {
                     </header>
 
                     <section className="wordsearch__content">
+                        <WordList
+                            list={setting.wordsRequired}
+                            gridSize = {setting.gridSize}
+                        />
                         <GameBoard
                             gameBoard={setting.gameBoard}
                         />

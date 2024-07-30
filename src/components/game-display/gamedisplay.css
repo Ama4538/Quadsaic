@@ -23,9 +23,8 @@
     display: flex;
     flex-direction: column;
     gap: calc(var(--padding-size-very-small) / 2);
-    padding: var(--padding-size-very-small) var(--padding-size-small);
+    padding: var(--padding-size-very-small) calc(var(--padding-size-small) * 1.25);
     font-family: var(--secondary-font);
-    border-left: solid 1px var(--primary-color);
     color: var(--primary-color);
 }
 
@@ -33,8 +32,8 @@
     display: flex;
     justify-content: center;
     font-family: var(--primary-font);
-    font-size: calc(var(--font-size-med) * 1.20);
-    font-weight: 500;
+    font-size: calc(var(--font-size-med) * 1.25);
+    font-weight: 400;
 }
 
 .gamedisplay__description {
@@ -48,7 +47,7 @@
     margin-top: auto;
     font-family: var(--secondary-font);
     font-size: calc(var(--font-size-small) * 1.25);
-    border: solid 1px var(--primary-color);
+    border: solid 1px rgba(0,0,0,0.25);
     color: var(--primary-color);
     text-align: center;
     text-decoration: none;   

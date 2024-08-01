@@ -1,14 +1,22 @@
 // libraires
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Components
 import PageTransition from "../../components/page-transition/PageTransition"
 import Nav from "../../components/nav/Nav"
 import GameBoard from "./wordsearch-component/GameBoard";
 import WordList from "./wordsearch-component/WordList";
+import WelcomePage from "./wordsearch-component/WelcomePage";
+import Timer from "../../components/timer/Timer";
+
+// Variables
+import WordSearchAnimation from "./wordsearch-component/WordSearchAnimation";
 
 // Hooks
 import useFetchWord from "../../components/hooks/useFetchWord";
+import useOverlayManagement from "../../components/hooks/useOverlayManagement";
+
+const POINTS_PER_LETTER = 5;
 
 const WordSearch = ({ setting, updateSetting }) => {
     useEffect(() => {
@@ -22,15 +30,58 @@ const WordSearch = ({ setting, updateSetting }) => {
         foundColor: null,
         text: null,
         found: false,
+        x: null,
+        y: null,
     }
-    
+
     // State
 
     // Game State
     const [initializeGameBoard, setInitializeGameBoard] = useState(false);
+    const [hasGameInProgress, setHasGameInProgress] = useState(false);
 
     // Loading Status
     const [dataLoadingStatus, setDataLoadingStatus] = useState(false);
+
+    // Message
+    const [message, setMessage] = useState("")
+    const [showMessage, setShowMessage] = useState(false)
+
+    // Timer
+    const [currentTime, setCurrentTime] = useState(0)
+
+    // Data
+    const [gridSize, setGrid] = useState(0)
+    const [enableTimer, setEnableTimer] = useState(false)
+    const [timeAmount, setTimeAmount] = useState(0)
+    const [soundAmount, setSoundAmount] = useState(0)
+    const [pointMultiplier, setPointMultiplier] = useState(1);
+    const [totalPoints, setTotalPoints] = useState(0);
+
+    // Overlay
+    const {
+        overlayStatus,
+        welcomePage,
+        settingPage,
+        tutorialPage,
+        endPage,
+        setWelcomePage,
+        setSettingPage,
+        setTutorialPage,
+        setEndPage,
+    } = useOverlayManagement();
+
+    // Variable
+
+    // Ref to timeout timer
+    const timeoutRef = useRef(null);
+
+
+    // Animations
+    const {
+        animationController,
+        pageAnimation
+    } = WordSearchAnimation()
 
     // useEffect
 
@@ -54,6 +105,13 @@ const WordSearch = ({ setting, updateSetting }) => {
 
     // initialize the gameboard with anwsers
     useEffect(() => {
+        if (dataLoadingStatus) {
+            setHasGameInProgress(setting.currentScore !== 0 || setting.currentStreak !== 0)
+            setEnableTimer(setting.enableTimer)
+            setTimeAmount(setting.timerAmount)
+            setCurrentTime(setting.timerAmount)
+        }
+
         if (dataLoadingStatus && initializeGameBoard) {
             // Making a copy of game board and required words
             const updatedGameBoard = (setting.gameBoard).map(row =>
@@ -98,6 +156,26 @@ const WordSearch = ({ setting, updateSetting }) => {
     }, [dataLoadingStatus, initializeGameBoard])
 
     // Functions
+
+    const resetGame = (resetPoints = true) => {
+        const InitialGameBoard = Array(setting.gridSize).fill().map(() => Array(setting.gridSize).fill(defaultCell));
+        const newWordsRequired = generateWordSet(setting.gridSize)
+
+        // Streaks
+        const newCurrentStreak = setting.currentStreak + 1;
+        const newHighestStreak = newCurrentStreak >= setting.highestStreak ? newCurrentStreak : setting.highestStreak;
+
+        updateSetting(prev => (
+            {
+                ...prev,
+                gameBoard: InitialGameBoard,
+                wordsRequired: newWordsRequired,
+                currentStreak: resetPoints ? 0 : newCurrentStreak,
+                currentScore: resetPoints ? 0 : prev.currentScore,
+            }
+        ))
+        setInitializeGameBoard(true)
+    }
 
     // Get the new required words
     const generateWordSet = (gridSize) => {
@@ -256,38 +334,133 @@ const WordSearch = ({ setting, updateSetting }) => {
         return true;
     }
 
+    // Update Message
+    const updateMessage = (message) => {
+        setMessage(message);
+        setShowMessage(true);
+
+        // Reset the timer if pressed again
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef)
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            setShowMessage(false);
+        }, 1000)
+    }
+
+    // Update the current time
+    const updateCurrentTime = (value) => {
+        setCurrentTime(value)
+    }
+
+    // Update the current overly page
+    const updatePage = (page, value) => {
+        switch (page) {
+            case "welcome":
+                setWelcomePage(value)
+                break;
+            case "setting":
+                setSettingPage(value);
+                break;
+            case "tutorial":
+                setTutorialPage(value);
+                break;
+            case "end":
+                if (value) {
+                    endAudio.play()
+                }
+                setEndPage(value);
+                break;
+            default:
+                break;
+        }
+    }
+
     return (
         <PageTransition>
             <Nav location={"Word Search"} />
             {dataLoadingStatus
-                ? <main className="wordsearch">
-                    <header className="wordle__information-display">
-                        <div className="wordle__information-format">
-                            <p>Current Score</p>
-                            <p>{setting.currentScore}</p>
-                        </div>
-                        <div className="wordle__information-format">
-                            <p>Timer</p>
-                            <p>{0}</p>
-                        </div>
-                        <div className="wordle__information-format">
-                            <p>Highest Score</p>
-                            <p>{setting.highestScore}</p>
-                        </div>
-                    </header>
+                ? <>
+                    {
+                        overlayStatus
+                            ? <div className="wordle__overlay">
+                                {/* Generate the page when they are active */}
+                                {welcomePage
+                                    ? <WelcomePage
+                                        updatePage={updatePage}
+                                        pageAnimation={pageAnimation}
+                                        hasGameInProgress={hasGameInProgress}
+                                        amountOfWordsFound={(setting.wordsFound).length}
+                                        amountOfWords={(setting.wordsRequired).length}
+                                        resetGame={resetGame}
+                                    />
+                                    : null}
+                            </div>
+                            : null
+                    }
 
-                    <section className="wordsearch__content">
-                        <WordList
-                            gridSize={setting.gridSize}
-                            list={setting.wordsRequired}
-                        />
-                        <GameBoard
-                            gameBoard={setting.gameBoard}
-                            list={setting.wordsRequired}
-                            updateSetting= {updateSetting}
-                        />
-                    </section>
-                </main>
+                    <main className="wordsearch">
+                        <header className="wordle__information-display">
+                            <div className="wordle__information-format">
+                                <p>Current Score</p>
+                                <p>{setting.currentScore}</p>
+                            </div>
+                            <div className="wordle__information-format">
+                                <p>Streak</p>
+                                <p>{setting.currentStreak}</p>
+                            </div>
+                            {setting.enableTimer ?
+                                <div className="wordle__information-format">
+                                    <p>Timer</p>
+                                    <Timer
+                                        overlayStatus={overlayStatus}
+                                        enableTimer={enableTimer}
+                                        currentTime={currentTime}
+                                        updateCurrentTime={updateCurrentTime}
+                                        updatePage={updatePage}
+                                        updateMessage={updateMessage}
+                                    />
+                                </div>
+                                : null
+                            }
+                            <div className="wordle__information-format">
+                                <p>Highest Score</p>
+                                <p>{setting.highestScore}</p>
+                            </div>
+                        </header>
+
+                        <section className="wordsearch__content">
+                            <WordList
+                                gridSize={setting.gridSize}
+                                list={setting.wordsRequired}
+                                wordsFound={setting.wordsFound}
+                            />
+                            <GameBoard
+                                gameBoard={setting.gameBoard}
+                                list={setting.wordsRequired}
+                                updateSetting={updateSetting}
+                                wordsFound={setting.wordsFound}
+                                points={POINTS_PER_LETTER}
+                            />
+                        </section>
+                        <footer className="wordle__footer">
+                            <div className="wordle__footer-left">
+                                <button onClick={() => setSettingPage(true)}></button>
+                                <button onClick={() => setTutorialPage(true)}></button>
+                            </div>
+                            <div className="wordle__footer-right">
+                                <button
+                                    className="wordle-footer__hints"
+                                    onClick={() => {
+                                        updatePage("end", true)
+                                    }}
+                                >Give Up</button>
+                            </div>
+                        </footer>
+                    </main>
+
+                </>
                 : null
             }
         </PageTransition>

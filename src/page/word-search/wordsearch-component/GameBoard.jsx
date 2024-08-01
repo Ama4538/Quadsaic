@@ -1,23 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 
-const color = ["#113f39", "#374732", "#5d4e2a", "#624127", "#5c2c20"]
+const color = ["#664d00", "#6e2a0c", "#691312", "#5d0933", "#3e304c", "#1d424e", "#12403c", "#475200"];
 
-const GameBoard = ({ gameBoard, list, updateSetting }) => {
-    // Create a ref for all cell
-    const cellRefs = useRef([]);
 
+const GameBoard = ({
+    gameBoard,
+    list,
+    updateSetting,
+    wordsFound,
+    points,
+}) => {
+    // States
+
+    // Actions
     const [mouseDown, setMouseDown] = useState(false)
+
+    // Data
     const [selectedWord, setSelectedWord] = useState("");
     const [selectedCell, setSelectedCell] = useState([]);
 
-    // Test
+    // variables
+
+    // Create a ref for all cell
+    const cellRefs = useRef([]);
+
+    // UseEffect
     useEffect(() => {
         if (!mouseDown) {
+            // Trying to find if word is in the required list
             const matchingWord = list.find(element => element.word === selectedWord);
             let selectedColor = null;
+            let newWordsFound = [...wordsFound]
+            let pointsGained = 0;
 
-            if (matchingWord) {
-                matchingWord.found = true;
+            if (matchingWord && !wordsFound.includes(matchingWord.word)) {
+                newWordsFound.push(matchingWord.word)
+                pointsGained = points * (matchingWord.word).length;
                 selectedColor = color[Math.floor(Math.random() * color.length)]
             }
 
@@ -28,29 +46,32 @@ const GameBoard = ({ gameBoard, list, updateSetting }) => {
                     cell.foundColor = selectedColor;
                     cell.text = "var(--secondary-color)";
                     cell.found = true;
+                    // Let the most current color to be on top
                 } else if (cell.found && selectedColor !== null) {
                     cell.backgroundColor = selectedColor;
                     cell.foundColor = selectedColor;
                 } else if (cell.foundColor !== null) {
                     cell.backgroundColor = cell.foundColor;
                 } else {
+                    // Default
                     cell.backgroundColor = null;
                     cell.text = null;
                 }
             })
 
             // Update data
-            setSelectedWord("")
-            setSelectedCell([])
+            setSelectedWord("");
+            setSelectedCell([]);
             updateSetting(prev => ({
                 ...prev,
                 wordsRequired: list,
+                wordsFound: newWordsFound,
+                currentScore: prev.currentScore + pointsGained,
+                highestScore: prev.currentScore + pointsGained > prev.highestScore ? prev.currentScore + pointsGained : prev.highestScore,
             }))
         }
 
     }, [mouseDown])
-
-    // UseEffect
 
     // Handle font size change
     useEffect(() => {
@@ -71,45 +92,136 @@ const GameBoard = ({ gameBoard, list, updateSetting }) => {
 
     // Function
 
+    // Update our selected cell array based on straightness
     const updateSelectedCell = (cell) => {
-        cell.backgroundColor = "var(--primary-color)"
-        cell.text = "var(--secondary-color)"
+        const newSelection = [...selectedCell, cell]
+        const lineValue = checkInLine(newSelection)
 
-        setSelectedWord(prev => prev + cell.content);
-        setSelectedCell(prev => [...prev, cell])
+        switch (lineValue) {
+            case 1:
+                cell.backgroundColor = "var(--primary-color)"
+                cell.text = "var(--secondary-color)"
+                setSelectedCell(newSelection);
+                setSelectedWord(prev => prev + cell.content)
+                break;
+            case 2:
+                const newSelectedWord = selectedWord.substring(0, selectedWord.length - 1)
+                // Removing the latest selected
+                const oldSelection = selectedCell;
+                const oldCell = oldSelection[oldSelection.length - 1];
+                if (oldCell.found) {
+                    oldCell.backgroundColor = oldCell.foundColor;
+                } else {
+                    oldCell.backgroundColor = null;
+                    oldCell.text = null;
+                }
+                newSelection.splice(newSelection.length - 2, 2)
+
+                setSelectedWord(newSelectedWord);
+                setSelectedCell(newSelection);
+            default:
+                break;
+        }
+    }
+
+    // Return a value based on the following:
+    // 0 = not in a line
+    // 1 = in a line
+    // 2 = opposite direction
+    const checkInLine = (cells) => {
+        // its a line if it only has 2 values
+        if (cells.length <= 2) {
+            return 1;
+        }
+
+        // Getting starting direction
+        let orginalDirection = getDirection(cells[0], cells[1])
+        if (!orginalDirection) {
+            return 0;
+        }
+
+        // Two pointer system
+        let index = 2;
+        let current = cells[index];
+        let prev = cells[index - 1];
+
+        do {
+            // Check for gaps
+            if (current.x === prev.x && Math.abs(prev.y - current.y) !== 1
+                || current.y === prev.y && Math.abs(prev.x - current.x) !== 1) {
+                return 0;
+            }
+
+            // Check if the direction of all the cell matches
+            let newDirection = getDirection(prev, current);
+            if (index === cells.length - 1 && parseInt(newDirection) + parseInt(orginalDirection) === 0) {
+                return 2;
+            } else if ((parseInt(newDirection) + parseInt(orginalDirection)) % 2 !== 0) {
+                return 0;
+            }
+
+            // console.log((parseInt(newDirection) + parseInt(orginalDirection)) % 2 !== 0);
+
+            index++;
+            current = cells[index];
+            prev = cells[index - 1];
+        } while (index < cells.length)
+
+        return 1;
+    }
+
+    // Get the current direction
+    const getDirection = (firstCell, secondCell) => {
+        let direction = null;
+        let vertical = firstCell.y - secondCell.y;
+        let horizontal = firstCell.x - secondCell.x;
+
+        // Since they are right next to each other at least one of these values has to be 0 if striaght
+        if (horizontal === 0 && vertical !== 0) {
+            direction = vertical > 0 ? "1" : "-1"
+        } else if (horizontal !== 0 && vertical === 0) {
+            direction = horizontal < 0 ? "2" : "-2"
+        }
+
+        return direction
     }
 
     return (
-        <div 
-        className="wordsearch__gameboard" 
-        onMouseLeave={() => {setMouseDown(false)}}
+        <div
+            className="wordsearch__gameboard"
+            onMouseLeave={() => { setMouseDown(false) }}
         >
             {gameBoard.map((row, rowNum) => (
                 <div
                     className="wordsearch-gameboard__row"
                     key={"wordsearch__gameboard-row-" + rowNum}
                 >
-                    {row.map((cell, cellNum) => (
-                        <div
-                            className="wordsearch-gameboard__cell"
-                            key={"wordsearch__gameboard-row-" + rowNum + "-cell-" + cellNum}
-                            style={{
-                                backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
-                                color: cell.text !== null ? cell.text : null,
-                            }}
-                            // Create a unqiue index for the cell ref
-                            ref={element => cellRefs.current[rowNum * gameBoard[0].length + cellNum] = element}
-                            onMouseUp={() => { setMouseDown(false) }}
-                            onMouseDown={() => {
-                                setMouseDown(true);
-                                updateSelectedCell(cell)
-                            }}
-                            onMouseEnter={() => { mouseDown ? updateSelectedCell(cell) : null }}
-                        >
-                            {/* Render the cell text if their is content */}
-                            {cell.content !== 0 ? <span>{cell.content}</span> : null}
-                        </div>
-                    ))}
+                    {row.map((cell, cellNum) => {
+                        cell.x = cellNum;
+                        cell.y = rowNum;
+
+                        return (
+                            <div
+                                className="wordsearch-gameboard__cell"
+                                key={"wordsearch__gameboard-row-" + rowNum + "-cell-" + cellNum}
+                                style={{
+                                    backgroundColor: cell.backgroundColor !== null ? cell.backgroundColor : null,
+                                    color: cell.text !== null ? cell.text : null,
+                                }}
+                                // Create a unqiue index for the cell ref
+                                ref={element => cellRefs.current[rowNum * gameBoard[0].length + cellNum] = element}
+                                onMouseUp={() => { setMouseDown(false) }}
+                                onMouseDown={() => {
+                                    setMouseDown(true);
+                                    updateSelectedCell(cell)
+                                }}
+                                onMouseEnter={() => { mouseDown ? updateSelectedCell(cell) : null }}
+                            >
+                                {/* Render the cell text if their is content */}
+                                {cell.content !== 0 ? <span>{cell.content}</span> : null}
+                            </div>
+                        )
+                    })}
                 </div>
             ))}
         </div>

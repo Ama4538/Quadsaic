@@ -62,7 +62,6 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    padding-bottom: var(--padding-size-very-small);
     min-height: calc(100dvh - (calc(var(--padding-size-small) / 2) * 1.95) - var(--font-size-med));
     font-family: var(--secondary-font);
     background-color: var(--secondary-color);
@@ -75,6 +74,10 @@ body {
     justify-items: center;
 }
 
+.wordsearch .wordle__footer {
+    padding: var(--padding-size-small) var(--padding-size-small) calc(var(--padding-size-small) / 3);
+}
+
 /* GameBoard */
 .wordsearch__gameboard {
     display: flex;
@@ -83,6 +86,7 @@ body {
     height: 77dvh;
     aspect-ratio: 1 / 1;
     border: solid 1px var(--primary-color);
+    cursor: pointer;
 }
 
 .wordsearch-gameboard__row {
@@ -97,9 +101,10 @@ body {
     font-weight: 400;
     aspect-ratio: 1 / 1;
     text-transform: uppercase;
+    transition: 0.05s ease-out;
     user-select: none;
-
 }
+
 
 /* Word List */
 .wordsearch__wordlist {
@@ -128,4 +133,10 @@ body {
 
 .wordsearch__wordlist ul li[data-found = "true"] {
     text-decoration: line-through;
+    text-decoration-thickness: 0.15rem;
+}
+
+/* Animation */
+.wordsearch-gameboard__cell:hover {
+    background: rgba(0, 0, 0, 0.25);
 }

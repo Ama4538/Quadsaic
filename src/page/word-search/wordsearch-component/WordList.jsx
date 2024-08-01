@@ -1,4 +1,4 @@
-const WordList = ({list, gridSize}) => {
+const WordList = ({list, gridSize, wordsFound}) => {
     return (
         <div className="wordsearch__wordlist">
             <h4>Word List</h4>
@@ -10,7 +10,7 @@ const WordList = ({list, gridSize}) => {
                 {list.map(element => (
                     <li 
                         key={"required-word-"+ element.word}
-                        data-found = {element.found}    
+                        data-found = {wordsFound.includes(element.word)}    
                     >
                         {element.word}
                     </li>

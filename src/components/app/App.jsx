@@ -16,6 +16,11 @@ function App() {
         highestScore: 0,
         wordsFound: [],
         wordsRequired: [],
+        streakBonusPoint: 0,
+        currentStreak: 0,
+        highestStreak: 0,
+        enableTimer: false,
+        timerAmount: 180,
     })
 
     // Vairables

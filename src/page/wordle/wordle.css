@@ -53,7 +53,7 @@
 .wordle-overlay__small {
     position: absolute;
     z-index: 2;
-    padding: var(--padding-size-very-small) var(--padding-size-small) calc(var(--padding-size-very-small) * 2);
+    padding: calc(var(--padding-size-very-small) * 1.75) var(--padding-size-small) calc(var(--padding-size-very-small) * 2);
     max-height: 80%;
     width: 40%;
     box-shadow: 0 0 1.5rem 0.5rem rgba(0, 0, 0, 0.10);

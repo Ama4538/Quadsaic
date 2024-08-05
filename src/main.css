@@ -70,12 +70,41 @@ body {
 .wordsearch__content {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: calc(var(--padding-size-small) * 2);;
     padding: 0 var(--padding-size-small);
-    justify-items: center;
 }
 
 .wordsearch .wordle__footer {
-    padding: var(--padding-size-small) var(--padding-size-small) calc(var(--padding-size-small) / 3);
+    padding: calc(var(--padding-size-very-small) * 1.50) var(--padding-size-small) calc(var(--padding-size-small) / 3);
+}
+
+/* Tutorial */
+.wordsearch-tutorial__container {
+    width: max-content;
+    border: solid 1px var(--primary-color);
+}
+
+.wordsearch .wordle-tutorial__example-row {
+    margin-top: 0
+}
+
+.wordsearch .wordle-gameboard__cell {
+    border: none;
+}
+
+.wordle-tutorial__example-row-highlight {
+    display: flex;
+    margin-top: calc(var(--padding-size-very-small) / 2);
+    width: max-content;
+    background-color: var(--primary-color);
+    border: solid 1px var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.wordle-tutorial__example-row-highlight .wordle-gameboard__cell {
+    width: calc(var(--padding-size-small) * 1.35);
+    font-size: calc(var(--font-size-small) * 1.50);
+    opacity: 1;
 }
 
 /* GameBoard */
@@ -83,10 +112,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 77dvh;
+    height: 80dvh;
     aspect-ratio: 1 / 1;
     border: solid 1px var(--primary-color);
     cursor: pointer;
+   
 }
 
 .wordsearch-gameboard__row {
@@ -105,12 +135,11 @@ body {
     user-select: none;
 }
 
-
 /* Word List */
 .wordsearch__wordlist {
     display: flex;
     flex-direction: column;
-    padding: 0 calc(var(--padding-size-small) * 1.50);
+    padding-left:var(--padding-size-small);
     width: 100%;
     text-align: center;
     text-transform: capitalize;
@@ -124,13 +153,15 @@ body {
 }
 .wordsearch__wordlist ul {
     display: grid;
-    flex: 1;
+    gap: calc(var(--padding-size-very-small));
     align-items: center;
+    height: 70dvh;
     font-size: var(--font-size-small);
     list-style: none;
-    
+    overflow-y: auto;
 }
 
+.wordsearch-tutorial__example-list span,
 .wordsearch__wordlist ul li[data-found = "true"] {
     text-decoration: line-through;
     text-decoration-thickness: 0.15rem;

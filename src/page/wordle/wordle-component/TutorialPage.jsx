@@ -32,6 +32,8 @@ const TutorialPage = ({
                 <li>Hints will deduct points, and the number of available hints is related to the number of letters in each word.</li>
                 <li>Revealing the answer will display the solution and deduct a larger number of points from your current score.</li>
                 <li>When the timer runs out, the game will end. You can adjust the timer in the settings.</li>
+                <li>Streaks are achieved by guessing consecutive words correctly </li> 
+                <li>Bonus points are awarded based on your current streak. Using the reveal answer option will reset your streak.</li>
                 <li>Points are awarded for each correct letter in the correct spot. Total points are based on the selected difficulty level.</li>
             </ul>
             <h4 className="wordle-overlay__subtitle">Examples</h4>

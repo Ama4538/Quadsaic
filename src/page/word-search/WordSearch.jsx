@@ -8,6 +8,7 @@ import GameBoard from "./wordsearch-component/GameBoard";
 import WordList from "./wordsearch-component/WordList";
 import WelcomePage from "./wordsearch-component/WelcomePage";
 import Timer from "../../components/timer/Timer";
+import TutorialPage from "./wordsearch-component/TutorialPage";
 
 // Variables
 import WordSearchAnimation from "./wordsearch-component/WordSearchAnimation";
@@ -17,11 +18,14 @@ import useFetchWord from "../../components/hooks/useFetchWord";
 import useOverlayManagement from "../../components/hooks/useOverlayManagement";
 
 const POINTS_PER_LETTER = 5;
+const color = ["#664d00", "#6e2a0c", "#691312", "#5d0933", "#3e304c", "#1d424e", "#12403c", "#475200"];
 
 const WordSearch = ({ setting, updateSetting }) => {
     useEffect(() => {
         console.log(setting);
     }, [setting])
+
+
 
     // Default cell used to updated proporties
     const defaultCell = {
@@ -117,7 +121,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             const updatedGameBoard = (setting.gameBoard).map(row =>
                 row.map(cell => ({ ...cell }))
             );
-            let newWordsRequired = [...(setting.wordsRequired)];
+            let newWordsRequired = [...setting.wordsRequired];
             const wordsToRemove = [];
 
             // Adding each required words into the board
@@ -127,21 +131,20 @@ const WordSearch = ({ setting, updateSetting }) => {
                     wordsToRemove.push(newWordsRequired[i].word)
                 }
             }
-
             // Check if there is words to remove
             if (wordsToRemove.length !== 0) {
-                newWordsRequired = newWordsRequired.filter(element => !wordsToRemove.includes(element.word))
+                newWordsRequired = newWordsRequired.filter(element => !wordsToRemove.includes(element.word))      
             }
 
             // Fill in the remaining spaces
-            updatedGameBoard.forEach(row => {
-                row.forEach(cell => {
-                    if (cell.content === 0) {
-                        // Generating random letter with ascii
-                        cell.content = String.fromCharCode(Math.floor(Math.random() * (24) + 97))
-                    }
-                });
-            });
+            // updatedGameBoard.forEach(row => {
+            //     row.forEach(cell => {
+            //         if (cell.content === 0) {
+            //             // Generating random letter with ascii
+            //             cell.content = String.fromCharCode(Math.floor(Math.random() * (24) + 97))
+            //         }
+            //     });
+            // });
 
             // Update information
             updateSetting(prev => (
@@ -205,9 +208,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                 cellSpace = cellSpace - newWord.length
                 wordSet.push({
                     word: newWord,
-                    x: null,
-                    y: null,
-                    direction: null,
                     found: false,
                 })
             }
@@ -245,7 +245,9 @@ const WordSearch = ({ setting, updateSetting }) => {
 
             if (updatedGameBoard[randomY][randomX].content === 0) {
                 // Find all possible direction the word can be placed
-                const direction = [];
+                let direction = [];
+                let possibleDiagonals = ["up-right", "up-left", "down-right", "down-left"]
+
                 if (randomY - wordArray.length > 0) {
                     direction.push("up")
                 }
@@ -258,11 +260,28 @@ const WordSearch = ({ setting, updateSetting }) => {
                 if (randomX + wordArray.length < updatedGameBoard.length) {
                     direction.push("right")
                 }
+
+                for (let i = 0; i < wordArray.length; i++) {
+                    if (randomX + i >= updatedGameBoard.length || randomY - i < 0) {
+                        possibleDiagonals = possibleDiagonals.filter(element => element != "up-right")
+                    }
+                    if (randomX - i < 0 || randomY - i < 0) {
+                        possibleDiagonals = possibleDiagonals.filter(element => element != "up-left")
+                    }
+                    if (randomX + i >= updatedGameBoard.length || randomY + i >= updatedGameBoard.length) {
+                        possibleDiagonals = possibleDiagonals.filter(element => element != "down-right")
+                    }
+                    if (randomX - i < 0 || randomY + i >= updatedGameBoard.length) {
+                        possibleDiagonals = possibleDiagonals.filter(element => element != "down-left")
+                    }
+                }
+
+                direction = direction.concat(possibleDiagonals)
+
                 if (direction.length <= 0) {
                     continue;
                 }
 
-                // Add the word in a random direction
                 const placement = direction[Math.floor(Math.random() * direction.length)]
                 let canPlace = true;
 
@@ -304,7 +323,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                             updatedGameBoard[randomY][randomX - i].content = wordArray[(wordArray.length - 1) - i];
                         }
                     }
-                } else {
+                } else if (placement === "right") {
                     for (let i = 0; i < wordArray.length; i++) {
                         if (updatedGameBoard[randomY][randomX + i].content !== 0 && updatedGameBoard[randomY][randomX + i].content !== wordArray[i]) {
                             canPlace = false;
@@ -316,13 +335,58 @@ const WordSearch = ({ setting, updateSetting }) => {
                             updatedGameBoard[randomY][randomX + i].content = wordArray[i];
                         }
                     }
+                } else if (placement === "up-right") {
+                    for (let i = 0; i < wordArray.length; i++) {
+                        if (updatedGameBoard[randomY - i][randomX + i].content !== 0 && updatedGameBoard[randomY - i][randomX + i].content !== wordArray[i]) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        for (let i = 0; i < wordArray.length; i++) {
+                            updatedGameBoard[randomY - i][randomX + i].content = wordArray[i];
+                        }
+                    }
+                } else if (placement === "up-left") {
+                    for (let i = 0; i < wordArray.length; i++) {
+                        if (updatedGameBoard[randomY - i][randomX - i].content !== 0 && updatedGameBoard[randomY - i][randomX - i].content !== wordArray[i]) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        for (let i = 0; i < wordArray.length; i++) {
+                            updatedGameBoard[randomY - i][randomX - i].content = wordArray[(wordArray.length - 1) - i];
+                        }
+                    }
+                } else if (placement === "down-right") {
+                    for (let i = 0; i < wordArray.length; i++) {
+                        if (updatedGameBoard[randomY + i][randomX + i].content !== 0 && updatedGameBoard[randomY + i][randomX + i].content !== wordArray[i]) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        for (let i = 0; i < wordArray.length; i++) {
+                            updatedGameBoard[randomY + i][randomX + i].content = wordArray[i];
+                        }
+                    }
+                } else if (placement === "down-left") {
+                    for (let i = 0; i < wordArray.length; i++) {
+                        if (updatedGameBoard[randomY + i][randomX - i].content !== 0 && updatedGameBoard[randomY + i][randomX - i].content !== wordArray[i]) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        for (let i = 0; i < wordArray.length; i++) {
+                            updatedGameBoard[randomY + i][randomX - i].content = wordArray[(wordArray.length - 1) - i];
+                        }
+                    }
                 }
 
                 // Update information
                 if (canPlace) {
-                    currentWord.x = randomX;
-                    currentWord.y = randomY;
-                    currentWord.direction = placement;
                     placed = true;
                 }
 
@@ -381,7 +445,8 @@ const WordSearch = ({ setting, updateSetting }) => {
         <PageTransition>
             <Nav location={"Word Search"} />
             {dataLoadingStatus
-                ? <>
+                ?
+                <main className="wordsearch">
                     {
                         overlayStatus
                             ? <div className="wordle__overlay">
@@ -396,71 +461,79 @@ const WordSearch = ({ setting, updateSetting }) => {
                                         resetGame={resetGame}
                                     />
                                     : null}
+                                {tutorialPage
+                                    ? <TutorialPage
+                                        color={color}
+                                        welcomePage={welcomePage}
+                                        updatePage={updatePage}
+                                        pageAnimation={pageAnimation}
+                                    />
+                                    : null}
                             </div>
                             : null
                     }
 
-                    <main className="wordsearch">
-                        <header className="wordle__information-display">
-                            <div className="wordle__information-format">
-                                <p>Current Score</p>
-                                <p>{setting.currentScore}</p>
-                            </div>
-                            <div className="wordle__information-format">
-                                <p>Streak</p>
-                                <p>{setting.currentStreak}</p>
-                            </div>
-                            {setting.enableTimer ?
-                                <div className="wordle__information-format">
-                                    <p>Timer</p>
-                                    <Timer
-                                        overlayStatus={overlayStatus}
-                                        enableTimer={enableTimer}
-                                        currentTime={currentTime}
-                                        updateCurrentTime={updateCurrentTime}
-                                        updatePage={updatePage}
-                                        updateMessage={updateMessage}
-                                    />
-                                </div>
-                                : null
-                            }
-                            <div className="wordle__information-format">
-                                <p>Highest Score</p>
-                                <p>{setting.highestScore}</p>
-                            </div>
-                        </header>
 
-                        <section className="wordsearch__content">
-                            <WordList
-                                gridSize={setting.gridSize}
-                                list={setting.wordsRequired}
-                                wordsFound={setting.wordsFound}
-                            />
-                            <GameBoard
-                                gameBoard={setting.gameBoard}
-                                list={setting.wordsRequired}
-                                updateSetting={updateSetting}
-                                wordsFound={setting.wordsFound}
-                                points={POINTS_PER_LETTER}
-                            />
-                        </section>
-                        <footer className="wordle__footer">
-                            <div className="wordle__footer-left">
-                                <button onClick={() => setSettingPage(true)}></button>
-                                <button onClick={() => setTutorialPage(true)}></button>
+                    <header className="wordle__information-display">
+                        <div className="wordle__information-format">
+                            <p>Current Score</p>
+                            <p>{setting.currentScore}</p>
+                        </div>
+                        <div className="wordle__information-format">
+                            <p>Streak</p>
+                            <p>{setting.currentStreak}</p>
+                        </div>
+                        {setting.enableTimer ?
+                            <div className="wordle__information-format">
+                                <p>Timer</p>
+                                <Timer
+                                    overlayStatus={overlayStatus}
+                                    enableTimer={enableTimer}
+                                    currentTime={currentTime}
+                                    updateCurrentTime={updateCurrentTime}
+                                    updatePage={updatePage}
+                                    updateMessage={updateMessage}
+                                />
                             </div>
-                            <div className="wordle__footer-right">
-                                <button
-                                    className="wordle-footer__hints"
-                                    onClick={() => {
-                                        updatePage("end", true)
-                                    }}
-                                >Give Up</button>
-                            </div>
-                        </footer>
-                    </main>
+                            : null
+                        }
+                        <div className="wordle__information-format">
+                            <p>Highest Score</p>
+                            <p>{setting.highestScore}</p>
+                        </div>
+                    </header>
 
-                </>
+                    <section className="wordsearch__content">
+                        <WordList
+                            gridSize={setting.gridSize}
+                            list={setting.wordsRequired}
+                            wordsFound={setting.wordsFound}
+                        />
+                        <GameBoard
+                            color={color}
+                            gameBoard={setting.gameBoard}
+                            list={setting.wordsRequired}
+                            updateSetting={updateSetting}
+                            wordsFound={setting.wordsFound}
+                            points={POINTS_PER_LETTER}
+                        />
+                    </section>
+                    <footer className="wordle__footer">
+                        <div className="wordle__footer-left">
+                            <button onClick={() => setSettingPage(true)}></button>
+                            <button onClick={() => setTutorialPage(true)}></button>
+                        </div>
+                        <div className="wordle__footer-right">
+                            <button
+                                className="wordle-footer__hints"
+                                onClick={() => {
+                                    updatePage("end", true)
+                                }}
+                            >Give Up</button>
+                        </div>
+                    </footer>
+                </main>
+
                 : null
             }
         </PageTransition>

@@ -11,7 +11,7 @@ function App() {
     const [wordleSetting, setWordleSetting] = useState({});
     const [wordSearchSetting, setWordSearchSetting] = useState({
         gameBoard: [],
-        gridSize: 10,
+        gridSize: 15,
         currentScore: 0,
         highestScore: 0,
         wordsFound: [],
@@ -21,6 +21,11 @@ function App() {
         highestStreak: 0,
         enableTimer: false,
         timerAmount: 180,
+        enableAnwserReveal: false,
+        enableGuessLimit: false,
+        guessAmount: 0,
+        soundAmount: 0.50,
+        pointMultiplier: 1,
     })
 
     // Vairables

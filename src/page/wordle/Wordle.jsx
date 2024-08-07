@@ -31,6 +31,14 @@ import endSound from "/sound/end.mp3"
 // Constants
 const BASE_POINT = 125;
 
+// Colors
+const color = {
+    correct: "#48552b",
+    partial: "#a9903e",
+    incorrect: "#3b3e41",
+    reveal: "#781626",
+}
+
 const Wordle = ({ setting, updateSetting }) => {
     // Default cell used to updated proporties
     const defaultCell = {
@@ -84,23 +92,15 @@ const Wordle = ({ setting, updateSetting }) => {
     // Ref to timeout timer
     const timeoutRef = useRef(null);
 
-    // Colors
-    const color = {
-        correct: "#48552b",
-        partial: "#a9903e",
-        incorrect: "#3b3e41",
-        reveal: "#781626",
-    }
-
     // Audio
-    const CorrectAudio = new Audio(correctSound);
+    const correctAudio = new Audio(correctSound);
     const errorAudio = new Audio(errorSound);
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
     const revealAudio = new Audio(revealSound);
     const endAudio = new Audio(endSound);
 
-    CorrectAudio.volume = setting.soundAmount;
+    correctAudio.volume = setting.soundAmount;
     errorAudio.volume = setting.soundAmount;
     submitAudio.volume = setting.soundAmount;
     hintAudio.volume = setting.soundAmount;
@@ -323,7 +323,7 @@ const Wordle = ({ setting, updateSetting }) => {
 
             // Wordle is a complete match
             if (matchCounter === currentWord.length) {
-                CorrectAudio.play();
+                correctAudio.play();
                 updateMessage("The Word has been Found!")
                 setTimeout(() => {
                     resetGame(false, pointsGained)

@@ -36,7 +36,7 @@ const TutorialPage = ({
             <h3 className="wordle-overlay__title">How To Play</h3>
             <h4 className="wordle-overlay__subtitle">Game Play</h4>
             <ul className="wordle-tutorial__list">
-                <li>Search for the words listed in the word list within the game board.</li>
+                <li>Search for the words listed in the word list within the game board. Words can be found in all cardinal direction and diagonals.</li>
                 <li>Each word you find will be highlighted in a random color and crossed off the list.</li>
                 <li>When the timer runs out, the game will end. You can adjust the timer in the settings.</li>
                 <li>Streaks are achieved by completing multiple game boards consecutively.</li>

@@ -7,6 +7,10 @@ const GameBoard = ({
     updateSetting,
     wordsFound,
     points,
+    resetGame,
+    correctAudio,
+    errorAudio,
+    hintAudio,
 }) => {
     // States
 
@@ -35,6 +39,7 @@ const GameBoard = ({
             if (matchingWord && !wordsFound.includes(matchingWord.word)) {
                 newWordsFound.push(matchingWord.word)
                 pointsGained = points * (matchingWord.word).length;
+                correctAudio.play();
                 // Prevents repeating color
                 if (color.length - 1 === usedColor.length) {
                     selectedColor = color[Math.floor(Math.random() * color.length)]
@@ -43,10 +48,13 @@ const GameBoard = ({
                     do {
                         selectedColor = color[Math.floor(Math.random() * color.length)]
                     } while (usedColor.includes(selectedColor))
-    
+
                     setUsedColor([...usedColor, selectedColor])
                 }
-
+            } else if (matchingWord) {
+                hintAudio.play();
+            } else {
+                errorAudio.play();
             }
 
             // Handled the coloring if the word is found
@@ -78,6 +86,10 @@ const GameBoard = ({
                 currentScore: prev.currentScore + pointsGained,
                 highestScore: prev.currentScore + pointsGained > prev.highestScore ? prev.currentScore + pointsGained : prev.highestScore,
             }))
+
+            if (newWordsFound.length === list.length) {
+                resetGame(false);
+            }
         }
 
     }, [mouseDown])
@@ -86,8 +98,11 @@ const GameBoard = ({
     useEffect(() => {
         const adjustFontSize = () => {
             cellRefs.current.forEach(cell => {
-                const newFontSize = cell.getBoundingClientRect().width * 0.70;
-                cell.style.fontSize = `${newFontSize}px`;
+                // check if cell exists
+                if (cell) {
+                    const newFontSize = cell.getBoundingClientRect().width * 0.70;
+                    cell.style.fontSize = `${newFontSize}px`;
+                }
             });
         };
 

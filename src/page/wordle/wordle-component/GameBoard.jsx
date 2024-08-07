@@ -11,11 +11,11 @@ const GameBoard = ({
 }) => {
     // Generate the board based on the 2D array
     return (
-        <div
-            className="wordle__gameboard"
-            data-message={showMessage ? true : false}
-        >
-            <div className="wordle__message">
+        <div className="wordle__gameboard">
+            <div
+                className="wordle__message"
+                data-message={showMessage ? true : false}
+            >
                 <p>{message}</p>
             </div>
             {gameBoard.map((row, rowNum) => (

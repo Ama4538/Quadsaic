@@ -6,7 +6,7 @@ import useCheckClickOutside from "../../../components/hooks/useCheckClickOutside
 const SettingPage = ({
     updateSelectedSettings,
     gridSize,
-    guessAmount,
+    guessAmountMultiplier,
     enableGuessLimit,
     enableAnwserReveal,
     enableTimer,
@@ -28,59 +28,66 @@ const SettingPage = ({
 
     // Setting drop menu option
     const possibleGridSize = [10, 15, 20, 25, 30];
-    const possibleGuessAmount = [0.30, 0.50, 1, 1.50];
-    const possibleTimeAmount = [3, 5, 7, 9, 10]
+    const possibleGuessAmountMultiplier = [0.25, 0.50, 0.75, 1, 1.25, 1.50, 1.75, 2];
+    const possibleTimeAmount = [5, 10, 15, 20, 25, 30, 35]
 
     // // Auto adjust points based on settings
-    // useEffect(() => {
-    //     updatePointMultiplier(adjustedPointMultiplier());
-    // }, [letterAmount, guessAmount, timeAmount, enableHints, enableAnwserReveal, enableTimer])
+    useEffect(() => {
+        updatePointMultiplier(adjustedPointMultiplier());
+    }, [gridSize, guessAmountMultiplier, timeAmount, enableGuessLimit, enableAnwserReveal, enableTimer])
 
-    // // Handle point multiplier
-    // const adjustedPointMultiplier = () => {
-    //     let newPointMultipler = 1;
-    //     // All possible points adjustments
-    //     const letterPointIncrease = {
-    //         4: -0.10,
-    //         5: 0,
-    //         6: 0.20,
-    //         7: 0.45
-    //     }
-    //     const guessPointIncrease = {
-    //         3: 0.50,
-    //         4: 0.25,
-    //         5: 0.10,
-    //         6: 0,
-    //         7: -0.05,
-    //         8: -0.10,
-    //         9: -0.15,
-    //         10: -0.20,
-    //     }
-    //     const timeAmountPointIncrease = {
-    //         1: 0.25,
-    //         2: 0.10,
-    //         3: 0,
-    //         5: -0.10,
-    //         7: -0.15,
-    //     }
-    //     // Increase points if enable
-    //     if (enableTimer) {
-    //         const defaultTimerIncrease = 0.25;
-    //         newPointMultipler = newPointMultipler + defaultTimerIncrease + timeAmountPointIncrease[timeAmount / 60];
-    //     }
-    //     // Increase points if disable
-    //     if (!enableHints) {
-    //         const defaultHintIncrease = 0.15;
-    //         newPointMultipler = newPointMultipler + defaultHintIncrease;
-    //     }
-    //     if (!enableAnwserReveal) {
-    //         const defaultAnwerRevealIncrease = 0.05
-    //         newPointMultipler = newPointMultipler + defaultAnwerRevealIncrease
-    //     }
+    // Handle point multiplier
+    const adjustedPointMultiplier = () => {
+        let newPointMultipler = 1;
+        // All possible points adjustments
+        const girdSizePointIncrease = {
+            10: -0.05,
+            15: 0,
+            20: 0.10,
+            25: 0.175,
+            30: 0.25,
+        }
+        const guessAmountMultiplierPointIncrease = {
+            0.25: 0.40,
+            0.50: 0.20,
+            0.75: 0.15,
+            1: 0.10,
+            1.25: 0.075,
+            1.50: 0,
+            1.75: -0.075,
+            2: -0.12,
+        }
+        const timeAmountPointIncrease = {
+            5: 0.50,
+            10: 0.25,
+            15: 0.10,
+            20: 0,
+            25: -0.05,
+            30: -0.10,
+            35: -0.175,
+        }
 
-    //     newPointMultipler = newPointMultipler + letterPointIncrease[letterAmount] + guessPointIncrease[guessAmount]
-    //     return newPointMultipler.toString().length < 4 ? newPointMultipler.toFixed(1) : newPointMultipler.toFixed(2);
-    // }
+        // Increase points if enable
+        if (enableTimer) {
+            const defaultTimerIncrease = 0.25;
+            newPointMultipler = newPointMultipler + defaultTimerIncrease + timeAmountPointIncrease[timeAmount / 60];
+        }
+        
+        if (enableGuessLimit) {
+            const defaultEnableGuessIncrease = 0.15;
+            newPointMultipler = newPointMultipler + defaultEnableGuessIncrease + guessAmountMultiplierPointIncrease[guessAmountMultiplier];
+
+        }
+        
+        // Increase points if disable
+        if (!enableAnwserReveal) {
+            const defaultAnwerRevealIncrease = 0.05
+            newPointMultipler = newPointMultipler + defaultAnwerRevealIncrease
+        }
+        
+        newPointMultipler = newPointMultipler + girdSizePointIncrease[gridSize];
+        return newPointMultipler.toString().length < 4 ? newPointMultipler.toFixed(1) : newPointMultipler.toFixed(2);
+    }
 
     // Update ChangeMade 
     const updateChangesMade = (value) => {
@@ -118,11 +125,12 @@ const SettingPage = ({
                     <p className="wordle-setting__description">Adjust the number of guesses</p>
                 </div>
                 <DropDown
-                    content={possibleGuessAmount}
-                    name={"guessAmount"}
-                    startingValue={guessAmount}
+                    content={possibleGuessAmountMultiplier}
+                    name={"guessAmountMultiplier"}
+                    startingValue={guessAmountMultiplier}
                     setSelected={updateSelectedSettings}
                     updateChangesMade={updateChangesMade}
+                    large={true}
                 />
             </div>
             <div className="wordle-overlay__setting-module">
@@ -187,7 +195,7 @@ const SettingPage = ({
                     startingValue={timeAmount / 60}
                     setSelected={updateSelectedSettings}
                     updateChangesMade={updateChangesMade}
-                    sort = {false}
+                    sort={false}
                 />
             </div>
             <div className="wordle-overlay__setting-module">

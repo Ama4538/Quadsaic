@@ -78,6 +78,10 @@ body {
     padding: calc(var(--padding-size-very-small) * 1.50) var(--padding-size-small) calc(var(--padding-size-small) / 3);
 }
 
+.wordsearch .wordle__message {
+    font-size: calc(var(--font-size-small) * 1.15);
+}
+
 /* Tutorial */
 .wordsearch-tutorial__container {
     width: max-content;

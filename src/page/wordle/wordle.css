@@ -304,10 +304,12 @@
     background-color: var(--primary-color);
     color: var(--secondary-color);
     opacity: 0;
+    pointer-events: none;
     text-align: center;
     text-transform: capitalize;
     translate: -50% -50%;
     transition: 0.15s ease-in-out;
+    user-select: none;
 }
 
 .wordle-gameboard__row {
@@ -475,9 +477,12 @@
 
 /* Animation */
 .wordle-gameboard__cell[data-filled="true"],
-.wordle__gameboard[data-message="true"] .wordle__message,
 .wordle-footer__hints:hover+.wordle-footer__hints-message {
     opacity: 1;
+}
+
+.wordle__message[data-message="true"] {
+    opacity: 0.75;
 }
 
 .wordle-keyboard__button:hover {

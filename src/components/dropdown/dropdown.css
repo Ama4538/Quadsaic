@@ -14,6 +14,10 @@
     transition: 0.25s ease-out;
 }
 
+.dropdown[data-large = "true"] {
+    width: calc((var(--font-size-med) / 1.05) * 1.50);
+}
+
 .dropdown__menu {
     position: absolute;
     top: 100%;
@@ -32,6 +36,9 @@
     text-transform: capitalize;
 }
 
+.dropdown[data-large = "true"]  .dropdown__menu {
+    width: calc((var(--font-size-med) / 1.05) * 1.50);
+}
 
 .dropdown[data-visible = "visible"] > .dropdown__menu {
     pointer-events: visible;

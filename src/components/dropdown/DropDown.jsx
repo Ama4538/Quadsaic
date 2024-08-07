@@ -8,6 +8,7 @@ function DropDown({
     setSelected, 
     updateChangesMade,
     sort = true,
+    large = false
 }) {
     // State to manage visibility 
     const [visible, setVisible] = useState(false)
@@ -37,7 +38,7 @@ function DropDown({
                 setVisible(prev => !prev)
             }}
             data-visible={(visible) ? "visible" : "hidden"}
-            data-large = {startingValue.length > 1 ? true : false}
+            data-large = {large ? true : false}
         >
             {displayName}
             <ul className="dropdown__menu">

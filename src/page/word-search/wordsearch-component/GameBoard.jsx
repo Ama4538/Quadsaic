@@ -9,8 +9,7 @@ const GameBoard = ({
     points,
     resetGame,
     correctAudio,
-    errorAudio,
-    hintAudio,
+    submitAudio,
 }) => {
     // States
 
@@ -31,7 +30,14 @@ const GameBoard = ({
     useEffect(() => {
         if (!mouseDown) {
             // Trying to find if word is in the required list
-            const matchingWord = list.find(element => element.word === selectedWord);
+            let matchingWord = list.find(element => element.word === selectedWord);
+
+            if (!matchingWord) {
+                // If the word was not found, check for its reverse
+                let reversedWord = selectedWord.split("").reverse().join("");
+                matchingWord = list.find(element => element.word === reversedWord);
+            }
+
             let selectedColor = null;
             let newWordsFound = [...wordsFound]
             let pointsGained = 0;
@@ -39,7 +45,6 @@ const GameBoard = ({
             if (matchingWord && !wordsFound.includes(matchingWord.word)) {
                 newWordsFound.push(matchingWord.word)
                 pointsGained = points * (matchingWord.word).length;
-                correctAudio.play();
                 // Prevents repeating color
                 if (color.length - 1 === usedColor.length) {
                     selectedColor = color[Math.floor(Math.random() * color.length)]
@@ -51,10 +56,11 @@ const GameBoard = ({
 
                     setUsedColor([...usedColor, selectedColor])
                 }
-            } else if (matchingWord) {
-                hintAudio.play();
-            } else {
-                errorAudio.play();
+
+                // Prevent the last one from playing audio
+                if (!(newWordsFound.length === list.length)) {
+                    correctAudio.play();
+                }
             }
 
             // Handled the coloring if the word is found
@@ -88,6 +94,7 @@ const GameBoard = ({
             }))
 
             if (newWordsFound.length === list.length) {
+                submitAudio.play()
                 resetGame(false);
             }
         }
@@ -225,7 +232,6 @@ const GameBoard = ({
     return (
         <div
             className="wordsearch__gameboard"
-            onMouseLeave={() => { setMouseDown(false) }}
             style={{
                 gap: `calc(var(--padding-size-small) / ${gameBoard.length >= 15 ? 8 : 6})`
             }}

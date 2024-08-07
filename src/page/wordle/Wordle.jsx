@@ -93,14 +93,14 @@ const Wordle = ({ setting, updateSetting }) => {
     const timeoutRef = useRef(null);
 
     // Audio
-    const correctAudio = new Audio(correctSound);
+    const orrectAudio = new Audio(correctSound);
     const errorAudio = new Audio(errorSound);
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
     const revealAudio = new Audio(revealSound);
     const endAudio = new Audio(endSound);
 
-    correctAudio.volume = setting.soundAmount;
+    orrectAudio.volume = setting.soundAmount;
     errorAudio.volume = setting.soundAmount;
     submitAudio.volume = setting.soundAmount;
     hintAudio.volume = setting.soundAmount;
@@ -323,7 +323,7 @@ const Wordle = ({ setting, updateSetting }) => {
 
             // Wordle is a complete match
             if (matchCounter === currentWord.length) {
-                correctAudio.play();
+                orrectAudio.play();
                 updateMessage("The Word has been Found!")
                 setTimeout(() => {
                     resetGame(false, pointsGained)

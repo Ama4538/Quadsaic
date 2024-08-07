@@ -26,7 +26,7 @@ import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 
-const POINTS_PER_LETTER = 5;
+const POINTS_PER_LETTER = 3;
 const color = ["#664d00", "#6e2a0c", "#691312", "#5d0933", "#3e304c", "#1d424e", "#12403c", "#475200"];
 
 const WordSearch = ({ setting, updateSetting }) => {
@@ -57,7 +57,7 @@ const WordSearch = ({ setting, updateSetting }) => {
     const [dataLoadingStatus, setDataLoadingStatus] = useState(false);
 
     // Message
-    const [message, setMessage] = useState("")
+    const [message, setMessage] = useState("EMPTY")
     const [showMessage, setShowMessage] = useState(false)
 
     // Timer
@@ -72,6 +72,8 @@ const WordSearch = ({ setting, updateSetting }) => {
     const [guessAmount, setGuessAmount] = useState(0);
     const [enableAnwserReveal, setEnableAnwserReveal] = useState(false);
     const [enableGuessLimit, setEnableGuessLimit] = useState(false);
+    const [guessAmountMultiplier, setGuessAmountMultiplier] = useState(1);
+    const [totalPoints, setTotalPoints] = useState(0);
 
     // Overlay
     const {
@@ -91,20 +93,18 @@ const WordSearch = ({ setting, updateSetting }) => {
     // Ref to timeout timer
     const timeoutRef = useRef(null);
 
-        // Audio
-        const correctAudio = new Audio(correctSound);
-        const errorAudio = new Audio(errorSound);
-        // const submitAudio = new Audio(submitSound);
-        const hintAudio = new Audio(hintSound);
-        // const revealAudio = new Audio(revealSound);
-        // const endAudio = new Audio(endSound);
-    
-        correctAudio.volume = setting.soundAmount;
-        errorAudio.volume = setting.soundAmount;
-        // submitAudio.volume = setting.soundAmount;
-        hintAudio.volume = setting.soundAmount;
-        // revealAudio.volume = setting.soundAmount;
-        // endAudio.volume = setting.soundAmount;
+    // Audio
+    const correctAudio = new Audio(correctSound);
+    const submitAudio = new Audio(submitSound);
+    const hintAudio = new Audio(hintSound);
+    // const revealAudio = new Audio(revealSound);
+    // const endAudio = new Audio(endSound);
+
+    correctAudio.volume = setting.soundAmount;
+    submitAudio.volume = setting.soundAmount;
+    hintAudio.volume = setting.soundAmount;
+    // revealAudio.volume = setting.soundAmount;
+    // endAudio.volume = setting.soundAmount;
 
     // Animations
     const {
@@ -145,6 +145,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             setGuessAmount(setting.guessAmount)
             setEnableAnwserReveal(setting.enableAnwserReveal)
             setEnableGuessLimit(setting.enableGuessLimit)
+            setGuessAmountMultiplier(setting.guessAmountMultiplier)
         }
 
         if (dataLoadingStatus && initializeGameBoard) {
@@ -189,34 +190,55 @@ const WordSearch = ({ setting, updateSetting }) => {
         }
     }, [dataLoadingStatus, initializeGameBoard, setting.gridSize])
 
+    // Point System
+    useEffect(() => {
+        // Update total popints based on streak multiplier from current streak
+        const streakBonusMultiplier = (1 + (setting.currentStreak * 0.125));
+        const newTotal = Math.round(POINTS_PER_LETTER * setting.pointMultiplier * streakBonusMultiplier)
+        setTotalPoints(newTotal)
+    }, [setting.currentStreak, setting.pointMultiplier])
+
     // Functions
 
-    const resetGame = (resetPoints = true) => {
+    const resetGame = (resetPoints = true, featureUsed = "") => {
         const InitialGameBoard = Array(setting.gridSize).fill().map(() => Array(setting.gridSize).fill(defaultCell));
         const newWordsRequired = generateWordSet(setting.gridSize)
 
         // Streaks
         const newCurrentStreak = setting.currentStreak + 1;
         const newHighestStreak = newCurrentStreak >= setting.highestStreak ? newCurrentStreak : setting.highestStreak;
+        const newStreakBonus = featureUsed === 'reveal' ? setting.streakBonusPoint : setting.streakBonusPoint + Math.round(totalPoints - (POINTS_PER_LETTER * setting.pointMultiplier));
 
-        updateSetting(prev => (
-            {
-                ...prev,
-                gameBoard: InitialGameBoard,
-                wordsRequired: newWordsRequired,
-                wordsFound: [],
-                currentStreak: resetPoints ? 0 : newCurrentStreak,
-                currentScore: resetPoints ? 0 : prev.currentScore,
-            }
-        ))
-        setInitializeGameBoard(true)
+        let timeoutTime = 0;
+
+        // Adding message
+        if (!resetPoints) {
+            updateMessage("Great job! You've found all the words!")
+            timeoutTime = 1000
+        }
+
+        setTimeout(() => {
+            updateSetting(prev => (
+                {
+                    ...prev,
+                    gameBoard: InitialGameBoard,
+                    wordsRequired: newWordsRequired,
+                    wordsFound: [],
+                    currentStreak: resetPoints ? 0 : newCurrentStreak,
+                    currentScore: resetPoints ? 0 : prev.currentScore,
+                    streakBonusPoint: resetPoints ? 0 : newStreakBonus,
+                }
+            ))
+            setInitializeGameBoard(true)
+        }, timeoutTime)
+
     }
 
     // Get the new required words
     const generateWordSet = (gridSize) => {
         const totalCell = gridSize * gridSize;
         // Generate enough words to fill at most 50% of the game board
-        let cellSpace = totalCell * 0.50;
+        let cellSpace = totalCell * 0.10;
         let allPossibleLetterCount = [];
         const wordSet = [];
 
@@ -459,8 +481,8 @@ const WordSearch = ({ setting, updateSetting }) => {
             case "gridSize":
                 setGrid(value)
                 break;
-            case "guessAmount":
-                setGuessAmount(value);
+            case "guessAmountMultiplier":
+                setGuessAmountMultiplier(value);
                 break;
             case "timeAmount":
                 setTimeAmount(value * 60);
@@ -494,7 +516,8 @@ const WordSearch = ({ setting, updateSetting }) => {
             {
                 ...prev,
                 gridSize: gridSize,
-                guessAmount: guessAmount,
+                guessAmount: Math.round(prev.wordsRequired.length * guessAmountMultiplier),
+                guessAmountMultiplier: guessAmountMultiplier,
                 enableAnwserReveal: enableAnwserReveal,
                 enableGuessLimit: enableGuessLimit,
                 enableTimer: enableTimer,
@@ -514,7 +537,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         if (!settingPage) {
             resetGame();
         }
-    }, [setting.gridSize, setting.guessAmount, setting.enableAnwserReveal, setting.enableGuessLimit, setting.enableTimer, setting.soundAmount, setting.timerAmount, setting.pointMultiplier]);
+    }, [setting.gridSize, setting.guessAmountMultiplier, setting.enableAnwserReveal, setting.enableGuessLimit, setting.enableTimer, setting.soundAmount, setting.timerAmount, setting.pointMultiplier]);
 
     // Cancel setting change
     const cancelSetting = () => {
@@ -523,7 +546,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         setGrid(setting.gridSize);
         setEnableTimer(setting.enableTimer);
         setTimeAmount(setting.timerAmount);
-        setGuessAmount(setting.guessAmount);
+        setGuessAmountMultiplier(setting.guessAmountMultiplier);
         setSoundAmount(setting.soundAmount);
         setEnableGuessLimit(setting.enableGuessLimit)
         setPointMultiplier(setting.pointMultiplier)
@@ -560,6 +583,12 @@ const WordSearch = ({ setting, updateSetting }) => {
             {dataLoadingStatus
                 ?
                 <main className="wordsearch">
+                    <div
+                        className="wordle__message"
+                        data-message={showMessage ? true : false}
+                    >
+                        <p>{message}</p>
+                    </div>
                     {
                         overlayStatus
                             ? <div className="wordle__overlay">
@@ -586,7 +615,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                                     ? <SettingPage
                                         updateSelectedSettings={updateSelectedSettings}
                                         gridSize={gridSize}
-                                        guessAmount={guessAmount}
+                                        guessAmountMultiplier={guessAmountMultiplier}
                                         enableGuessLimit={enableGuessLimit}
                                         enableAnwserReveal={enableAnwserReveal}
                                         enableTimer={enableTimer}
@@ -613,8 +642,14 @@ const WordSearch = ({ setting, updateSetting }) => {
                             <p>Streak</p>
                             <p>{setting.currentStreak}</p>
                         </div>
-                        {setting.enableTimer ?
-                            <div className="wordle__information-format">
+                        {setting.enableGuessLimit
+                            ? <div className="wordle__information-format">
+                                <p>Guesses</p>
+                                <p>{setting.guessAmount}</p>
+                            </div>
+                            : null}
+                        {setting.enableTimer
+                            ? <div className="wordle__information-format">
                                 <p>Timer</p>
                                 <Timer
                                     overlayStatus={overlayStatus}
@@ -645,11 +680,11 @@ const WordSearch = ({ setting, updateSetting }) => {
                             list={setting.wordsRequired}
                             updateSetting={updateSetting}
                             wordsFound={setting.wordsFound}
-                            points={POINTS_PER_LETTER}
-                            resetGame = {resetGame}
-                            correctAudio = {correctAudio}
-                            errorAudio = {errorAudio}
-                            hintAudio = {hintAudio}
+                            points={totalPoints}
+                            resetGame={resetGame}
+                            correctAudio={correctAudio}
+                            submitAudio={submitAudio}
+                            hintAudio={hintAudio}
                         />
                     </section>
                     <footer className="wordle__footer">
@@ -658,6 +693,13 @@ const WordSearch = ({ setting, updateSetting }) => {
                             <button onClick={() => setTutorialPage(true)}></button>
                         </div>
                         <div className="wordle__footer-right">
+
+                            <button
+                                className="wordle-footer__hints"
+                                onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
+                                data-active={setting.enableAnwserReveal}
+                            >Reveal Answer</button>
+
                             <button
                                 className="wordle-footer__hints"
                                 onClick={() => {

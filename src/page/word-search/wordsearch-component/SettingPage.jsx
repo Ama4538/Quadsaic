@@ -76,7 +76,6 @@ const SettingPage = ({
         if (enableGuessLimit) {
             const defaultEnableGuessIncrease = 0.15;
             newPointMultipler = newPointMultipler + defaultEnableGuessIncrease + guessAmountMultiplierPointIncrease[guessAmountMultiplier];
-
         }
         
         // Increase points if disable

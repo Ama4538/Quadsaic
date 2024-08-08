@@ -16,17 +16,21 @@ function App() {
         highestScore: 0,
         wordsFound: [],
         wordsRequired: [],
+        totalWordsFound: 0,
         streakBonusPoint: 0,
         currentStreak: 0,
         highestStreak: 0,
         enableTimer: false,
-        timerAmount: 180,
+        timerAmount: 900,
         enableAnwserReveal: true,
         enableGuessLimit: false,
+        totalRevealAnwserUsed: 0,
         guessAmountMultiplier: 1.50,
         guessAmount: 0,
+        guessUsed: 0,
         soundAmount: 0.50,
         pointMultiplier: 1,
+        end: false,
     })
 
     // Vairables

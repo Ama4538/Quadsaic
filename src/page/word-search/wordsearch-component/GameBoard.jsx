@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+const colorReveal = "#D6A2AD"
+
 const GameBoard = ({
     color,
     gameBoard,
@@ -10,6 +12,15 @@ const GameBoard = ({
     resetGame,
     correctAudio,
     submitAudio,
+    revealAnwser,
+    updateRevealAnwser,
+    revealAudio,
+    streakBonusPoint,
+    pointMultiplier,
+    POINTS_PER_LETTER,
+    updateGuessAmount,
+    end,
+    totalWordsFound,
 }) => {
     // States
 
@@ -83,13 +94,24 @@ const GameBoard = ({
                 }
             })
 
+            // Guess Limit
+            if (!matchingWord && selectedWord.length > 2) {
+               updateGuessAmount();
+            }
+            
+            // Streak bonus
+            const newStreakBonus = pointsGained > 0 ? streakBonusPoint + (Math.round(points - (POINTS_PER_LETTER * pointMultiplier)) * (matchingWord.word).length): streakBonusPoint;
+            const newFoundWordLength = wordsFound.length < newWordsFound.length ? totalWordsFound + 1 : totalWordsFound;
+
             // Update data
             setSelectedWord("");
             setSelectedCell([]);
             updateSetting(prev => ({
                 ...prev,
-                wordsFound: newWordsFound,
-                currentScore: prev.currentScore + pointsGained,
+                wordsFound: end ? [] : newWordsFound,
+                totalWordsFound: end ? 0 : newFoundWordLength,
+                currentScore: end ? 0 : prev.currentScore + pointsGained,
+                streakBonusPoint: newStreakBonus,
                 highestScore: prev.currentScore + pointsGained > prev.highestScore ? prev.currentScore + pointsGained : prev.highestScore,
             }))
 
@@ -120,6 +142,102 @@ const GameBoard = ({
             window.removeEventListener('resize', adjustFontSize);
         };
     }, [gameBoard]);
+
+    // Used to handle revealing the anwser
+    useEffect(() => {
+        if (revealAnwser) {
+            // Making copy
+            const updatedGameBoard = gameBoard.map(row => row.map(cell => ({ ...cell })))
+
+            // Finding a random non found word
+            let currentReveal;
+            do {
+                currentReveal = list[Math.floor(Math.random() * list.length)]
+            } while (wordsFound.includes(currentReveal.word))
+
+            const y = currentReveal.y;
+            const x = currentReveal.x;
+            const word = currentReveal.word
+
+            // Updating every letter in the word depending on its direction
+            if (currentReveal.direction === "right") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y][x + i].backgroundColor = colorReveal;
+                    updatedGameBoard[y][x + i].text = "var(--secondary-color)";
+                    updatedGameBoard[y][x + i].found = true;
+                    updatedGameBoard[y][x + i].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "left") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y][x - i].backgroundColor = colorReveal;
+                    updatedGameBoard[y][x - i].text = "var(--secondary-color)";
+                    updatedGameBoard[y][x - i].found = true;
+                    updatedGameBoard[y][x - i].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "up") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y - i][x].backgroundColor = colorReveal;
+                    updatedGameBoard[y - i][x].text = "var(--secondary-color)";
+                    updatedGameBoard[y - i][x].found = true;
+                    updatedGameBoard[y - i][x].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "down") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y + i][x].backgroundColor = colorReveal;
+                    updatedGameBoard[y + i][x].text = "var(--secondary-color)";
+                    updatedGameBoard[y + i][x].found = true;
+                    updatedGameBoard[y + i][x].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "up-right") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y - i][x + i].backgroundColor = colorReveal;
+                    updatedGameBoard[y - i][x + i].text = "var(--secondary-color)";
+                    updatedGameBoard[y - i][x + i].found = true;
+                    updatedGameBoard[y - i][x + i].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "up-left") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y - i][x - i].backgroundColor = colorReveal;
+                    updatedGameBoard[y - i][x - i].text = "var(--secondary-color)";
+                    updatedGameBoard[y - i][x - i].found = true;
+                    updatedGameBoard[y - i][x - i].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "down-right") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y + i][x + i].backgroundColor = colorReveal;
+                    updatedGameBoard[y + i][x + i].text = "var(--secondary-color)";
+                    updatedGameBoard[y + i][x + i].found = true;
+                    updatedGameBoard[y + i][x + i].foundColor = colorReveal;
+                }
+            } else if (currentReveal.direction === "down-left") {
+                for (let i = 0; i < word.length; i++) {
+                    updatedGameBoard[y + i][x - i].backgroundColor = colorReveal;
+                    updatedGameBoard[y + i][x - i].text = "var(--secondary-color)";
+                    updatedGameBoard[y + i][x - i].found = true;
+                    updatedGameBoard[y + i][x - i].foundColor = colorReveal;
+                }
+            }
+
+            // Updating data
+            const PointsLost = Math.floor((points * word.length) * -0.60)
+            const newWordsFound = [...wordsFound, word]
+
+            updateSetting(prev => ({
+                ...prev,
+                gameBoard: updatedGameBoard,
+                wordsFound: newWordsFound,
+                currentScore: prev.currentScore + PointsLost < 0 ? 0 : prev.currentScore + PointsLost,
+                totalRevealAnwserUsed: prev.totalRevealAnwserUsed + 1,
+            }))
+
+            if (newWordsFound.length === list.length) {
+                resetGame(false, "reveal");
+            }
+
+            revealAudio.play();
+            updateRevealAnwser(false)
+        }
+    }, [revealAnwser])
 
     // Function
 

@@ -120,7 +120,7 @@ body {
     aspect-ratio: 1 / 1;
     border: solid 1px var(--primary-color);
     cursor: pointer;
-   
+    user-select: none;
 }
 
 .wordsearch-gameboard__row {

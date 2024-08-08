@@ -10,6 +10,7 @@ import WelcomePage from "./wordsearch-component/WelcomePage";
 import Timer from "../../components/timer/Timer";
 import TutorialPage from "./wordsearch-component/TutorialPage";
 import SettingPage from "./wordsearch-component/SettingPage";
+import EndScreen from "./wordsearch-component/EndScreen";
 
 // Variables
 import WordSearchAnimation from "./wordsearch-component/WordSearchAnimation";
@@ -34,8 +35,6 @@ const WordSearch = ({ setting, updateSetting }) => {
     //     console.log(setting);
     // }, [setting])
 
-
-
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -56,6 +55,10 @@ const WordSearch = ({ setting, updateSetting }) => {
     // Loading Status
     const [dataLoadingStatus, setDataLoadingStatus] = useState(false);
 
+    // status
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [settingsApplied, setSettingsApplied] = useState(false);
+
     // Message
     const [message, setMessage] = useState("EMPTY")
     const [showMessage, setShowMessage] = useState(false)
@@ -69,11 +72,11 @@ const WordSearch = ({ setting, updateSetting }) => {
     const [timeAmount, setTimeAmount] = useState(0)
     const [soundAmount, setSoundAmount] = useState(0)
     const [pointMultiplier, setPointMultiplier] = useState(1);
-    const [guessAmount, setGuessAmount] = useState(0);
     const [enableAnwserReveal, setEnableAnwserReveal] = useState(false);
     const [enableGuessLimit, setEnableGuessLimit] = useState(false);
     const [guessAmountMultiplier, setGuessAmountMultiplier] = useState(1);
     const [totalPoints, setTotalPoints] = useState(0);
+    const [revealAnwser, setRevealAnwser] = useState(false);
 
     // Overlay
     const {
@@ -97,14 +100,16 @@ const WordSearch = ({ setting, updateSetting }) => {
     const correctAudio = new Audio(correctSound);
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
-    // const revealAudio = new Audio(revealSound);
-    // const endAudio = new Audio(endSound);
+    const revealAudio = new Audio(revealSound);
+    const endAudio = new Audio(endSound);
+    const errorAudio = new Audio(errorSound);
 
     correctAudio.volume = setting.soundAmount;
     submitAudio.volume = setting.soundAmount;
     hintAudio.volume = setting.soundAmount;
-    // revealAudio.volume = setting.soundAmount;
-    // endAudio.volume = setting.soundAmount;
+    revealAudio.volume = setting.soundAmount;
+    endAudio.volume = setting.soundAmount;
+    errorAudio.volume = setting.soundAmount;
 
     // Animations
     const {
@@ -128,6 +133,11 @@ const WordSearch = ({ setting, updateSetting }) => {
             ))
             setInitializeGameBoard(true)
         }
+        
+        // Check if game was refresh at end screen
+        if (setting.end) {
+            resetGame()
+        }
 
         setDataLoadingStatus(true);
     }, [setting.gridSize])
@@ -142,7 +152,6 @@ const WordSearch = ({ setting, updateSetting }) => {
             setCurrentTime(setting.timerAmount)
             setSoundAmount(setting.soundAmount)
             setPointMultiplier(setting.pointMultiplier)
-            setGuessAmount(setting.guessAmount)
             setEnableAnwserReveal(setting.enableAnwserReveal)
             setEnableGuessLimit(setting.enableGuessLimit)
             setGuessAmountMultiplier(setting.guessAmountMultiplier)
@@ -169,14 +178,14 @@ const WordSearch = ({ setting, updateSetting }) => {
             }
 
             // Fill in the remaining spaces
-            // updatedGameBoard.forEach(row => {
-            //     row.forEach(cell => {
-            //         if (cell.content === 0) {
-            //             // Generating random letter with ascii
-            //             cell.content = String.fromCharCode(Math.floor(Math.random() * (24) + 97))
-            //         }
-            //     });
-            // });
+            updatedGameBoard.forEach(row => {
+                row.forEach(cell => {
+                    if (cell.content === 0) {
+                        // Generating random letter with ascii
+                        cell.content = String.fromCharCode(Math.floor(Math.random() * (24) + 97))
+                    }
+                });
+            });
 
             // Update information
             updateSetting(prev => (
@@ -184,6 +193,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                     ...prev,
                     gameBoard: updatedGameBoard,
                     wordsRequired: newWordsRequired,
+                    guessAmount: Math.round(newWordsRequired.length * guessAmountMultiplier)
                 }
             ))
             setInitializeGameBoard(false);
@@ -205,17 +215,19 @@ const WordSearch = ({ setting, updateSetting }) => {
         const newWordsRequired = generateWordSet(setting.gridSize)
 
         // Streaks
-        const newCurrentStreak = setting.currentStreak + 1;
+        const newCurrentStreak = featureUsed === 'reveal' ? 0 : setting.currentStreak + 1;
         const newHighestStreak = newCurrentStreak >= setting.highestStreak ? newCurrentStreak : setting.highestStreak;
-        const newStreakBonus = featureUsed === 'reveal' ? setting.streakBonusPoint : setting.streakBonusPoint + Math.round(totalPoints - (POINTS_PER_LETTER * setting.pointMultiplier));
 
         let timeoutTime = 0;
 
         // Adding message
         if (!resetPoints) {
             updateMessage("Great job! You've found all the words!")
-            timeoutTime = 1000
+            timeoutTime = 750
         }
+
+        console.log("reset");
+        
 
         setTimeout(() => {
             updateSetting(prev => (
@@ -226,7 +238,12 @@ const WordSearch = ({ setting, updateSetting }) => {
                     wordsFound: [],
                     currentStreak: resetPoints ? 0 : newCurrentStreak,
                     currentScore: resetPoints ? 0 : prev.currentScore,
-                    streakBonusPoint: resetPoints ? 0 : newStreakBonus,
+                    highestStreak: resetPoints ? 0 : newHighestStreak,
+                    totalWordsFound: resetPoints ? 0 : prev.totalWordsFound,
+                    streakBonusPoint: resetPoints ? 0 : prev.streakBonusPoint,
+                    guessUsed: resetPoints ? 0 : prev.guessUsed,
+                    totalRevealAnwserUsed: resetPoints ? 0 : prev.totalRevealAnwserUsed,
+                    end: false,
                 }
             ))
             setInitializeGameBoard(true)
@@ -238,7 +255,7 @@ const WordSearch = ({ setting, updateSetting }) => {
     const generateWordSet = (gridSize) => {
         const totalCell = gridSize * gridSize;
         // Generate enough words to fill at most 50% of the game board
-        let cellSpace = totalCell * 0.10;
+        let cellSpace = totalCell * 0.50;
         let allPossibleLetterCount = [];
         const wordSet = [];
 
@@ -263,6 +280,9 @@ const WordSearch = ({ setting, updateSetting }) => {
                 wordSet.push({
                     word: newWord,
                     found: false,
+                    x: null,
+                    y: null,
+                    direction: null,
                 })
             }
         }
@@ -442,6 +462,9 @@ const WordSearch = ({ setting, updateSetting }) => {
                 // Update information
                 if (canPlace) {
                     placed = true;
+                    currentWord.x = randomX;
+                    currentWord.y = randomY;
+                    currentWord.direction = placement;
                 }
 
                 attempts++;
@@ -469,6 +492,10 @@ const WordSearch = ({ setting, updateSetting }) => {
                     endAudio.play()
                 }
                 setEndPage(value);
+                updateSetting(prev => ({
+                    ...prev,
+                    end: true,
+                }))
                 break;
             default:
                 break;
@@ -526,6 +553,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                 pointMultiplier: pointMultiplier
             }
         ))
+        setSettingsApplied(true);
 
         if (endPage) {
             updatePage("end", false)
@@ -534,10 +562,11 @@ const WordSearch = ({ setting, updateSetting }) => {
 
     // Use a useEffect to reset the game after the settings have been updated
     useEffect(() => {
-        if (!settingPage) {
-            resetGame();
+        if (settingsApplied) {
+            resetGame();  
+            setSettingsApplied(false);
         }
-    }, [setting.gridSize, setting.guessAmountMultiplier, setting.enableAnwserReveal, setting.enableGuessLimit, setting.enableTimer, setting.soundAmount, setting.timerAmount, setting.pointMultiplier]);
+    }, [settingsApplied]);
 
     // Cancel setting change
     const cancelSetting = () => {
@@ -569,12 +598,36 @@ const WordSearch = ({ setting, updateSetting }) => {
 
         timeoutRef.current = setTimeout(() => {
             setShowMessage(false);
-        }, 1000)
+        }, 750)
     }
 
     // Update the current time
     const updateCurrentTime = (value) => {
         setCurrentTime(value)
+    }
+
+    // Update reveal anwser status
+    const updateRevealAnwser = (value) => {
+        setRevealAnwser(value)
+    }
+
+    // handle guess amount
+    const updateGuessAmount = () => {
+        let newGuessAmount = setting.guessAmount - 1
+
+        if (newGuessAmount <= 0 && enableGuessLimit) {
+            updatePage("end", true)
+        } else {
+            errorAudio.play();
+        }
+
+        updateSetting(prev => (
+            {
+                ...prev,
+                guessUsed: prev.guessUsed + 1,
+                guessAmount: enableGuessLimit ? newGuessAmount : prev.guessAmount,
+            }
+        ))
     }
 
     return (
@@ -601,6 +654,22 @@ const WordSearch = ({ setting, updateSetting }) => {
                                         amountOfWordsFound={(setting.wordsFound).length}
                                         amountOfWords={(setting.wordsRequired).length}
                                         resetGame={resetGame}
+                                    />
+                                    : null}
+                                {endPage
+                                    ? <EndScreen
+                                        highestScore={setting.highestScore}
+                                        currentScore={setting.currentScore}
+                                        wordCompleted={setting.totalWordsFound}
+                                        totalRevealAnwserUsed={setting.totalRevealAnwserUsed}
+                                        pointMultiplier={setting.pointMultiplier}
+                                        currentStreak={setting.currentStreak}
+                                        highestStreak={setting.highestStreak}
+                                        streakBonus={setting.streakBonusPoint}
+                                        guessAmount={setting.guessUsed}
+                                        updatePage={updatePage}
+                                        resetGame={resetGame}
+                                        pageAnimation={pageAnimation}
                                     />
                                     : null}
                                 {tutorialPage
@@ -685,6 +754,15 @@ const WordSearch = ({ setting, updateSetting }) => {
                             correctAudio={correctAudio}
                             submitAudio={submitAudio}
                             hintAudio={hintAudio}
+                            revealAnwser={revealAnwser}
+                            updateRevealAnwser={updateRevealAnwser}
+                            revealAudio={revealAudio}
+                            streakBonusPoint={setting.streakBonusPoint}
+                            pointMultiplier={setting.pointMultiplier}
+                            POINTS_PER_LETTER={POINTS_PER_LETTER}
+                            updateGuessAmount={updateGuessAmount}
+                            end = {setting.end}
+                            totalWordsFound = {setting.totalWordsFound}
                         />
                     </section>
                     <footer className="wordle__footer">
@@ -696,8 +774,18 @@ const WordSearch = ({ setting, updateSetting }) => {
 
                             <button
                                 className="wordle-footer__hints"
-                                onClick={(event) => { setting.enableAnwserReveal ? revealAnwser(event) : null }}
-                                data-active={setting.enableAnwserReveal}
+                                onClick={(event) => {
+                                    if (setting.enableAnwserReveal && !isButtonDisabled) {
+                                        event.target.blur()
+                                        setIsButtonDisabled(true);
+                                        updateRevealAnwser(true)
+
+                                        setTimeout(() => {
+                                            setIsButtonDisabled(false);
+                                        }, 750);
+                                    }
+                                }}
+                                data-active={setting.enableAnwserReveal && !isButtonDisabled}
                             >Reveal Answer</button>
 
                             <button

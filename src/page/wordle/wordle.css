@@ -275,7 +275,7 @@
 }
 
 .wordle-overly__endscreen-information .wordle__information-format {
-    margin-top: calc(var(--padding-size-small) / 1.10);
+    margin-top: calc(var(--padding-size-small) * 1.10);
     text-transform: none;
 }
 

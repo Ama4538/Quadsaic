@@ -12,23 +12,6 @@ A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, 
 - [License](#license)
 
 ## TODO
-- Audio for games
-- End of game summary (Highest points and current attempted)
-- Tutorial (How play)
-- JSON With all words
-
-- Word Search Enchanced
-    - Change Word Lengh
-        - Max - Min
-    - Grid Size changes
-        - {TBD}
-    - Change amount of words to find
-        - {TBD}
-    - Point/Score system (current attempt and highest attempt)
-        - Words Founded
-            - Points for length of word found
-    - Timer
-        - {TBD}
 - Sudoku Revamped
     - Grid Size changes
         - Change amount of numbers
@@ -58,7 +41,7 @@ A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, 
         - {TBD}
 
 ## Access
-Accessible from {REDACTED}
+Accessible from https://quadsaic.vercel.app
 
 ## Installation
 1. Clone the repository: git clone https://github.com/Ama4538/Quadsaic.git

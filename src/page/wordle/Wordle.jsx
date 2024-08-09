@@ -27,6 +27,7 @@ import submitSound from "/sound/submit.mp3"
 import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
+import { useCallback } from "react";
 
 // Constants
 const BASE_POINT = 125;
@@ -348,7 +349,7 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     // Reset the Game
-    const resetGame = (resetPoints = true, points = 0, featureUsed = "") => {
+    const resetGame = useCallback((resetPoints = true, points = 0, featureUsed = "") => {
         // Update row
         setCurrentRow(0);
 
@@ -398,7 +399,7 @@ const Wordle = ({ setting, updateSetting }) => {
                 end: resetPoints ? true : false,
             }
         ))
-    }
+    }, [updateSetting, setting.guessAmount, setting.letterCount, setting.completedWords, setting.currentWord, setting.currentScore, setting.totalRevealAnwserUsed, setting.currentStreak, setting.highestStreak, setting.streakBonusPoint, setting.pointMultiplier, setting.timerAmount])
 
     // Add letter to array to show all attempted inputs
     const addToInputLetter = (cell, lettersAttempt) => {
@@ -502,7 +503,7 @@ const Wordle = ({ setting, updateSetting }) => {
     }
 
     // Update the current overly page
-    const updatePage = (page, value) => {
+    const updatePage = useCallback((page, value) => {
         switch (page) {
             case "welcome":
                 setWelcomePage(value)
@@ -522,10 +523,10 @@ const Wordle = ({ setting, updateSetting }) => {
             default:
                 break;
         }
-    }
+    }, [setWelcomePage, setSettingPage, setTutorialPage, setEndPage, updateSetting, endAudio])
 
     // Setting dropdown menu update
-    const updateSelectedSettings = (property, value) => {
+    const updateSelectedSettings = useCallback((property, value) => {
         switch (property) {
             case "letterAmount":
                 setLetterAmount(value);
@@ -554,10 +555,15 @@ const Wordle = ({ setting, updateSetting }) => {
             default:
                 break;
         }
-    }
+    }, [setLetterAmount, setGuessAmount, setTimeAmount, setEnableHints, setEnableAnwserReveal, setEnableTimer, correctSound, setSoundAmount])
+
+    // Update the current time
+    const updateCurrentTime = useCallback((value) => {
+        setCurrentTime(value)
+    }, [setCurrentTime])
 
     // Apply setting changes
-    const applySetting = () => {
+    const applySetting = useCallback(() => {
         setSettingPage(false);
         resetGame();
         updateCurrentTime(timeAmount);
@@ -578,10 +584,10 @@ const Wordle = ({ setting, updateSetting }) => {
         if (endPage) {
             updatePage("end", false)
         }
-    }
+    }, [updatePage, endPage, updateSetting, updateCurrentTime, resetGame, setSettingPage])
 
     // Cancel setting change
-    const cancelSetting = () => {
+    const cancelSetting = useCallback(() => {
         setSettingPage(false);
         setEnableAnwserReveal(setting.enableAnwserReveal);
         setEnableHints(setting.enableHints);
@@ -591,15 +597,15 @@ const Wordle = ({ setting, updateSetting }) => {
         setGuessAmount(setting.guessAmount);
         setSoundAmount(setting.soundAmount);
         setPointMultiplier(setting.pointMultiplier)
-    }
+    }, [setSettingPage, setEnableAnwserReveal, setEnableHints, setEnableTimer, setTimeAmount, setLetterAmount, setGuessAmount, setPointMultiplier, setSoundAmount])
 
     // Update the current point multiplier
-    const updatePointMultiplier = (value) => {
+    const updatePointMultiplier = useCallback((value) => {
         setPointMultiplier(value);
-    }
+    }, [setPointMultiplier])
 
     // Update Message
-    const updateMessage = (message) => {
+    const updateMessage = useCallback((message) => {
         setMessage(message);
         setShowMessage(true);
 
@@ -611,12 +617,7 @@ const Wordle = ({ setting, updateSetting }) => {
         timeoutRef.current = setTimeout(() => {
             setShowMessage(false);
         }, 1000)
-    }
-
-    // Update the current time
-    const updateCurrentTime = (value) => {
-        setCurrentTime(value)
-    }
+    }, [setMessage, setShowMessage, timeoutRef])
 
     return (
         <PageTransition>

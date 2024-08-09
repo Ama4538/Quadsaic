@@ -157,9 +157,13 @@ body {
 }
 .wordsearch__wordlist ul {
     display: grid;
-    gap: calc(var(--padding-size-very-small));
+    gap: var(--padding-size-very-small);
+    column-gap: var(--padding-size-small);
+    padding: 0 var(--padding-size-very-small);
+    margin: 0 auto;
     align-items: center;
     height: 70dvh;
+    width: max-content;
     font-size: var(--font-size-small);
     list-style: none;
     overflow-y: auto;

@@ -27,14 +27,13 @@ const TutorialPage = ({
             <h3 className="wordle-overlay__title">How To Play</h3>
             <h4 className="wordle-overlay__subtitle">Game Play</h4>
             <ul className="wordle-tutorial__list">
-                <li>Guess the Word Within a Set Number of Attempts</li>
-                <li>Tile colors will change to indicate how close your guess is to the target word.</li>
-                <li>Hints will deduct points, and the number of available hints is related to the number of letters in each word.</li>
-                <li>Revealing the answer will display the solution and deduct a larger number of points from your current score.</li>
-                <li>When the timer runs out, the game will end. You can adjust the timer in the settings.</li>
-                <li>Streaks are achieved by guessing consecutive words correctly </li> 
-                <li>Bonus points are awarded based on your current streak. Using the reveal answer option will reset your streak.</li>
-                <li>Points are awarded for each correct letter in the correct spot. Total points are based on the selected difficulty level.</li>
+                <li><strong>Game: </strong>Guess the word within a set number of attempts. After each guess, the tile colors will change to indicate how close your guess is to the target word.</li>
+                <li><strong>Hints: </strong>Hints will deduct points, and the number of available hints is related to the number of letters in each word.</li>
+                <li><strong>Reveal Anwser: </strong>Revealing the answer will display the solution and deduct a larger number of points from your current score.</li>
+                <li><strong>Timer: </strong>When the timer runs out, the game will end. You can adjust the timer in the settings.</li>
+                <li><strong>Streaks: </strong>Streaks are achieved by guessing consecutive words correctly </li> 
+                <li><strong>Bonsu Points: </strong>Bonus points are awarded based on your current streak. Using the reveal answer option will reset your streak.</li>
+                <li><strong>Scoring: </strong>Points are awarded for each correct letter in the correct spot. Total points are based on the selected difficulty level.</li>
             </ul>
             <h4 className="wordle-overlay__subtitle">Examples</h4>
             {/* Examples */}

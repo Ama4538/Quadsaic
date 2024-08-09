@@ -23,7 +23,7 @@ const Home = () => {
         },
         {
             name: "Word Search",
-            description: " Eget felis eget nunc lobortis mattis aliquam. Sit amet facilisis magna etiam. Id leo in vitae turpis. Eu lobortis elementum nibh tellus molestie nunc non. Est velit egestas dui id ornare arcu odio ut. Morbi blandit cursus risus at ultrices mi tempus. At ultrices mi tempus imperdiet nulla malesuada pellentesque elit eget. Interdum velit laoreet id donec ultrices tincidunt. Feugiat pretium nibh ipsum consequat nisl vel. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada."
+            description: "Dive into our Word Search game where you challenge yourself to find words listed on the game board. Customize your play with adjustable timer durations and guess limits, and utilize the reveal answer feature to highlight a randomly selected word that hasn't been found yet, though it will cost you points and reset your streak. Build streaks by completing multiple game boards consecutively for bonus points, and enjoy a dynamic scoring system based on the number of letters in each founded words and the selected setting levels.",
         },
         {
             name: "Sudoku",

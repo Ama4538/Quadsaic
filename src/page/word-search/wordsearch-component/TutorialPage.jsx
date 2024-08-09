@@ -36,12 +36,13 @@ const TutorialPage = ({
             <h3 className="wordle-overlay__title">How To Play</h3>
             <h4 className="wordle-overlay__subtitle">Game Play</h4>
             <ul className="wordle-tutorial__list">
-                <li>Search for the words listed in the word list within the game board. Words can be found in all cardinal direction and diagonals.</li>
-                <li>Each word you find will be highlighted in a random color and crossed off the list.</li>
-                <li>When the timer runs out, the game will end. You can adjust the timer in the settings.</li>
-                <li>Streaks are achieved by completing multiple game boards consecutively.</li>
-                <li>Bonus points are awarded based on your current streak.</li>
-                <li>Points are awarded for each letter in the found word. Total points are based on the selected difficulty level.</li>
+                <li><strong>Game: </strong>Search for the words listed in the word list within the game board. Words can appear in any direction: horizontally, vertically, or diagonally.</li>
+                <li><strong>Words: </strong>As you find each word, it will be highlighted in a random color and crossed off the list.</li>
+                <li><strong>Timer: </strong>The game will end when the timer runs out. You can adjust the timer duration in the settings.</li>
+                <li><strong>Streak: </strong>Complete multiple game boards consecutively to build streaks. Bonus points are awarded based on your current streak.</li>
+                <li><strong>Reveal Answer: </strong>You can use the reveal answer feature to highlighting in red a randomly selected word that hasn't been found yet. However, using this feature will reduce your points and reset your streak..</li>
+                <li><strong>Guess Limit: </strong>The guess limit restricts the number of guesses you can make, based on the current word list. Each guess counts if you select three or more letters. You can adjust the guess limit in the settings.</li>
+                <li><strong>Scoring: </strong>Points are awarded based on the number of letters in each found word, and the total score depends on the selected difficulty level.</li>
             </ul>
             <h4 className="wordle-overlay__subtitle">Examples</h4>
             {/* Examples */}

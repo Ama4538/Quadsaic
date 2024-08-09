@@ -3,6 +3,11 @@ import { motion } from "framer-motion"
 import DropDown from "./../../../components/dropdown/DropDown"
 import useCheckClickOutside from "../../../components/hooks/useCheckClickOutside";
 
+// Setting drop menu option
+const possibleGridSize = [10, 15, 20, 25, 30];
+const possibleGuessAmountMultiplier = [0.25, 0.50, 0.75, 1, 1.25, 1.50, 1.75, 2];
+const possibleTimeAmount = [5, 10, 15, 20, 25, 30, 35]
+
 const SettingPage = ({
     updateSelectedSettings,
     gridSize,
@@ -25,11 +30,6 @@ const SettingPage = ({
     // ref used to close when not clicked inside
     const settingRef = useRef(null)
     useCheckClickOutside(settingRef, cancelSetting)
-
-    // Setting drop menu option
-    const possibleGridSize = [10, 15, 20, 25, 30];
-    const possibleGuessAmountMultiplier = [0.25, 0.50, 0.75, 1, 1.25, 1.50, 1.75, 2];
-    const possibleTimeAmount = [5, 10, 15, 20, 25, 30, 35]
 
     // // Auto adjust points based on settings
     useEffect(() => {
@@ -72,18 +72,18 @@ const SettingPage = ({
             const defaultTimerIncrease = 0.25;
             newPointMultipler = newPointMultipler + defaultTimerIncrease + timeAmountPointIncrease[timeAmount / 60];
         }
-        
+
         if (enableGuessLimit) {
             const defaultEnableGuessIncrease = 0.15;
             newPointMultipler = newPointMultipler + defaultEnableGuessIncrease + guessAmountMultiplierPointIncrease[guessAmountMultiplier];
         }
-        
+
         // Increase points if disable
         if (!enableAnwserReveal) {
             const defaultAnwerRevealIncrease = 0.05
             newPointMultipler = newPointMultipler + defaultAnwerRevealIncrease
         }
-        
+
         newPointMultipler = newPointMultipler + girdSizePointIncrease[gridSize];
         return newPointMultipler.toString().length < 4 ? newPointMultipler.toFixed(1) : newPointMultipler.toFixed(2);
     }
@@ -120,8 +120,8 @@ const SettingPage = ({
             </div>
             <div className="wordle-overlay__setting-module">
                 <div className="wordle-setting__text">
-                    <h4 className="wordle-setting__title">Number of Guesses</h4>
-                    <p className="wordle-setting__description">Adjust the number of guesses</p>
+                    <h4 className="wordle-setting__title">Guesses (Multiplier)</h4>
+                    <p className="wordle-setting__description">Adjust the number of allow guesses relative to word list</p>
                 </div>
                 <DropDown
                     content={possibleGuessAmountMultiplier}

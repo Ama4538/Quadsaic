@@ -5,36 +5,15 @@ import Loader from "../../page/loader/Loader";
 
 function App() {
     // Data loader state
-    const [dataLoaded, setDataLoaded] = useState(false);
-    
+    const [wordleDataLoaded, setWordleDataLoaded] = useState(false);
+    const [wordSearchDataLoaded, setWordSearchDataLoaded] = useState(false);
+
     // Settings
     const [wordleSetting, setWordleSetting] = useState({});
-    const [wordSearchSetting, setWordSearchSetting] = useState({
-        gameBoard: [],
-        gridSize: 10,
-        currentScore: 0,
-        highestScore: 0,
-        wordsFound: [],
-        wordsRequired: [],
-        totalWordsFound: 0,
-        streakBonusPoint: 0,
-        currentStreak: 0,
-        highestStreak: 0,
-        enableTimer: false,
-        timerAmount: 900,
-        enableAnwserReveal: true,
-        enableGuessLimit: false,
-        totalRevealAnwserUsed: 0,
-        guessAmountMultiplier: 1.50,
-        guessAmount: 0,
-        guessUsed: 0,
-        soundAmount: 0.50,
-        pointMultiplier: 1,
-        end: false,
-    })
+    const [wordSearchSetting, setWordSearchSetting] = useState({})
 
     // Vairables
-    
+
     const defaultWordleSetting = {
         currentWord: "",
         gameBoard: [],
@@ -60,8 +39,34 @@ function App() {
         streakBonusPoint: 0,
     }
 
+    const defaultWordSearchSetting = {
+        gameBoard: [],
+        gridSize: 15,
+        currentScore: 0,
+        highestScore: 0,
+        wordsFound: [],
+        wordsRequired: [],
+        totalWordsFound: 0,
+        streakBonusPoint: 0,
+        currentStreak: 0,
+        highestStreak: 0,
+        enableTimer: false,
+        timerAmount: 900,
+        enableAnwserReveal: true,
+        enableGuessLimit: false,
+        totalRevealAnwserUsed: 0,
+        guessAmountMultiplier: 1.50,
+        guessAmount: 0,
+        guessUsed: 0,
+        soundAmount: 0.50,
+        pointMultiplier: 1,
+        end: false,
+    }
+
+    // Get data from localStorage
     useEffect(() => {
         const wordleSettingStorage = localStorage.getItem("wordleSettingStorage");
+        const wordSearchSettingStorage = localStorage.getItem("wordSearchSettingStorage");
 
         // Checking and loading wordle setting data
         if (wordleSettingStorage !== null) {
@@ -71,7 +76,7 @@ function App() {
                 setWordleSetting(parseWordleSettingStorage);
 
                 // Update loaded state
-                setDataLoaded(true);
+                setWordleDataLoaded(true);
             } catch (error) {
                 console.error("Error parsing wordleSettingStorage:", error);
             }
@@ -79,17 +84,40 @@ function App() {
             // If no data exists in localStorage, initialize with default setting
             localStorage.setItem("wordleSettingStorage", JSON.stringify(defaultWordleSetting));
             setWordleSetting(defaultWordleSetting);
-            setDataLoaded(true);
+            setWordleDataLoaded(true);
         }
+
+        // Checking and loading word search setting data
+        if (wordSearchSettingStorage !== null) {
+            try {
+                const parseWordSearchSettingStorage = JSON.parse(wordSearchSettingStorage);
+                setWordSearchSetting(parseWordSearchSettingStorage);
+                setWordSearchDataLoaded(true);
+            } catch (error) {
+                console.error("Error parsing wordSearchSettingStorage:", error);
+            }
+        } else {
+            // If no data exists in localStorage, initialize with default setting
+            localStorage.setItem("wordSearchSettingStorage", JSON.stringify(defaultWordSearchSetting));
+            setWordSearchSetting(defaultWordSearchSetting); 
+            setWordSearchDataLoaded(true);
+        }
+
     }, []);
 
     // Update wordle setting in storage
     useEffect(() => {
-        if (dataLoaded) {
+        if (wordleDataLoaded) {
             localStorage.setItem("wordleSettingStorage", JSON.stringify(wordleSetting));
         }
-    }, [wordleSetting])
+    }, [wordleSetting, wordleDataLoaded])
 
+    // Update word search setting in storage
+    useEffect(() => {
+        if (wordSearchDataLoaded) {
+            localStorage.setItem("wordSearchSettingStorage", JSON.stringify(wordSearchSetting));
+        }
+    }, [wordSearchSetting, wordSearchDataLoaded])
 
     // Function to update settings
     const updateWordleSetting = (newSetting) => {
@@ -101,7 +129,7 @@ function App() {
     }
 
     return (
-        dataLoaded
+        wordSearchDataLoaded && wordleDataLoaded
             ? (
                 <BrowserRouter>
                     <AnimatedRoutes

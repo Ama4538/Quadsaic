@@ -26,15 +26,12 @@ import submitSound from "/sound/submit.mp3"
 import hintSound from "/sound/hint.mp3"
 import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
+import { useCallback } from "react";
 
 const POINTS_PER_LETTER = 3;
-const color = ["#664d00", "#6e2a0c", "#691312", "#5d0933", "#3e304c", "#1d424e", "#12403c", "#475200"];
+const color = ["#3d4e1f", "#145858", "#1d424e", "#786404", "#664d00", "#7a301b", "#5d0933", "#3e304c", "#12403c", "#475200"];
 
 const WordSearch = ({ setting, updateSetting }) => {
-    // useEffect(() => {
-    //     console.log(setting);
-    // }, [setting])
-
     // Default cell used to updated proporties
     const defaultCell = {
         content: 0,
@@ -133,7 +130,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             ))
             setInitializeGameBoard(true)
         }
-        
+
         // Check if game was refresh at end screen
         if (setting.end) {
             resetGame()
@@ -200,6 +197,14 @@ const WordSearch = ({ setting, updateSetting }) => {
         }
     }, [dataLoadingStatus, initializeGameBoard, setting.gridSize])
 
+    // Use a useEffect to reset the game after the settings have been updated
+    useEffect(() => {
+        if (settingsApplied) {
+            resetGame();
+            setSettingsApplied(false);
+        }
+    }, [settingsApplied]);
+
     // Point System
     useEffect(() => {
         // Update total popints based on streak multiplier from current streak
@@ -210,7 +215,22 @@ const WordSearch = ({ setting, updateSetting }) => {
 
     // Functions
 
-    const resetGame = (resetPoints = true, featureUsed = "") => {
+    // Update Message
+    const updateMessage = useCallback((message) => {
+        setMessage(message);
+        setShowMessage(true);
+
+        // Reset the timer if pressed again
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef)
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            setShowMessage(false);
+        }, 750)
+    }, [setMessage, setShowMessage, timeoutRef])
+
+    const resetGame = useCallback((resetPoints = true, featureUsed = "") => {
         const InitialGameBoard = Array(setting.gridSize).fill().map(() => Array(setting.gridSize).fill(defaultCell));
         const newWordsRequired = generateWordSet(setting.gridSize)
 
@@ -227,7 +247,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         }
 
         console.log("reset");
-        
+
 
         setTimeout(() => {
             updateSetting(prev => (
@@ -248,8 +268,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             ))
             setInitializeGameBoard(true)
         }, timeoutTime)
-
-    }
+    }, [setting.gridSize, setting.currentStreak, setting.highestStreak, updateMessage, updateSetting, setInitializeGameBoard])
 
     // Get the new required words
     const generateWordSet = (gridSize) => {
@@ -476,7 +495,7 @@ const WordSearch = ({ setting, updateSetting }) => {
     }
 
     // Update the current overly page
-    const updatePage = (page, value) => {
+    const updatePage = useCallback((page, value) => {
         switch (page) {
             case "welcome":
                 setWelcomePage(value)
@@ -500,10 +519,10 @@ const WordSearch = ({ setting, updateSetting }) => {
             default:
                 break;
         }
-    }
+    }, [setWelcomePage, setSettingPage, setTutorialPage, setEndPage, updateSetting, endAudio])
 
     // Setting dropdown menu update
-    const updateSelectedSettings = (property, value) => {
+    const updateSelectedSettings = useCallback((property, value) => {
         switch (property) {
             case "gridSize":
                 setGrid(value)
@@ -532,11 +551,15 @@ const WordSearch = ({ setting, updateSetting }) => {
             default:
                 break;
         }
+    }, [setGrid, setGuessAmountMultiplier, setTimeAmount, setEnableGuessLimit, setEnableAnwserReveal, setEnableTimer, setSoundAmount, correctSound])
 
-    }
+    // Update the current time
+    const updateCurrentTime = useCallback((value) => {
+        setCurrentTime(value)
+    }, [setCurrentTime])
 
     // Apply setting changes
-    const applySetting = () => {
+    const applySetting = useCallback(() => {
         setSettingPage(false);
         updateCurrentTime(timeAmount);
         updateSetting(prev => (
@@ -558,18 +581,11 @@ const WordSearch = ({ setting, updateSetting }) => {
         if (endPage) {
             updatePage("end", false)
         }
-    }
+    }, [setSettingPage, updateCurrentTime, updateSetting, setSettingsApplied, updatePage])
 
-    // Use a useEffect to reset the game after the settings have been updated
-    useEffect(() => {
-        if (settingsApplied) {
-            resetGame();  
-            setSettingsApplied(false);
-        }
-    }, [settingsApplied]);
 
     // Cancel setting change
-    const cancelSetting = () => {
+    const cancelSetting = useCallback(() => {
         setSettingPage(false);
         setEnableAnwserReveal(setting.enableAnwserReveal);
         setGrid(setting.gridSize);
@@ -579,40 +595,20 @@ const WordSearch = ({ setting, updateSetting }) => {
         setSoundAmount(setting.soundAmount);
         setEnableGuessLimit(setting.enableGuessLimit)
         setPointMultiplier(setting.pointMultiplier)
-    }
+    }, [setPointMultiplier, setEnableGuessLimit, setSoundAmount, setGuessAmountMultiplier, setTimeAmount, setEnableTimer, setSettingPage, setEnableAnwserReveal, setGrid])
 
     // Update the current point multiplier
-    const updatePointMultiplier = (value) => {
+    const updatePointMultiplier = useCallback((value) => {
         setPointMultiplier(value);
-    }
-
-    // Update Message
-    const updateMessage = (message) => {
-        setMessage(message);
-        setShowMessage(true);
-
-        // Reset the timer if pressed again
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef)
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            setShowMessage(false);
-        }, 750)
-    }
-
-    // Update the current time
-    const updateCurrentTime = (value) => {
-        setCurrentTime(value)
-    }
+    }, [setPointMultiplier])
 
     // Update reveal anwser status
-    const updateRevealAnwser = (value) => {
+    const updateRevealAnwser = useCallback((value) => {
         setRevealAnwser(value)
-    }
+    }, [setRevealAnwser])
 
     // handle guess amount
-    const updateGuessAmount = () => {
+    const updateGuessAmount = useCallback(() => {
         let newGuessAmount = setting.guessAmount - 1
 
         if (newGuessAmount <= 0 && enableGuessLimit) {
@@ -628,7 +624,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                 guessAmount: enableGuessLimit ? newGuessAmount : prev.guessAmount,
             }
         ))
-    }
+    }, [enableGuessLimit, updateSetting, updatePage, errorAudio])
 
     return (
         <PageTransition>
@@ -650,7 +646,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                                     ? <WelcomePage
                                         updatePage={updatePage}
                                         pageAnimation={pageAnimation}
-                                        hasGameInProgress={hasGameInProgress}
+                                        hasGameInProgress={false}
                                         amountOfWordsFound={(setting.wordsFound).length}
                                         amountOfWords={(setting.wordsRequired).length}
                                         resetGame={resetGame}
@@ -761,8 +757,8 @@ const WordSearch = ({ setting, updateSetting }) => {
                             pointMultiplier={setting.pointMultiplier}
                             POINTS_PER_LETTER={POINTS_PER_LETTER}
                             updateGuessAmount={updateGuessAmount}
-                            end = {setting.end}
-                            totalWordsFound = {setting.totalWordsFound}
+                            end={setting.end}
+                            totalWordsFound={setting.totalWordsFound}
                         />
                     </section>
                     <footer className="wordle__footer">

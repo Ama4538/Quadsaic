@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const colorReveal = "#D6A2AD"
+const colorReveal = "#691312"
 
 const GameBoard = ({
     color,
@@ -129,7 +129,8 @@ const GameBoard = ({
             cellRefs.current.forEach(cell => {
                 // check if cell exists
                 if (cell) {
-                    const newFontSize = cell.getBoundingClientRect().width * 0.70;
+                    const multiplier = gameBoard.length > 10 ? 0.70 : 0.60;
+                    const newFontSize = cell.getBoundingClientRect().width * multiplier;
                     cell.style.fontSize = `${newFontSize}px`;
                 }
             });

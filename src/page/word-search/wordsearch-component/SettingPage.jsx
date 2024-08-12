@@ -21,7 +21,8 @@ const SettingPage = ({
     applySetting,
     pointMultiplier,
     updatePointMultiplier,
-    pageAnimation
+    pageAnimation,
+    enableStagePage
 }) => {
 
     // Setting State
@@ -94,7 +95,6 @@ const SettingPage = ({
             setChangesMade(value)
         }
     }
-
 
     return (
         <motion.article
@@ -177,6 +177,23 @@ const SettingPage = ({
                     style={{ backgroundColor: enableTimer ? `#48552b` : "rgba(0, 0, 0, 0.25)" }}
                     onClick={() => {
                         updateSelectedSettings("enableTimer", !enableTimer)
+                        updateChangesMade(true)
+                    }}
+                >
+                    <span className="wordle-setting__switch"></span>
+                </button>
+            </div>
+            <div className="wordle-overlay__setting-module">
+                <div className="wordle-setting__text">
+                    <h4 className="wordle-setting__title">Show Completion Screen</h4>
+                    <p className="wordle-setting__description">Enable or disable the page shown after completing each board</p>
+                </div>
+                <button
+                    className="wordle-setting__button"
+                    data-active={enableStagePage}
+                    style={{ backgroundColor: enableStagePage ? `#48552b` : "rgba(0, 0, 0, 0.25)" }}
+                    onClick={() => {
+                        updateSelectedSettings("enableStagePage", !enableStagePage)
                         updateChangesMade(true)
                     }}
                 >

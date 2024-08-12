@@ -11,7 +11,6 @@ const GameBoard = ({
     points,
     resetGame,
     correctAudio,
-    submitAudio,
     revealAnwser,
     updateRevealAnwser,
     revealAudio,
@@ -21,6 +20,8 @@ const GameBoard = ({
     updateGuessAmount,
     end,
     totalWordsFound,
+    updateStagePage,
+    stageStreakBonus,
 }) => {
     // States
 
@@ -101,6 +102,7 @@ const GameBoard = ({
             
             // Streak bonus
             const newStreakBonus = pointsGained > 0 ? streakBonusPoint + (Math.round(points - (POINTS_PER_LETTER * pointMultiplier)) * (matchingWord.word).length): streakBonusPoint;
+            const newStageStreakBonus =  pointsGained > 0 ? stageStreakBonus + (Math.round(points - (POINTS_PER_LETTER * pointMultiplier)) * (matchingWord.word).length): stageStreakBonus;
             const newFoundWordLength = wordsFound.length < newWordsFound.length ? totalWordsFound + 1 : totalWordsFound;
 
             // Update data
@@ -111,13 +113,14 @@ const GameBoard = ({
                 wordsFound: end ? [] : newWordsFound,
                 totalWordsFound: end ? 0 : newFoundWordLength,
                 currentScore: end ? 0 : prev.currentScore + pointsGained,
+                stagePoint: end ? 0 : prev.stagePoint + pointsGained,
+                stageStreakBonus: newStageStreakBonus,
                 streakBonusPoint: newStreakBonus,
                 highestScore: prev.currentScore + pointsGained > prev.highestScore ? prev.currentScore + pointsGained : prev.highestScore,
             }))
 
             if (newWordsFound.length === list.length) {
-                submitAudio.play()
-                resetGame(false);
+                updateStagePage();
             }
         }
 
@@ -229,6 +232,7 @@ const GameBoard = ({
                 wordsFound: newWordsFound,
                 currentScore: prev.currentScore + PointsLost < 0 ? 0 : prev.currentScore + PointsLost,
                 totalRevealAnwserUsed: prev.totalRevealAnwserUsed + 1,
+                stageRevealUsed: prev.stageRevealUsed + 1,
             }))
 
             if (newWordsFound.length === list.length) {

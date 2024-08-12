@@ -11,6 +11,10 @@ function App() {
     // Settings
     const [wordleSetting, setWordleSetting] = useState({});
     const [wordSearchSetting, setWordSearchSetting] = useState({})
+    const [sudokuSetting, setSudokuSetting] = useState({
+        currentScore: 0,
+        highestScore: 0,
+    })
 
     // Vairables
 
@@ -61,6 +65,11 @@ function App() {
         soundAmount: 0.50,
         pointMultiplier: 1,
         end: false,
+        enableStagePage: true,
+        stagePoint: 0,
+        stageStreakBonus: 0,
+        stageRevealUsed: 0,
+        stageGuessUsed: 0,
     }
 
     // Get data from localStorage
@@ -99,7 +108,7 @@ function App() {
         } else {
             // If no data exists in localStorage, initialize with default setting
             localStorage.setItem("wordSearchSettingStorage", JSON.stringify(defaultWordSearchSetting));
-            setWordSearchSetting(defaultWordSearchSetting); 
+            setWordSearchSetting(defaultWordSearchSetting);
             setWordSearchDataLoaded(true);
         }
 
@@ -128,6 +137,10 @@ function App() {
         setWordSearchSetting(newSetting)
     }
 
+    const updateSudokuSetting = (newSetting) => {
+        setSudokuSetting(newSetting)
+    }
+
     return (
         wordSearchDataLoaded && wordleDataLoaded
             ? (
@@ -137,6 +150,8 @@ function App() {
                         updateWordleSetting={updateWordleSetting}
                         wordSearchSetting={wordSearchSetting}
                         updateWordSearchSetting={updateWordSearchSetting}
+                        sudokuSetting={sudokuSetting}
+                        updateSudokuSetting={updateSudokuSetting}
                     />
                 </BrowserRouter>
             ) : (

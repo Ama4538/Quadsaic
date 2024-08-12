@@ -11,6 +11,7 @@ import Timer from "../../components/timer/Timer";
 import TutorialPage from "./wordsearch-component/TutorialPage";
 import SettingPage from "./wordsearch-component/SettingPage";
 import EndScreen from "./wordsearch-component/EndScreen";
+import StagePage from "./wordsearch-component/StagePage";
 
 // Variables
 import WordSearchAnimation from "./wordsearch-component/WordSearchAnimation";
@@ -74,6 +75,7 @@ const WordSearch = ({ setting, updateSetting }) => {
     const [guessAmountMultiplier, setGuessAmountMultiplier] = useState(1);
     const [totalPoints, setTotalPoints] = useState(0);
     const [revealAnwser, setRevealAnwser] = useState(false);
+    const [enableStagePage, setEnableStagePage] = useState(false);
 
     // Overlay
     const {
@@ -82,10 +84,12 @@ const WordSearch = ({ setting, updateSetting }) => {
         settingPage,
         tutorialPage,
         endPage,
+        stagePage,
         setWelcomePage,
         setSettingPage,
         setTutorialPage,
         setEndPage,
+        setStagePage,
     } = useOverlayManagement();
 
     // Variable
@@ -152,6 +156,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             setEnableAnwserReveal(setting.enableAnwserReveal)
             setEnableGuessLimit(setting.enableGuessLimit)
             setGuessAmountMultiplier(setting.guessAmountMultiplier)
+            setEnableStagePage(setting.enableStagePage)
         }
 
         if (dataLoadingStatus && initializeGameBoard) {
@@ -230,7 +235,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         }, 750)
     }, [setMessage, setShowMessage, timeoutRef])
 
-    const resetGame = useCallback((resetPoints = true, featureUsed = "") => {
+    const resetGame = useCallback((resetPoints = true, featureUsed = "", stage = false) => {
         const InitialGameBoard = Array(setting.gridSize).fill().map(() => Array(setting.gridSize).fill(defaultCell));
         const newWordsRequired = generateWordSet(setting.gridSize)
 
@@ -241,13 +246,10 @@ const WordSearch = ({ setting, updateSetting }) => {
         let timeoutTime = 0;
 
         // Adding message
-        if (!resetPoints) {
+        if (!resetPoints && !stagePage) {
             updateMessage("Great job! You've found all the words!")
             timeoutTime = 750
         }
-
-        console.log("reset");
-
 
         setTimeout(() => {
             updateSetting(prev => (
@@ -263,6 +265,10 @@ const WordSearch = ({ setting, updateSetting }) => {
                     streakBonusPoint: resetPoints ? 0 : prev.streakBonusPoint,
                     guessUsed: resetPoints ? 0 : prev.guessUsed,
                     totalRevealAnwserUsed: resetPoints ? 0 : prev.totalRevealAnwserUsed,
+                    stagePoint: resetPoints || stage ? 0 : prev.stagePoint,
+                    stageStreakBonus: resetPoints || stage ? 0 : prev.stageStreakBonus,
+                    stageRevealUsed: resetPoints || stage ? 0 : prev.stageRevealUsed,
+                    stageGuessUsed: resetPoints || stage ? 0 : prev.stageGuessUsed,
                     end: false,
                 }
             ))
@@ -516,10 +522,13 @@ const WordSearch = ({ setting, updateSetting }) => {
                     end: true,
                 }))
                 break;
+            case "stage":
+                setStagePage(value);
+                break;
             default:
                 break;
         }
-    }, [setWelcomePage, setSettingPage, setTutorialPage, setEndPage, updateSetting, endAudio])
+    }, [setWelcomePage, setSettingPage, setTutorialPage, setEndPage, updateSetting, endAudio, setStagePage])
 
     // Setting dropdown menu update
     const updateSelectedSettings = useCallback((property, value) => {
@@ -548,10 +557,13 @@ const WordSearch = ({ setting, updateSetting }) => {
                 testAudio.play();
                 setSoundAmount(value)
                 break;
+            case "enableStagePage":
+                setEnableStagePage(value);
+                break;
             default:
                 break;
         }
-    }, [setGrid, setGuessAmountMultiplier, setTimeAmount, setEnableGuessLimit, setEnableAnwserReveal, setEnableTimer, setSoundAmount, correctSound])
+    }, [setGrid, setGuessAmountMultiplier, setTimeAmount, setEnableGuessLimit, setEnableAnwserReveal, setEnableTimer, setSoundAmount, correctSound, setEnableStagePage])
 
     // Update the current time
     const updateCurrentTime = useCallback((value) => {
@@ -573,7 +585,8 @@ const WordSearch = ({ setting, updateSetting }) => {
                 enableTimer: enableTimer,
                 soundAmount: soundAmount,
                 timerAmount: timeAmount,
-                pointMultiplier: pointMultiplier
+                pointMultiplier: pointMultiplier,
+                enableStagePage: enableStagePage,
             }
         ))
         setSettingsApplied(true);
@@ -595,7 +608,8 @@ const WordSearch = ({ setting, updateSetting }) => {
         setSoundAmount(setting.soundAmount);
         setEnableGuessLimit(setting.enableGuessLimit)
         setPointMultiplier(setting.pointMultiplier)
-    }, [setPointMultiplier, setEnableGuessLimit, setSoundAmount, setGuessAmountMultiplier, setTimeAmount, setEnableTimer, setSettingPage, setEnableAnwserReveal, setGrid])
+        setEnableStagePage(setting.enableStagePage)
+    }, [setPointMultiplier, setEnableGuessLimit, setSoundAmount, setGuessAmountMultiplier, setTimeAmount, setEnableTimer, setSettingPage, setEnableAnwserReveal, setGrid, setEnableStagePage])
 
     // Update the current point multiplier
     const updatePointMultiplier = useCallback((value) => {
@@ -621,10 +635,21 @@ const WordSearch = ({ setting, updateSetting }) => {
             {
                 ...prev,
                 guessUsed: prev.guessUsed + 1,
+                stageGuessUsed: prev.stageGuessUsed + 1,
                 guessAmount: enableGuessLimit ? newGuessAmount : prev.guessAmount,
             }
         ))
     }, [enableGuessLimit, updateSetting, updatePage, errorAudio])
+
+    // Show game page in between each baord
+    const updateStagePage = useCallback(() => {
+        if (setting.enableStagePage) {
+            setStagePage(true)
+        } else {
+            resetGame(false)
+            submitAudio.play()
+        }
+    }, [setStagePage, resetGame])
 
     return (
         <PageTransition>
@@ -642,11 +667,26 @@ const WordSearch = ({ setting, updateSetting }) => {
                         overlayStatus
                             ? <div className="wordle__overlay">
                                 {/* Generate the page when they are active */}
+                                {stagePage && !welcomePage
+                                    ? <StagePage
+                                        updatePage={updatePage}
+                                        pageAnimation={pageAnimation}
+                                        enableTimer={setting.enableTimer}
+                                        remainingTime={currentTime}
+                                        wordAmount={setting.wordsRequired.length}
+                                        resetGame={resetGame}
+                                        stagePoint = {setting.stagePoint}
+                                        stageStreakBonus = {setting.stageStreakBonus}
+                                        stageRevealUsed = {setting.stageRevealUsed}
+                                        stageGuessUsed = {setting.stageGuessUsed}
+                                        submitAudio = {submitAudio}
+                                    />
+                                    : null}
                                 {welcomePage
                                     ? <WelcomePage
                                         updatePage={updatePage}
                                         pageAnimation={pageAnimation}
-                                        hasGameInProgress={false}
+                                        hasGameInProgress={hasGameInProgress}
                                         amountOfWordsFound={(setting.wordsFound).length}
                                         amountOfWords={(setting.wordsRequired).length}
                                         resetGame={resetGame}
@@ -691,6 +731,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                                         pointMultiplier={pointMultiplier}
                                         updatePointMultiplier={updatePointMultiplier}
                                         pageAnimation={pageAnimation}
+                                        enableStagePage={enableStagePage}
                                     />
                                     : null}
                             </div>
@@ -747,8 +788,8 @@ const WordSearch = ({ setting, updateSetting }) => {
                             wordsFound={setting.wordsFound}
                             points={totalPoints}
                             resetGame={resetGame}
+                            updateStagePage={updateStagePage}
                             correctAudio={correctAudio}
-                            submitAudio={submitAudio}
                             hintAudio={hintAudio}
                             revealAnwser={revealAnwser}
                             updateRevealAnwser={updateRevealAnwser}
@@ -759,6 +800,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                             updateGuessAmount={updateGuessAmount}
                             end={setting.end}
                             totalWordsFound={setting.totalWordsFound}
+                            stageStreakBonus = {setting.stageStreakBonus}
                         />
                     </section>
                     <footer className="wordle__footer">
@@ -773,12 +815,15 @@ const WordSearch = ({ setting, updateSetting }) => {
                                 onClick={(event) => {
                                     if (setting.enableAnwserReveal && !isButtonDisabled) {
                                         event.target.blur()
-                                        setIsButtonDisabled(true);
                                         updateRevealAnwser(true)
 
-                                        setTimeout(() => {
-                                            setIsButtonDisabled(false);
-                                        }, 750);
+                                        if (setting.wordsFound.length === setting.wordsRequired.length - 1) {
+                                            setIsButtonDisabled(true)
+
+                                            setTimeout(() => {
+                                                setIsButtonDisabled(false);
+                                            }, 750);
+                                        }
                                     }
                                 }}
                                 data-active={setting.enableAnwserReveal && !isButtonDisabled}

@@ -3,6 +3,31 @@ import { motion } from "framer-motion"
 import DropDown from "./../../../components/dropdown/DropDown"
 import useCheckClickOutside from "../../../components/hooks/useCheckClickOutside";
 
+// All possible points adjustments
+const letterPointIncrease = {
+    4: -0.10,
+    5: 0,
+    6: 0.20,
+    7: 0.45
+}
+const guessPointIncrease = {
+    3: 0.50,
+    4: 0.25,
+    5: 0.10,
+    6: 0,
+    7: -0.05,
+    8: -0.10,
+    9: -0.15,
+    10: -0.20,
+}
+const timeAmountPointIncrease = {
+    1: 0.25,
+    2: 0.10,
+    3: 0,
+    5: -0.10,
+    7: -0.15,
+}
+
 const SettingPage = ({
     color,
     updateSelectedSettings,
@@ -40,30 +65,6 @@ const SettingPage = ({
     // Handle point multiplier
     const adjustedPointMultiplier = () => {
         let newPointMultipler = 1;
-        // All possible points adjustments
-        const letterPointIncrease = {
-            4: -0.10,
-            5: 0,
-            6: 0.20,
-            7: 0.45
-        }
-        const guessPointIncrease = {
-            3: 0.50,
-            4: 0.25,
-            5: 0.10,
-            6: 0,
-            7: -0.05,
-            8: -0.10,
-            9: -0.15,
-            10: -0.20,
-        }
-        const timeAmountPointIncrease = {
-            1: 0.25,
-            2: 0.10,
-            3: 0,
-            5: -0.10,
-            7: -0.15,
-        }
         // Increase points if enable
         if (enableTimer) {
             const defaultTimerIncrease = 0.25;
@@ -89,7 +90,6 @@ const SettingPage = ({
             setChangesMade(value)
         }
     }
-
 
     return (
         <motion.article
@@ -124,7 +124,7 @@ const SettingPage = ({
                     startingValue={guessAmount}
                     setSelected={updateSelectedSettings}
                     updateChangesMade={updateChangesMade}
-                    sort = {false}
+                    sort={false}
                 />
             </div>
             <div className="wordle-overlay__setting-module">

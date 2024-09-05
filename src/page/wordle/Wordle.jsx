@@ -29,6 +29,9 @@ import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 import { useCallback } from "react";
 
+
+// Variables
+
 // Constants
 const BASE_POINT = 125;
 
@@ -90,23 +93,23 @@ const Wordle = ({ setting, updateSetting }) => {
 
     // Variables
 
-    // Ref to timeout timer
-    const timeoutRef = useRef(null);
-
     // Audio
-    const orrectAudio = new Audio(correctSound);
+    const correctAudio = new Audio(correctSound);
     const errorAudio = new Audio(errorSound);
     const submitAudio = new Audio(submitSound);
     const hintAudio = new Audio(hintSound);
     const revealAudio = new Audio(revealSound);
     const endAudio = new Audio(endSound);
 
-    orrectAudio.volume = setting.soundAmount;
+    correctAudio.volume = setting.soundAmount;
     errorAudio.volume = setting.soundAmount;
     submitAudio.volume = setting.soundAmount;
     hintAudio.volume = setting.soundAmount;
     revealAudio.volume = setting.soundAmount;
     endAudio.volume = setting.soundAmount;
+
+    // Ref to timeout timer
+    const timeoutRef = useRef(null);
 
     // Animations
     const {
@@ -140,7 +143,7 @@ const Wordle = ({ setting, updateSetting }) => {
         } else {
             let gameEnd = true;
             for (let i = 0; i < setting.gameBoard.length; i++) {
-                // Check if the first cell in the row is unfilled (assuming 0 means unfilled)
+                // Check if the first row is unfilled (assuming 0 means unfilled)
                 if (setting.gameBoard[i].some(cell => cell.content === 0)) {
                     gameEnd = false;
                     setCurrentRow(i);
@@ -324,7 +327,7 @@ const Wordle = ({ setting, updateSetting }) => {
 
             // Wordle is a complete match
             if (matchCounter === currentWord.length) {
-                orrectAudio.play();
+                correctAudio.play();
                 updateMessage("The Word has been Found!")
                 setTimeout(() => {
                     resetGame(false, pointsGained)

@@ -809,7 +809,6 @@ const WordSearch = ({ setting, updateSetting }) => {
                             <button onClick={() => setTutorialPage(true)}></button>
                         </div>
                         <div className="wordle__footer-right">
-
                             <button
                                 className="wordle-footer__hints"
                                 onClick={(event) => {

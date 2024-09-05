@@ -1,4 +1,5 @@
 /* Format
+    - variable
     - Position / Position Format (Top = right - bot - left)
     - z index
     - Displat / Display Format
@@ -58,3 +59,46 @@ body {
     color: var(--primary-color);
 }
 
+/* Sudoku */
+.sudoku {
+    font-family: var(--secondary-font);
+}
+
+.sudoku__content {
+    display: flex;
+    justify-content: center;
+}
+
+/* GameBoard */
+.sudoku__gameboard {
+    --grid-size: 3;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    height: 81dvh;
+    aspect-ratio: 1 / 1;
+    border: solid 1px var(--primary-color);
+    cursor: pointer;       
+}
+
+.sudoku__gameboard-section {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    border-top: solid 1px rgba(0, 0, 0, 0.40);
+    border-left: solid 1px rgba(0, 0, 0, 0.40);
+}
+
+.top-border-none {
+    border-top: none;
+}
+
+.left-border-none {
+    border-left: none;
+}
+
+.sudoku__gameboard-cell {
+    display: grid;
+    place-items: center;
+    border: solid 1px rgba(0, 0, 0, 0.10);
+}

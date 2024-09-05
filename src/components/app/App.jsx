@@ -12,6 +12,8 @@ function App() {
     const [wordleSetting, setWordleSetting] = useState({});
     const [wordSearchSetting, setWordSearchSetting] = useState({})
     const [sudokuSetting, setSudokuSetting] = useState({
+        gameBoard: [],
+        gridSize: 25,
         currentScore: 0,
         highestScore: 0,
     })

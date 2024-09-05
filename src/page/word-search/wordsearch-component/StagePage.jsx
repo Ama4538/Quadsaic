@@ -1,4 +1,3 @@
-import { useRef } from "react"
 import { motion } from "framer-motion"
 
 const StagePage = ({
@@ -14,6 +13,7 @@ const StagePage = ({
     stageGuessUsed,
     submitAudio,
 }) => {
+    
     //format the time
     const formatTime = (time) => {
         const min = Math.floor(time / 60);

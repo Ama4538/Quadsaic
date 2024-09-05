@@ -8,6 +8,34 @@ const possibleGridSize = [10, 15, 20, 25, 30];
 const possibleGuessAmountMultiplier = [0.25, 0.50, 0.75, 1, 1.25, 1.50, 1.75, 2];
 const possibleTimeAmount = [5, 10, 15, 20, 25, 30, 35]
 
+// All possible points adjustments
+const girdSizePointIncrease = {
+    10: -0.05,
+    15: 0,
+    20: 0.10,
+    25: 0.175,
+    30: 0.25,
+}
+const guessAmountMultiplierPointIncrease = {
+    0.25: 0.40,
+    0.50: 0.20,
+    0.75: 0.15,
+    1: 0.10,
+    1.25: 0.075,
+    1.50: 0,
+    1.75: -0.075,
+    2: -0.12,
+}
+const timeAmountPointIncrease = {
+    5: 0.50,
+    10: 0.25,
+    15: 0.10,
+    20: 0,
+    25: -0.05,
+    30: -0.10,
+    35: -0.175,
+}
+
 const SettingPage = ({
     updateSelectedSettings,
     gridSize,
@@ -40,33 +68,6 @@ const SettingPage = ({
     // Handle point multiplier
     const adjustedPointMultiplier = () => {
         let newPointMultipler = 1;
-        // All possible points adjustments
-        const girdSizePointIncrease = {
-            10: -0.05,
-            15: 0,
-            20: 0.10,
-            25: 0.175,
-            30: 0.25,
-        }
-        const guessAmountMultiplierPointIncrease = {
-            0.25: 0.40,
-            0.50: 0.20,
-            0.75: 0.15,
-            1: 0.10,
-            1.25: 0.075,
-            1.50: 0,
-            1.75: -0.075,
-            2: -0.12,
-        }
-        const timeAmountPointIncrease = {
-            5: 0.50,
-            10: 0.25,
-            15: 0.10,
-            20: 0,
-            25: -0.05,
-            30: -0.10,
-            35: -0.175,
-        }
 
         // Increase points if enable
         if (enableTimer) {

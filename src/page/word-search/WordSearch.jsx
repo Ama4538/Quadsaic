@@ -29,6 +29,7 @@ import revealSound from "/sound/reveal.mp3"
 import endSound from "/sound/end.mp3"
 import { useCallback } from "react";
 
+// Constants
 const POINTS_PER_LETTER = 3;
 const color = ["#3d4e1f", "#145858", "#1d424e", "#786404", "#664d00", "#7a301b", "#5d0933", "#3e304c", "#12403c", "#475200"];
 
@@ -114,7 +115,6 @@ const WordSearch = ({ setting, updateSetting }) => {
 
     // Animations
     const {
-        animationController,
         pageAnimation
     } = WordSearchAnimation()
 
@@ -135,7 +135,7 @@ const WordSearch = ({ setting, updateSetting }) => {
             setInitializeGameBoard(true)
         }
 
-        // Check if game was refresh at end screen
+        // Check if game has ended
         if (setting.end) {
             resetGame()
         }
@@ -147,6 +147,7 @@ const WordSearch = ({ setting, updateSetting }) => {
     useEffect(() => {
         if (dataLoadingStatus) {
             setHasGameInProgress(setting.currentScore !== 0 || setting.currentStreak !== 0)
+            // Update Variables
             setGrid(setting.gridSize)
             setEnableTimer(setting.enableTimer)
             setTimeAmount(setting.timerAmount)
@@ -174,6 +175,7 @@ const WordSearch = ({ setting, updateSetting }) => {
                     wordsToRemove.push(newWordsRequired[i].word)
                 }
             }
+
             // Check if there is words to remove
             if (wordsToRemove.length !== 0) {
                 newWordsRequired = newWordsRequired.filter(element => !wordsToRemove.includes(element.word))
@@ -202,7 +204,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         }
     }, [dataLoadingStatus, initializeGameBoard, setting.gridSize])
 
-    // Use a useEffect to reset the game after the settings have been updated
+    // Reset the game after the settings have been updated
     useEffect(() => {
         if (settingsApplied) {
             resetGame();
@@ -235,6 +237,7 @@ const WordSearch = ({ setting, updateSetting }) => {
         }, 750)
     }, [setMessage, setShowMessage, timeoutRef])
 
+    // Reset the game
     const resetGame = useCallback((resetPoints = true, featureUsed = "", stage = false) => {
         const InitialGameBoard = Array(setting.gridSize).fill().map(() => Array(setting.gridSize).fill(defaultCell));
         const newWordsRequired = generateWordSet(setting.gridSize)
@@ -333,7 +336,7 @@ const WordSearch = ({ setting, updateSetting }) => {
 
         // Find random location and place the word
         do {
-            // Cannot place after 10 attempts
+            // Cannot place after 15 attempts
             if (attempts === 15) {
                 return false
             }

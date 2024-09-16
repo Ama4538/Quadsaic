@@ -50,18 +50,6 @@ const Nav = ({ location = null }) => {
                             to="/word-search"
                         >Word Search</Link>
                     </li>
-                    <li>
-                        <Link
-                            className="nav-menu__link"
-                            to="/sudoku"
-                        >Sudoku</Link>
-                    </li>
-                    <li>
-                        <Link
-                            className="nav-menu__link"
-                            to="/2048"
-                        >2048</Link>
-                    </li>
                 </ul>
             </section>
         </>

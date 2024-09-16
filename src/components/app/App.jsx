@@ -11,12 +11,6 @@ function App() {
     // Settings
     const [wordleSetting, setWordleSetting] = useState({});
     const [wordSearchSetting, setWordSearchSetting] = useState({})
-    const [sudokuSetting, setSudokuSetting] = useState({
-        gameBoard: [],
-        gridSize: 9,
-        currentScore: 0,
-        highestScore: 0,
-    })
 
     // Vairables
 
@@ -139,10 +133,6 @@ function App() {
         setWordSearchSetting(newSetting)
     }
 
-    const updateSudokuSetting = (newSetting) => {
-        setSudokuSetting(newSetting)
-    }
-
     return (
         wordSearchDataLoaded && wordleDataLoaded
             ? (
@@ -152,8 +142,6 @@ function App() {
                         updateWordleSetting={updateWordleSetting}
                         wordSearchSetting={wordSearchSetting}
                         updateWordSearchSetting={updateWordSearchSetting}
-                        sudokuSetting={sudokuSetting}
-                        updateSudokuSetting={updateSudokuSetting}
                     />
                 </BrowserRouter>
             ) : (

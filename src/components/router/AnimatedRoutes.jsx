@@ -6,19 +6,15 @@ import Home from "../../page/home/Home.jsx";
 import Wordle from "../../page/wordle/Wordle.jsx";
 import Error from "../../page/error/Error.jsx";
 import WordSearch from "../../page/word-search/WordSearch.jsx";
-import Sudoku from "../../page/sudoku/Sudoku.jsx";
 
 const AnimatedRoutes = ({ 
     wordleSetting, 
     updateWordleSetting,
     wordSearchSetting,
     updateWordSearchSetting,
-    sudokuSetting,
-    updateSudokuSetting,
 }) => {
     // Listens to url changes to play render
     const location = useLocation();
-
     return (
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.key}>
@@ -28,9 +24,6 @@ const AnimatedRoutes = ({
                 } />
                 <Route path="/word-search" element={
                     <WordSearch setting={wordSearchSetting} updateSetting={updateWordSearchSetting} />
-                } />
-                <Route path="/sudoku" element={
-                    <Sudoku setting={sudokuSetting} updateSetting={updateSudokuSetting} />
                 } />
 
                 <Route path="*" element={<Error />} />

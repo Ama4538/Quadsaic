@@ -1,7 +1,7 @@
 ![Default Screenshot](image/home-screenshot.png)
 
 # Quadsaic
-A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, and 2048. Each game is enhanced with unique customizations to provide a fresh and engaging experience while retaining the charm of the originals.
+A game hub featuring two popular games: Wordle and Word Search. Each game is enhanced with unique customizations to provide a fresh and engaging experience while retaining the charm of the originals.
 
 ## Table of Contents
 - [TODO](##TODO)
@@ -9,36 +9,8 @@ A versatile game hub featuring four popular games: Wordle, Word Search, Sudoku, 
 - [Installation](#installation)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
+- [Screenshots](#Screenshots)
 - [License](#license)
-
-## TODO
-- Sudoku Revamped
-    - Grid Size changes
-        - Change amount of numbers
-        - {TBD}
-    - Diffculty 
-        - Pre filled numbers
-    - Point/Score system (current attempt and highest attempt)
-        - Incomplete
-            - Points for each row/column complete
-        - Complete
-            - Points given for completing the Sudoku
-        - Diffculty
-            - Point increase based on diffculty
-    - Timer
-        - {TBD}
-    - Hints
-        -  Shown a number the in right spot (No Points Gained)
-        -  Error Checking (No Points Gained)
-- 2048 Augmented
-    - Grid Size changes
-        - {TBD}
-    - Point/Score system (current attempt and highest attempt)
-        - Complete
-            - Points given for combining
-            - Increase points for higher number 
-    - Timer
-        - {TBD}
 
 ## Access
 Accessible from https://quadsaic.vercel.app
@@ -50,11 +22,29 @@ Accessible from https://quadsaic.vercel.app
 4. Open on localHost: npm run preview
 
 ## Features
-
+- Wordle
+    - Customizable Settings: Adjust the number of letters, guesses, and timer duration to tailor the game to your preferences.
+    - Hints and Reveal Options: Choose to enable or disable hints, or reveal the answer at a cost.
+    - Dynamic Scoring: Points are awarded for each correct letter in the right spot, with a point multiplier that adjusts based on your selected settings.
+- Word Search
+    - Customizable Settings: Adjust timer durations, guess limits, and grid sizes to fit your play style.
+    - Reveal Answer Feature: Highlight a randomly selected word that hasn't been found yet. This will cost you points and reset your streak.
+    - Build Streaks: Complete multiple game boards consecutively to earn bonus points.
+- General
+    - Tutorial: All games come with a simple tutorial on how to play.
+    - Sound Effects: Enjoy immersive gameplay with adjustable sound effects.
+    - Responsiveness: Please note that the app is currently not responsive and is best viewed on desktop devices.
 
 ## Tech Stack
 - React
 - CSS
+
+## Screenshots
+![Selection Screenshot](image/home.png)
+![Wordle Screenshot](image/wordle.png)
+![Word Search Screenshot](image/word-search.png)
+![Setting Screenshot](image/settings.png)
+![Tutorial Screenshot](image/tutorial.png)
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.

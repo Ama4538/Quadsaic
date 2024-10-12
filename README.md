@@ -4,11 +4,11 @@
 A game hub featuring two popular games: Wordle and Word Search. Each game is enhanced with unique customizations to provide a fresh and engaging experience while retaining the charm of the originals.
 
 ## Table of Contents
-- [TODO](##TODO)
 - [Access](#Access)
 - [Installation](#installation)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
 - [Screenshots](#Screenshots)
 - [License](#license)
 
@@ -16,10 +16,22 @@ A game hub featuring two popular games: Wordle and Word Search. Each game is enh
 Accessible from https://quadsaic.vercel.app
 
 ## Installation
-1. Clone the repository: git clone https://github.com/Ama4538/Quadsaic.git
-2. Install dependencies: npm install
-3. Run built in script: npm run build
-4. Open on localHost: npm run preview
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/Ama4538/Quadsaic.git
+    cd PortfolioV3
+    ```
+2. **Install dependencies:**
+    ```bash
+    npm i
+    ```
+3. **Build and Start the server:**
+    ```bash
+    npm build
+    npm preview
+    ```
+4. **Access the application:**
+Open your browser and go to localhost
 
 ## Features
 - Wordle
@@ -38,6 +50,25 @@ Accessible from https://quadsaic.vercel.app
 ## Tech Stack
 - React
 - CSS
+- HTML
+- JS
+
+## Project Structure
+```
+├── public/                 # Static Files
+│   ├── game-image/         # Images for the homescreen
+│   ├── icons/              # All icons
+│   ├── Sound/              # All sounds
+├── src/                    # Source folder
+│   ├── component/          # Contains all react component
+│   ├── pages/              # Contains all pages made up from components
+│   ├── main.css            # Styling
+│   ├── main.jsx            # Entry point
+│   ├── words.json          # Data for all games
+├── index.html              # Starting html file
+├── .gitignore              # Git ignore file
+└── package.json            # Project metadata and dependencies
+```
 
 ## Screenshots
 ![Selection Screenshot](image/home.png)

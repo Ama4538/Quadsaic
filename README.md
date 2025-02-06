@@ -27,8 +27,8 @@ Accessible from https://quadsaic.vercel.app
     ```
 3. **Build and Start the server:**
     ```bash
-    npm build
-    npm preview
+    npm run build
+    npm run preview
     ```
 4. **Access the application:**
 Open your browser and go to localhost
